@@ -225,6 +225,7 @@ class OmnivaInternational extends CarrierModule
         }
 
         $this->registerTabs();
+        $this->createCategoriesSettings();
 
         return true;
     }
@@ -239,7 +240,7 @@ class OmnivaInternational extends CarrierModule
         return array(
             self::CONTROLLER_CATEGORIES => array(
                 'title' => $this->l('Omniva Category Settings'),
-                'parent_tab' => (int) Tab::getIdFromClassName('AdminParentShipping')
+                'parent_tab' => (int) Tab::getIdFromClassName('AdminCatalog')
             ),
         );
     }
@@ -521,6 +522,22 @@ class OmnivaInternational extends CarrierModule
 
     public function getOrderShippingCostExternal($params) {
         return true;
+    }
+
+    public function createCategoriesSettings()
+    {
+        $categories = Category::getSimpleCategories($this->context->language->id);
+        foreach($categories as $category)
+        {
+            $omnivaCategory = new OmnivaIntCategory();
+            $omnivaCategory->id_category = $category['id_category'];
+            $omnivaCategory->weight = 0;
+            $omnivaCategory->length = 0;
+            $omnivaCategory->width = 0;
+            $omnivaCategory->height = 0;
+            $omnivaCategory->active = 1;
+            $omnivaCategory->add();
+        }   
     }
 
     /**
