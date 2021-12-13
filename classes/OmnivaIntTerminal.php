@@ -4,15 +4,15 @@ class OmnivaIntTerminal extends ObjectModel
 {
     public $id;
 
-    public $code;
-
-    public $zip;
-
-    public $address;
+    public $name;
 
     public $city;
 
-    public $weight_limit;
+    public $country_code;
+
+    public $address;
+
+    public $zipcode;
 
     /**
      * @see ObjectModel::$definition
@@ -21,11 +21,11 @@ class OmnivaIntTerminal extends ObjectModel
         'table' => 'omniva_int_terminal',
         'primary' => 'id',
         'fields' => [
-                'code' =>             ['type' => self::TYPE_STRING, 'size' => 50],
-                'zip' =>              ['type' => self::TYPE_STRING, 'size' => 10],
-                'address' =>          ['type' => self::TYPE_STRING, 'size' => 255],
-                'city' =>             ['type' => self::TYPE_STRING, 'size' => 50],
-                'weight_limit' =>     ['type' => self::TYPE_INT, 'size' => 10],
+                'name' =>           ['type' => self::TYPE_STRING, 'size' => 255],
+                'city' =>           ['type' => self::TYPE_STRING, 'size' => 100],
+                'country_code' =>   ['type' => self::TYPE_STRING, 'size' => 3],
+                'address' =>        ['type' => self::TYPE_STRING, 'size' => 255],
+                'zipcode' =>        ['type' => self::TYPE_STRING, 'size' => 10],
             ],
         ];
 

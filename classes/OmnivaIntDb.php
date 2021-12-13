@@ -49,7 +49,7 @@ class OmnivaIntDb
     {
         foreach (self::TABLES as $table) {
             try {
-                $res_query = Db::getInstance()->execute("DROP TABLE IF EXISTS " . _DB_PREFIX_ . '_' . $table);
+                $res_query = Db::getInstance()->execute("DROP TABLE IF EXISTS " . _DB_PREFIX_ . $table);
             } catch (Exception $e) {
             }
         }
