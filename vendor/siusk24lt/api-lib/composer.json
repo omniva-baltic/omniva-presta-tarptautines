@@ -1,0 +1,16 @@
+{
+    "name": "siusk24lt/api-lib",
+    "description": "library for Siusk24LT api",
+    "type": "library",
+    "license": "#",
+    "minimum-stability": "stable",
+    "require": {
+      "ext-curl": "*",
+      "ext-json": "*"
+    },
+    "autoload": {
+      "psr-4": {
+        "Siusk24LT\\": "src/"
+      }
+    }
+}

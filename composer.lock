@@ -1,0 +1,56 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "5f9a34338862a687f99a142780c39887",
+    "packages": [
+        {
+            "name": "siusk24lt/api-lib",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:siusk24/Siusk24LT.git",
+                "reference": "35d5f889447842eb09690e95fa903afd13d3459f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/siusk24/Siusk24LT/zipball/35d5f889447842eb09690e95fa903afd13d3459f",
+                "reference": "35d5f889447842eb09690e95fa903afd13d3459f",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Siusk24LT\\": "src/"
+                }
+            },
+            "license": [
+                "#"
+            ],
+            "description": "library for Siusk24LT api",
+            "support": {
+                "source": "https://github.com/siusk24/Siusk24LT/tree/master",
+                "issues": "https://github.com/siusk24/Siusk24LT/issues"
+            },
+            "time": "2021-04-23T14:04:17+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "siusk24lt/api-lib": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.1.0"
+}

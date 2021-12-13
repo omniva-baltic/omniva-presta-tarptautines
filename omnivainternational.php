@@ -9,6 +9,7 @@ require_once __DIR__ . "/classes/OmnivaIntManifest.php";
 require_once __DIR__ . "/classes/OmnivaIntService.php";
 require_once __DIR__ . "/classes/OmnivaIntShipment.php";
 require_once __DIR__ . "/classes/OmnivaIntTerminal.php";
+require_once __DIR__ . "/vendor/autoload.php";
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -43,12 +44,7 @@ class OmnivaInternational extends CarrierModule
      */
     public $_configKeys = array(
         'API' => array(
-            'username' => 'MJVP_API_USER',
-            'password' => 'MJVP_API_PASS',
-            'id' => 'MJVP_API_ID',
-            'live_mode' => 'MJVP_API_LIVE_MODE',
-            'live_api_server' => 'MJVP_LIVE_API_SERVER',
-            'test_api_server' => 'MJVP_TEST_API_SERVER',
+            'token' => 'OMNIVA_TOKEN',
         ),
         'SHOP' => array(
             'sender_name' => 'MJVP_SENDER_NAME',
@@ -603,69 +599,13 @@ class OmnivaInternational extends CarrierModule
 
         $section_id = 'API';
 
-        $switcher_values = array(
-            array(
-                'id' => 'active_on',
-                'value' => 1,
-                'label' => $this->l('Yes')
-            ),
-            array(
-                'id' => 'active_off',
-                'value' => 0,
-                'label' => $this->l('No')
-            )
-        );
-
         $form_fields = array(
             array(
                 'type' => 'text',
-                'label' => $this->l('API username'),
-                'name' => $cModuleConfig->getConfigKey('username', $section_id),
+                'label' => $this->l('API Token'),
+                'name' => $cModuleConfig->getConfigKey('token', $section_id),
                 'size' => 20,
                 'required' => true
-            ),
-            array(
-                'type' => 'text',
-                'label' => $this->l('API password'),
-                'name' => $cModuleConfig->getConfigKey('password', $section_id),
-                'size' => 20,
-                'required' => true
-            ),
-            array(
-                'type' => 'text',
-                'label' => $this->l('API ID'),
-                'name' => $cModuleConfig->getConfigKey('id', $section_id),
-                'size' => 20,
-                'required' => true
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Live mode'),
-                'name' => $cModuleConfig->getConfigKey('live_mode', $section_id),
-                'desc' => $this->l('Use this mode if you have Live API credentials. If you have test credentials, disable this option.'),
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'text',
-                'label' => $this->l('Live API Server'),
-                'name' => $cModuleConfig->getConfigKey('live_api_server', $section_id),
-                'desc' => [
-                    [
-                        'text' => $this->l('Do not edit this field, unless Venipak has changed their Live API server URL!'),
-                        'id' => 'live-endpoint-desc',
-                    ]
-                ]
-            ),
-            array(
-                'type' => 'text',
-                'label' => $this->l('Test API Server'),
-                'name' => $cModuleConfig->getConfigKey('test_api_server', $section_id),
-                'desc' => [
-                    [
-                        'text' => $this->l('Do not edit this field, unless Venipak has changed their Test API server URL!'),
-                        'id' => 'test-endpoint-desc',
-                    ]
-                ]
             ),
         );
 

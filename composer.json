@@ -1,0 +1,11 @@
+{
+    "require": {
+        "siusk24lt/api-lib": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:siusk24/Siusk24LT.git"
+        }
+    ]
+}
