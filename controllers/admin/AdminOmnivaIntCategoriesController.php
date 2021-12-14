@@ -24,10 +24,13 @@ class AdminOmnivaIntCategoriesController extends ModuleAdminController
             cl.name as name, cl2.name as parent";
 
         $this->_join = '
-            LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (cl.`id_category` = a.`id_category`)
-            LEFT JOIN `' . _DB_PREFIX_ . 'category` c ON (c.`id_category` = a.`id_category`)
-            LEFT JOIN `' . _DB_PREFIX_ . 'category_lang` cl2 ON (cl2.`id_category` = c.`id_parent`)
+            INNER JOIN `' . _DB_PREFIX_ . 'category_lang` cl ON (cl.`id_category` = a.`id_category`)
+            INNER JOIN `' . _DB_PREFIX_ . 'category` c ON (c.`id_category` = a.`id_category`)
+            INNER JOIN `' . _DB_PREFIX_ . 'category_lang` cl2 ON (cl2.`id_category` = c.`id_parent`)
     ';
+
+        $this->_where = ' AND cl.id_lang = ' . $this->context->language->id . 
+                        ' AND cl2.id_lang = ' . $this->context->language->id;
     }
 
     public function init()

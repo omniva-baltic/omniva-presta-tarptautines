@@ -24,6 +24,8 @@ class OmnivaInternational extends CarrierModule
 {
     const CONTROLLER_CATEGORIES = 'AdminOmnivaIntCategories';
 
+    const CONTROLLER_TERMINALS = 'AdminOmnivaIntTerminals';
+
     /**
      * List of hooks
      */
@@ -45,6 +47,7 @@ class OmnivaInternational extends CarrierModule
     public $_configKeys = array(
         'API' => array(
             'token' => 'OMNIVA_TOKEN',
+            'test_mode' => 'OMNIVA_INT_TEST_MODE'
         ),
         'SHOP' => array(
             'sender_name' => 'MJVP_SENDER_NAME',
@@ -100,33 +103,10 @@ class OmnivaInternational extends CarrierModule
      */
     private function getConfigField($section_id, $config_key)
     {
-        $cModuleConfig = new MjvpModuleConfig();
-
         if ($section_id == 'SHOP') {
             if($config_key == 'sender_address')
                 return array('name' => str_replace('_', ' ', $config_key), 'required' => false);
             return array('name' => str_replace('_', ' ', $config_key), 'required' => true);
-        }
-
-        if ($section_id == 'LABEL') {
-            if ($config_key == $cModuleConfig->getConfigKey('label_counter', $section_id)) {
-                return array(
-                    'name' => $this->l('Last pack number'),
-                    'required' => false,
-                    'type' => 'number',
-                    'min' => Configuration::get($config_key),
-                    'max' => 9999999,
-                );
-            }
-        }
-
-        if ($section_id == 'ADVANCED') {
-            if ($config_key == $cModuleConfig->getConfigKey('carrier_disable_passphrase', $section_id)) {
-                return array(
-                    'name' => $this->l('Carrier disable passphrase'),
-                    'validate' => 'isGenericName',
-                );
-            }
         }
 
         return array('name' => 'ERROR_' . $config_key, 'required' => false);
@@ -223,6 +203,11 @@ class OmnivaInternational extends CarrierModule
         $this->registerTabs();
         $this->createCategoriesSettings();
 
+        if(!Configuration::get('OMNIVA_CRON_TOKEN'))
+        {
+            Configuration::updateValue('OMNIVA_CRON_TOKEN', md5(time()));
+        }
+
         return true;
     }
 
@@ -237,6 +222,10 @@ class OmnivaInternational extends CarrierModule
             self::CONTROLLER_CATEGORIES => array(
                 'title' => $this->l('Omniva Category Settings'),
                 'parent_tab' => (int) Tab::getIdFromClassName('AdminCatalog')
+            ),
+            self::CONTROLLER_TERMINALS => array(
+                'title' => $this->l('Omniva Terminals'),
+                'parent_tab' => (int) Tab::getIdFromClassName('AdminParentShipping')
             ),
         );
     }
@@ -595,17 +584,36 @@ class OmnivaInternational extends CarrierModule
      */
     public function displayConfigApi()
     {
-        $cModuleConfig = new MjvpModuleConfig();
-
+        
         $section_id = 'API';
+
+        $switcher_values = array(
+            array(
+                'id' => 'active_on',
+                'value' => 1,
+                'label' => $this->l('Yes')
+            ),
+            array(
+                'id' => 'active_off',
+                'value' => 0,
+                'label' => $this->l('No')
+            )
+        );
 
         $form_fields = array(
             array(
                 'type' => 'text',
                 'label' => $this->l('API Token'),
-                'name' => $cModuleConfig->getConfigKey('token', $section_id),
+                'name' => $this->getConfigKey('token', $section_id),
                 'size' => 20,
                 'required' => true
+            ),
+            array(
+                'type' => 'switch',
+                'label' => $this->l('Test Mode'),
+                'name' => $this->getConfigKey('test_mode', $section_id),
+                'desc' => $this->l('Use test mode if you have test token to test your integration.'),
+                'values' => $switcher_values
             ),
         );
 
@@ -617,8 +625,6 @@ class OmnivaInternational extends CarrierModule
      */
     public function displayConfigCourier()
     {
-        $cModuleConfig = new MjvpModuleConfig();
-
         $section_id = 'COURIER';
 
         $switcher_values = array(
@@ -638,42 +644,42 @@ class OmnivaInternational extends CarrierModule
             array(
                 'type' => 'switch',
                 'label' => $this->l('Door code'),
-                'name' => $cModuleConfig->getConfigKey('door_code', $section_id),
+                'name' => $this->getConfigKey('door_code', $section_id),
                 'desc' => $this->l('Add input for customers to enter their door code, when selected courier.'),
                 'values' => $switcher_values
             ),
             array(
                 'type' => 'switch',
                 'label' => $this->l('Cabinet number'),
-                'name' => $cModuleConfig->getConfigKey('cabinet_number', $section_id),
+                'name' => $this->getConfigKey('cabinet_number', $section_id),
                 'desc' => $this->l('Allow customers to input cabinet number.'),
                 'values' => $switcher_values
             ),
             array(
                 'type' => 'switch',
                 'label' => $this->l('Warehouse number'),
-                'name' => $cModuleConfig->getConfigKey('warehouse_number', $section_id),
+                'name' => $this->getConfigKey('warehouse_number', $section_id),
                 'desc' => $this->l('Allow customers to select warehouse.'),
                 'values' => $switcher_values
             ),
             array(
                 'type' => 'switch',
                 'label' => $this->l('Enable carrier call before delivery'),
-                'name' => $cModuleConfig->getConfigKey('call_before_delivery', $section_id),
+                'name' => $this->getConfigKey('call_before_delivery', $section_id),
                 'desc' => $this->l('Enable this option, if you want courier to call a consignee before shipment delivery'),
                 'values' => $switcher_values
             ),
             array(
                 'type' => 'switch',
                 'label' => $this->l('Enable return service'),
-                'name' => $cModuleConfig->getConfigKey('return_service', $section_id),
+                'name' => $this->getConfigKey('return_service', $section_id),
                 'desc' => $this->l('Enable this option, if you want to enable return service for shipments.'),
                 'values' => $switcher_values
             ),
             array(
                 'type' => 'text',
                 'label' => $this->l('Return days'),
-                'name' => $cModuleConfig->getConfigKey('return_days', $section_id),
+                'name' => $this->getConfigKey('return_days', $section_id),
                 'class' => 'input fixed-width-xl',
                 'maxlength' => 3,
                 'form_group_class' => 'return-days hide',
@@ -681,7 +687,7 @@ class OmnivaInternational extends CarrierModule
             array(
                 'type' => 'switch',
                 'label' => $this->l('Enable delivery time selection'),
-                'name' => $cModuleConfig->getConfigKey('delivery_time', $section_id),
+                'name' => $this->getConfigKey('delivery_time', $section_id),
                 'desc' => $this->l('Allow customers to select delivery time.'),
                 'values' => $switcher_values
             ),
@@ -740,8 +746,6 @@ class OmnivaInternational extends CarrierModule
                     $prefix = '_ON';
 
                 $value = Configuration::get($key);
-                if($key == $this->_configKeys['COURIER']['return_days'] && !$value)
-                    $value = self::RETURN_DAYS_DEFAULT;
                 $helper->fields_value[$key . $prefix] = $value;
             }
         }
@@ -754,27 +758,17 @@ class OmnivaInternational extends CarrierModule
      */
     public function saveConfig($section_id, $success_message = '')
     {
-        $errors = $this->validateConfig($section_id);
         $output = null;
+        foreach ($this->_configKeys[strtoupper($section_id)] as $key) {
+            $value = Tools::getValue($key);
 
-        if (!empty($errors)) {
-            $output .= $this->displayError($errors);
-        } else {
-            foreach ($this->_configKeys[strtoupper($section_id)] as $key) {
-
-                if(strpos($key, 'MJVP_COURIER_DELIVERY_TIME_') !== false)
-                    $value = Tools::getValue($key . '_ON');
-                else
-                    $value = Tools::getValue($key);
-
-                if (is_array($value)) {
-                    $value = implode(';', $value);
-                }
-                Configuration::updateValue($key, strval($value));
+            if (is_array($value)) {
+                $value = implode(';', $value);
             }
-            $success_message = (!empty($success_message)) ? $success_message : $this->l('Settings updated');
-            $output .= $this->displayConfirmation($success_message);
+            Configuration::updateValue($key, strval($value));
         }
+        $success_message = (!empty($success_message)) ? $success_message : $this->l('Settings updated');
+        $output .= $this->displayConfirmation($success_message);
 
         return $output;
     }
@@ -784,8 +778,6 @@ class OmnivaInternational extends CarrierModule
      */
     protected function validateConfig($section_id)
     {
-        $cModuleConfig = new MjvpModuleConfig();
-
         $section_id = strtoupper($section_id);
 
         $errors = array();
@@ -1036,4 +1028,13 @@ class OmnivaInternational extends CarrierModule
         ];
         $this->hookActionValidateStepComplete($data);
     }
+
+        /**
+     * Get config key from all keys list
+     */
+    public function getConfigKey($key_name, $section = '')
+    {
+        return $this->_configKeys[$section][$key_name] ?? '';
+    }
+
 }
