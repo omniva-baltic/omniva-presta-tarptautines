@@ -27,7 +27,9 @@ class OmnivaIntService extends ObjectModel
         'table' => 'omniva_int_service',
         'primary' => 'id',
         'fields' => [
-                'code' =>             ['type' => self::TYPE_STRING, 'size' => 20],
+                'name' =>             ['type' => self::TYPE_STRING, 'size' => 100],
+                'service_code' =>     ['type' => self::TYPE_STRING, 'size' => 20],
+                'image' =>            ['type' => self::TYPE_STRING, 'size' => 255],
                 'insurance' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'return' =>           ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'carry_service' =>    ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],

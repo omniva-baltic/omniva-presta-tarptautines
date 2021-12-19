@@ -149,8 +149,8 @@ class API
 
   public function listAllServices()
   {
-    $response = $this->callAPI($this->url . 'services');
-
+    $response = $this->callAPI($this->url . 'services/');
+    
     return $response->services;
   }
 

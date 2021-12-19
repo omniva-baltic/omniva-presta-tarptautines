@@ -22,9 +22,17 @@ if (file_exists($autoloadPath)) {
 
 class OmnivaInternational extends CarrierModule
 {
+    const CONTROLLER_OMNIVA_MAIN = 'AdminOmnivaIntMain';
+
+    const CONTROLLER_OMNIVA_SETTINGS = 'AdminOmnivaIntSettings';
+
+    const CONTROLLER_OMNIVA_CARRIERS = 'AdminOmnivaIntCarriers';
+
     const CONTROLLER_CATEGORIES = 'AdminOmnivaIntCategories';
 
     const CONTROLLER_TERMINALS = 'AdminOmnivaIntTerminals';
+
+    const CONTROLLER_OMNIVA_SERVICES = 'AdminOmnivaIntServices';
 
     /**
      * List of hooks
@@ -39,6 +47,8 @@ class OmnivaInternational extends CarrierModule
         'actionAdminControllerSetMedia',
         'displayAdminListBefore',
         'actionCarrierProcess',
+        'displayAdminOmnivaIntServicesListBefore',
+        'displayAdminOmnivaIntTerminalsListBefore'
     );
 
     /**
@@ -153,6 +163,7 @@ class OmnivaInternational extends CarrierModule
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.6.0', 'max' => '1.7.8');
         $this->bootstrap = true;
+        $this->helper = new OmnivaIntHelper();
 
         parent::__construct();
 
@@ -219,13 +230,29 @@ class OmnivaInternational extends CarrierModule
     private function getModuleTabs()
     {
         return array(
+            self::CONTROLLER_OMNIVA_MAIN => array(
+                'title' => $this->l('Omniva Main'),
+                'parent_tab' => 'AdminParentModulesSf',
+            ),
+            self::CONTROLLER_OMNIVA_SETTINGS => array(
+                'title' => $this->l('Settings'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
+            ),
+            self::CONTROLLER_OMNIVA_CARRIERS => array(
+                'title' => $this->l('Carriers'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
+            ),
+            self::CONTROLLER_OMNIVA_SERVICES => array(
+                'title' => $this->l('Services'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
+            ),
             self::CONTROLLER_CATEGORIES => array(
                 'title' => $this->l('Omniva Category Settings'),
-                'parent_tab' => (int) Tab::getIdFromClassName('AdminCatalog')
+                'parent_tab' => 'AdminCatalog',
             ),
             self::CONTROLLER_TERMINALS => array(
                 'title' => $this->l('Omniva Terminals'),
-                'parent_tab' => (int) Tab::getIdFromClassName('AdminParentShipping')
+                'parent_tab' => 'AdminParentShipping',
             ),
         );
     }
@@ -252,7 +279,7 @@ class OmnivaInternational extends CarrierModule
                 $tab->name[$language['id_lang']] = $tabData['title'];
             }
 
-            $tab->id_parent = $tabData['parent_tab'];
+            $tab->id_parent = Tab::getIdFromClassName($tabData['parent_tab']);
             $tab->module = $this->name;
             if (!$tab->save()) {
                 $this->displayError($this->l('Error while creating tab ') . $tabData['title']);
@@ -530,33 +557,7 @@ class OmnivaInternational extends CarrierModule
      */
     public function getContent()
     {
-        $output = null;
-
-        if (Tools::isSubmit('submit' . $this->name . 'api')) {
-            $output .= $this->saveConfig('API', $this->l('API settings updated'));
-        }
-        if (Tools::isSubmit('submit' . $this->name . 'shop')) {
-            $output .= $this->saveConfig('SHOP', $this->l('Shop settings updated'));
-        }
-        if (Tools::isSubmit('submit' . $this->name . 'pickuppoints')) {
-            $output .= $this->saveConfig('PICKUPPOINTS', $this->l('Pickup points settings updated'));
-        }
-        if (Tools::isSubmit('submit' . $this->name . 'courier')) {
-            $output .= $this->saveConfig('COURIER', $this->l('Courier settings updated'));
-        }
-        if (Tools::isSubmit('submit' . $this->name . 'label')) {
-            $output .= $this->saveConfig('LABEL', $this->l('Labels settings updated'));
-        }
-        if (Tools::isSubmit('submit' . $this->name . 'advanced')) {
-            $output .= $this->saveConfig('ADVANCED', $this->l('Advanced settings updated'));
-        }
-
-        return $output
-            . $this->displayConfigApi()
-            // . $this->displayConfigShop()
-            . $this->displayConfigCourier();
-            // . $this->displayConfigLabel()
-            // . $this->displayConfigAdvancedSettings();
+        Tools::redirectAdmin($this->context->link->getAdminLink(self::CONTROLLER_OMNIVA_SETTINGS));
     }
 
     /**
@@ -618,82 +619,6 @@ class OmnivaInternational extends CarrierModule
         );
 
         return $this->displayConfig($section_id, $this->l('API Settings'), $form_fields, $this->l('Save API settings'));
-    }
-
-    /**
-     * Display Courier section in module configuration
-     */
-    public function displayConfigCourier()
-    {
-        $section_id = 'COURIER';
-
-        $switcher_values = array(
-            array(
-                'id' => 'active_on',
-                'value' => 1,
-                'label' => $this->l('Yes')
-            ),
-            array(
-                'id' => 'active_off',
-                'value' => 0,
-                'label' => $this->l('No')
-            )
-        );
-
-        $form_fields = array(
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Door code'),
-                'name' => $this->getConfigKey('door_code', $section_id),
-                'desc' => $this->l('Add input for customers to enter their door code, when selected courier.'),
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Cabinet number'),
-                'name' => $this->getConfigKey('cabinet_number', $section_id),
-                'desc' => $this->l('Allow customers to input cabinet number.'),
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Warehouse number'),
-                'name' => $this->getConfigKey('warehouse_number', $section_id),
-                'desc' => $this->l('Allow customers to select warehouse.'),
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Enable carrier call before delivery'),
-                'name' => $this->getConfigKey('call_before_delivery', $section_id),
-                'desc' => $this->l('Enable this option, if you want courier to call a consignee before shipment delivery'),
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Enable return service'),
-                'name' => $this->getConfigKey('return_service', $section_id),
-                'desc' => $this->l('Enable this option, if you want to enable return service for shipments.'),
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'text',
-                'label' => $this->l('Return days'),
-                'name' => $this->getConfigKey('return_days', $section_id),
-                'class' => 'input fixed-width-xl',
-                'maxlength' => 3,
-                'form_group_class' => 'return-days hide',
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Enable delivery time selection'),
-                'name' => $this->getConfigKey('delivery_time', $section_id),
-                'desc' => $this->l('Allow customers to select delivery time.'),
-                'values' => $switcher_values
-            ),
-        );
-
-        return $this->displayConfig($section_id, $this->l('Courier Settings'), $form_fields, $this->l('Save courier settings'));
     }
 
     /**
@@ -1037,4 +962,24 @@ class OmnivaInternational extends CarrierModule
         return $this->_configKeys[$section][$key_name] ?? '';
     }
 
+    public function hookDisplayAdminOmnivaIntServicesListBefore($params)
+    {
+        $link = $this->context->link->getModuleLink($this->name, 'cron', ['type' => 'services', 'token' => Configuration::get('OMNIVA_CRON_TOKEN')]);
+        $content = $this->l("To udate services periodically, add this CRON job to your cron table: ");
+
+        // Something not-translatable, usually a link..
+        $sugar = "<a href='$link' target='_blank'>$link</a>";
+
+        return $this->helper->displayAlert($content, $sugar);
+    }
+
+    public function hookDisplayAdminOmnivaIntTerminalsListBefore($params)
+    {
+        $link = $this->context->link->getModuleLink($this->name, 'cron', ['type' => 'terminals', 'token' => Configuration::get('OMNIVA_CRON_TOKEN')]);
+        $content = $this->l("To udate terminals periodically, add this CRON job to your cron table: ");
+
+        $sugar = "<a href='$link' target='_blank'>$link</a>";
+
+        return $this->helper->displayAlert($content, $sugar);
+    }
 }

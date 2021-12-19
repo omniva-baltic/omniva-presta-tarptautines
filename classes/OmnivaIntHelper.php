@@ -61,4 +61,17 @@ class OmnivaIntHelper
         $logger->setFilename(MijoraVenipak::$_moduleDir . "logs/" . $file_name . '.log');
         $logger->logDebug(print_r($message,true));
     }
+
+    public function displayAlert($content, $sugar, $type = 'info')
+    {
+        $context = Context::getContext();
+        $context->smarty->assign(
+            [
+                'content' => $content,
+                'sugar' => $sugar,
+                'type' => $type,
+            ]
+        );
+        return $context->smarty->fetch("module:omnivainternational/views/templates/admin/alert.tpl");
+    }
 }

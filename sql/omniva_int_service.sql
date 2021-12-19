@@ -1,6 +1,8 @@
 CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_service` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-    `code` varchar(20),
+    `name` varchar(100),
+    `service_code` varchar(20),
+    `image` varchar(255) DEFAULT NULL,
     `insurance` tinyint(1),
     `return` tinyint(1),
     `carry_service` tinyint(1),
