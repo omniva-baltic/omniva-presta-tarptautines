@@ -1,6 +1,9 @@
 <?php
 
-class AdminOmnivaIntCategoriesController extends ModuleAdminController
+require_once "AdminOmnivaIntBaseController.php";
+require_once __DIR__ . "/../../classes/OmnivaIntCategory.php";
+
+class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
 {
     /** @var bool Is bootstrap used */
     public $bootstrap = true;
@@ -13,6 +16,7 @@ class AdminOmnivaIntCategoriesController extends ModuleAdminController
     public function __construct()
     {
         $this->list_no_link = true;
+        $this->title_icon = 'icon-moon-o';
         $this->_orderBy = 'id';
         $this->className = 'OmnivaIntCategory';
         $this->table = 'omniva_int_category';
@@ -61,16 +65,19 @@ class AdminOmnivaIntCategoriesController extends ModuleAdminController
             'weight' => array(
                 'title' => $this->module->l('Weight'),
                 'type' => 'text',
+                'align' => 'center',
             ),
             'measures' => array(
                 'title' => $this->module->l('Measures'),
                 'type' => 'text',
+                'align' => 'center',
                 'havingFilter' => true,
             ),
             'active' => array(
                 'type' => 'bool',
                 'title' => $this->module->l('Active'),
                 'active' => 'status',
+                'align' => 'center',
             ),
         );
 
@@ -179,5 +186,59 @@ class AdminOmnivaIntCategoriesController extends ModuleAdminController
         );
 
         return parent::renderForm();
+    }
+
+    public function initToolbar()
+    {
+        $this->toolbar_btn['bogus'] = [
+            'href' => '#',
+            'desc' => $this->trans('Back to list'),
+        ];
+    }
+
+    public function initPageHeaderToolbar()
+    {
+        $this->page_header_toolbar_btn['sync_categories'] = [
+            'href' => self::$currentIndex . '&sync_categories=1&token=' . $this->token,
+            'desc' => $this->trans('Sync Categories'),
+            'imgclass' => 'refresh',
+            'color' => 'green'
+        ];
+        parent::initPageHeaderToolbar();
+    }
+
+    public function postProcess()
+    {
+        parent::postProcess();
+        if(Tools::getValue('sync_categories'))
+        {
+            $this->syncOmnivaCategories();
+        }
+    }
+
+    // Adds missing categories to the Omniva categories settings list.
+    public function syncOmnivaCategories()
+    {
+        $categories = Category::getSimpleCategories($this->context->language->id);
+        $omnivaCategoriesObj = (new PrestaShopCollection('OmnivaIntCategory'))->getResults();
+        $omnivaCategories = array_map(function($omnivaCategory) {
+            return $omnivaCategory->id_category;
+        }, $omnivaCategoriesObj);
+
+        foreach($categories as $category)
+        {
+            if(!in_array($category['id_category'], $omnivaCategories))
+            {
+                $omnivaCategory = new OmnivaIntCategory();
+                $omnivaCategory->id_category = $category['id_category'];
+                $omnivaCategory->weight = 0;
+                $omnivaCategory->length = 0;
+                $omnivaCategory->width = 0;
+                $omnivaCategory->height = 0;
+                $omnivaCategory->active = 1;
+                $omnivaCategory->add();
+            }
+        } 
+        Tools::redirectAdmin(self::$currentIndex . '&token=' . $this->token,);  
     }
 }

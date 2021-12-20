@@ -4,8 +4,6 @@ require_once "AdminOmnivaIntBaseController.php";
 
 class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
 {
-    public $section_id = 'API';
-
     public function __construct()
     {
         $this->bootstrap = true;
@@ -14,7 +12,7 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
         $this->submit_action = 'submitAddconfigurationAndStay';
         parent::__construct();
         $this->toolbar_title = $this->module->l('Omniva Settings');
-        $section_id = $this->section_id;
+        $this->section_id = 'API';
         $switcher_values = [
             [
                 'id' => 'active_on',
@@ -38,14 +36,14 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
                 [
                     'type' => 'text',
                     'label' => $this->module->l('API Token'),
-                    'name' => $this->module->getConfigKey('token', $section_id),
+                    'name' => $this->module->getConfigKey('token', $this->section_id),
                     'size' => 20,
                     'required' => true
                 ],
                 [
                     'type' => 'switch',
                     'label' => $this->module->l('Test Mode'),
-                    'name' => $this->module->getConfigKey('test_mode', $section_id),
+                    'name' => $this->module->getConfigKey('test_mode', $this->section_id),
                     'desc' => $this->module->l('Use test mode if you have test token to test your integration.'),
                     'values' => $switcher_values
                 ],
@@ -56,7 +54,7 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
             ]
         ];
 
-        $config_keys = $this->module->_configKeys[$section_id];
+        $config_keys = $this->module->_configKeys[$this->section_id];
         array_walk($config_keys, function(&$item, $key) {
             $this->fields_value[$item] = Configuration::get($item);    
         });

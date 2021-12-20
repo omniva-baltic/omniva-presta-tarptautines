@@ -231,7 +231,7 @@ class OmnivaInternational extends CarrierModule
     {
         return array(
             self::CONTROLLER_OMNIVA_MAIN => array(
-                'title' => $this->l('Omniva Main'),
+                'title' => $this->l('Omniva International'),
                 'parent_tab' => 'AdminParentModulesSf',
             ),
             self::CONTROLLER_OMNIVA_SETTINGS => array(
@@ -247,12 +247,12 @@ class OmnivaInternational extends CarrierModule
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
             self::CONTROLLER_CATEGORIES => array(
-                'title' => $this->l('Omniva Category Settings'),
-                'parent_tab' => 'AdminCatalog',
+                'title' => $this->l('Category Settings'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
             self::CONTROLLER_TERMINALS => array(
-                'title' => $this->l('Omniva Terminals'),
-                'parent_tab' => 'AdminParentShipping',
+                'title' => $this->l('Terminals'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
         );
     }
@@ -968,7 +968,7 @@ class OmnivaInternational extends CarrierModule
         $content = $this->l("To udate services periodically, add this CRON job to your cron table: ");
 
         // Something not-translatable, usually a link..
-        $sugar = "<a href='$link' target='_blank'>$link</a>";
+        $sugar = "<b><i>$link</i></b>";
 
         return $this->helper->displayAlert($content, $sugar);
     }
@@ -978,7 +978,7 @@ class OmnivaInternational extends CarrierModule
         $link = $this->context->link->getModuleLink($this->name, 'cron', ['type' => 'terminals', 'token' => Configuration::get('OMNIVA_CRON_TOKEN')]);
         $content = $this->l("To udate terminals periodically, add this CRON job to your cron table: ");
 
-        $sugar = "<a href='$link' target='_blank'>$link</a>";
+        $sugar = "<b><i>$link</i></b>";
 
         return $this->helper->displayAlert($content, $sugar);
     }

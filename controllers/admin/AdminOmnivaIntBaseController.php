@@ -4,35 +4,46 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
 {
     public function processSave()
     {
-        $res = true;
-        $config_keys = $this->module->_configKeys[$this->section_id];
-        foreach(Tools::getAllValues() as $key => $value)
+        if(isset($this->section_id) && isset($this->module->_configKeys[$this->section_id]))
         {
-            if(in_array($key, $config_keys))
+            $res = true;
+            $config_keys = $this->module->_configKeys[$this->section_id];
+            foreach(Tools::getAllValues() as $key => $value)
             {
-                $res &= Configuration::updateValue($key, $value);
-                if($res) 
-                    $this->fields_value[$key] = $value;
+                if(in_array($key, $config_keys))
+                {
+                    $res &= Configuration::updateValue($key, $value);
+                    if($res) 
+                        $this->fields_value[$key] = $value;
+                }
             }
+            if($res)
+                $this->confirmations[] = $this->trans('Update Sucessful', array(), 'Admin.Notifications.Error');
+            else
+                $this->errors[] = $this->trans('Updating Settings failed.', array(), 'Admin.Notifications.Error');
         }
-        if($res)
-            $this->confirmations[] = $this->trans('Update Sucessful', array(), 'Admin.Notifications.Error');
         else
-            $this->errors[] = $this->trans('Updating Settings failed.', array(), 'Admin.Notifications.Error');
+            parent::processSave();
+    }
+
+    public function setMedia($isNewTheme = false)
+    {
+        parent::setMedia();
+        $this->addCSS(_PS_MODULE_DIR_ . $this->module->name . '/views/css/admin.css');
     }
 
     public function initPageHeaderToolbar()
     {
         parent::initPageHeaderToolbar();
-        $this->page_header_toolbar_btn['back2'] = [
+        $this->page_header_toolbar_btn['back_to_modules'] = [
             'href' => $this->context->link->getAdminLink("AdminModules"),
-            'desc' => $this->trans('Back'),
+            'desc' => $this->trans('Back to list'),
             'imgclass' => 'back'
         ];
         $hook_link = 'index.php?tab=AdminModulesPositions&token=' . Tools::getAdminTokenLite('AdminModulesPositions') . '&show_modules=' . (int) $this->module->id;
         $this->page_header_toolbar_btn['hook'] = [
             'href' => $hook_link,
-            'desc' => $this->trans('Manage Hooks'),
+            'desc' => $this->trans('Manage hooks'),
             'imgclass' => 'anchor'
         ];
         $this->page_header_toolbar_btn['trans'] = [
@@ -74,7 +85,6 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
                 ]);
             }
         }
-        
 
         $this->context->smarty->assign([
             'trad_link' => 'index.php?tab=AdminTranslations&token=' . Tools::getAdminTokenLite('AdminTranslations') . '&type=modules&module=' . $module->name . '&lang=',
