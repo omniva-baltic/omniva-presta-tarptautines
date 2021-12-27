@@ -1,6 +1,6 @@
 {
-    "name": "siusk24lt/api-lib",
-    "description": "library for Siusk24LT api",
+    "name": "omniva/api-lib",
+    "description": "library for Omniva api",
     "type": "library",
     "license": "#",
     "minimum-stability": "stable",
@@ -10,7 +10,7 @@
     },
     "autoload": {
       "psr-4": {
-        "Siusk24LT\\": "src/"
+        "OmnivaApi\\": "src/"
       }
     }
 }

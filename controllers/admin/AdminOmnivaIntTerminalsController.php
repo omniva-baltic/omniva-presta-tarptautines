@@ -2,7 +2,7 @@
 
 require_once "AdminOmnivaIntBaseController.php";
 
-use Siusk24LT\API;
+use OmnivaApi\API;
 
 class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 {

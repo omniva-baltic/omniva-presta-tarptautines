@@ -1,18 +1,18 @@
- # Siusk24LT API-lib
+ # OmnivaApi API-lib
 
-Its a library for Siusk24LT API.
+Its a library for OmnivaApi API.
 
-## Using Siusk24LT API-lib
-- ```__PATH_TO_LIB__``` is a path where Siusk24LT API is placed. This will load Siusk24LT namespace
+## Using OmnivaApi API-lib
+- ```__PATH_TO_LIB__``` is a path where OmnivaApi API is placed. This will load OmnivaApi namespace
 ```php
-require(__PATH_TO_LIB__ . "Siusk24LT/vendor/autoload.php");
+require(__PATH_TO_LIB__ . "OmnivaApi/vendor/autoload.php");
 ```
 
-Validations, checks, etc. throws `Siusk24LTException` and calls to library classes should be wrapped in: blocks
+Validations, checks, etc. throws `OmnivaApiException` and calls to library classes should be wrapped in: blocks
 ```php
 try {
   // ...
-} catch (Siusk24LTException $e) {
+} catch (OmnivaApiException $e) {
   // ...
 }
 ```
@@ -28,12 +28,12 @@ Uses supplied user `$token`. It is called during API object creation.
 
 ## Creating and Editing Sender
 ---
-`use Siusk24LT\Sender;` will allow creating Sender object.
+`use OmnivaApi\Sender;` will allow creating Sender object.
 
 Minimum required setup:
 
 ```php
-use Siusk24LT\Sender;
+use OmnivaApi\Sender;
 
 $sender = new Sender();
 
@@ -50,13 +50,13 @@ $sender
 
 ## Creating Receiver
 ---
-`use Siusk24LT\Receiver;` will allow to create Receiver object.
+`use OmnivaApi\Receiver;` will allow to create Receiver object.
 
 Minimum required setup:
 - shipping type must be either "courier" or "terminal"
 
 ```php
-use Siusk24LT\Receiver;
+use OmnivaApi\Receiver;
 
 try {
   $receiver1 = new Receiver();
@@ -83,19 +83,19 @@ try {
     ->setPhoneNumber('phone_number')
     ->setCountryId('country_id');
 
-} catch (Siusk24LTException $e) {
+} catch (OmnivaApiException $e) {
   // Handle validation exceptions here
 }
 ```
 
 ## Creating Parcel
 ---
-`use Siusk24LT\Parcel;` will allow to create Parcel object.
+`use OmnivaApi\Parcel;` will allow to create Parcel object.
 
 Minimum required setup:
 
 ```php
-use Siusk24LT\Parcel;
+use OmnivaApi\Parcel;
 
 $parcel = new Parcel();=
 $parcel
@@ -108,14 +108,14 @@ $parcel
 
 ## Creating Item
 ---
-`use Siusk24LT\Item;` will allow to create Item object.
+`use OmnivaApi\Item;` will allow to create Item object.
 
 Minimum required setup:
 
 ```php
-// apacioje du zemiau use istrinti ir naudoti use Siusk24LT\Item;
-use Siusk24LT\Item;
-use Siusk24LT\Sender;
+// apacioje du zemiau use istrinti ir naudoti use OmnivaApi\Item;
+use OmnivaApi\Item;
+use OmnivaApi\Sender;
 
 $item = new Item();
 $item
@@ -130,12 +130,12 @@ $item
 
 ```php
 // API use nera panaudotas - galima istrinti
-use Siusk24LT\API;
-use Siusk24LT\Sender;
-use Siusk24LT\Receiver;
-use Siusk24LT\Item;
-use Siusk24LT\Parcel;
-use Siusk24LT\Order;
+use OmnivaApi\API;
+use OmnivaApi\Sender;
+use OmnivaApi\Receiver;
+use OmnivaApi\Item;
+use OmnivaApi\Parcel;
+use OmnivaApi\Order;
 
 $sender = new Sender();
 $sender

@@ -1,8 +1,8 @@
 <?php
 
-namespace Siusk24LT;
+namespace OmnivaApi;
 
-use Siusk24LT\Exception\Siusk24LTException;
+use OmnivaApi\Exception\OmnivaApiException;
 
 /**
  *
@@ -49,10 +49,10 @@ class Item
 
     public function generateItem()
     {
-        if (!$this->description) throw new Siusk24LTException('All the fields must be filled. description is missing.');
-        if (!$this->value) throw new Siusk24LTException('All the fields must be filled. value is missing.');
-        if (!$this->units) throw new Siusk24LTException('All the fields must be filled. units is missing.');
-        if (!$this->country_id) throw new Siusk24LTException('All the fields must be filled. country_id is missing.');
+        if (!$this->description) throw new OmnivaApiException('All the fields must be filled. description is missing.');
+        if (!$this->value) throw new OmnivaApiException('All the fields must be filled. value is missing.');
+        if (!$this->units) throw new OmnivaApiException('All the fields must be filled. units is missing.');
+        if (!$this->country_id) throw new OmnivaApiException('All the fields must be filled. country_id is missing.');
         return array(
             'description' => $this->description,
             'value' => $this->value,

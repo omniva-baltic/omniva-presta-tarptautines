@@ -1,12 +1,12 @@
 <?php
 
-namespace Siusk24LT;
+namespace OmnivaApi;
 
-use Siusk24LT\Exception\Siusk24LTException;
-use Siusk24LT\Sender;
-use Siusk24LT\Receiver;
-use Siusk24LT\Item;
-use Siusk24LT\Parcel;
+use OmnivaApi\Exception\OmnivaApiException;
+use OmnivaApi\Sender;
+use OmnivaApi\Receiver;
+use OmnivaApi\Item;
+use OmnivaApi\Parcel;
 
 class Order
 {
@@ -98,12 +98,12 @@ class Order
 
     public function generateOrder()
     {
-        if (!$this->service_code) throw new Siusk24LTException('All the fields must be filled. service_code is missing.');
-        if (!$this->sender) throw new Siusk24LTException('All the fields must be filled. sender is missing.');
-        if (!$this->receiver) throw new Siusk24LTException('All the fields must be filled. receiver is missing.');
-        if (!$this->parcels) throw new Siusk24LTException('All the fields must be filled. parcels are missing.');
-        if (!$this->items) throw new Siusk24LTException('All the fields must be filled. items are missing.');
-        if (!$this->reference) throw new Siusk24LTException('All the fields must be filled. reference is missing.');
+        if (!$this->service_code) throw new OmnivaApiException('All the fields must be filled. service_code is missing.');
+        if (!$this->sender) throw new OmnivaApiException('All the fields must be filled. sender is missing.');
+        if (!$this->receiver) throw new OmnivaApiException('All the fields must be filled. receiver is missing.');
+        if (!$this->parcels) throw new OmnivaApiException('All the fields must be filled. parcels are missing.');
+        if (!$this->items) throw new OmnivaApiException('All the fields must be filled. items are missing.');
+        if (!$this->reference) throw new OmnivaApiException('All the fields must be filled. reference is missing.');
 
         return array(
             'service_code' => $this->service_code,

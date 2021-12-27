@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5f9a34338862a687f99a142780c39887",
+    "content-hash": "bb7aabfab83699feb1ac5ea68837774a",
     "packages": [
         {
-            "name": "siusk24lt/api-lib",
+            "name": "omniva/api-lib",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:siusk24/Siusk24LT.git",
-                "reference": "35d5f889447842eb09690e95fa903afd13d3459f"
+                "url": "git@github.com:mijora/omniva-api.git",
+                "reference": "12ae41a80cb6317e533965feb77886c476feab13"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/siusk24/Siusk24LT/zipball/35d5f889447842eb09690e95fa903afd13d3459f",
-                "reference": "35d5f889447842eb09690e95fa903afd13d3459f",
+                "url": "https://api.github.com/repos/mijora/omniva-api/zipball/12ae41a80cb6317e533965feb77886c476feab13",
+                "reference": "12ae41a80cb6317e533965feb77886c476feab13",
                 "shasum": ""
             },
             "require": {
@@ -28,25 +28,25 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Siusk24LT\\": "src/"
+                    "OmnivaApi\\": "src/"
                 }
             },
             "license": [
                 "#"
             ],
-            "description": "library for Siusk24LT api",
+            "description": "library for Omniva api",
             "support": {
-                "source": "https://github.com/siusk24/Siusk24LT/tree/master",
-                "issues": "https://github.com/siusk24/Siusk24LT/issues"
+                "source": "https://github.com/mijora/omniva-api/tree/master",
+                "issues": "https://github.com/mijora/omniva-api/issues"
             },
-            "time": "2021-04-23T14:04:17+00:00"
+            "time": "2021-12-27T11:07:22+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "siusk24lt/api-lib": 20
+        "omniva/api-lib": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

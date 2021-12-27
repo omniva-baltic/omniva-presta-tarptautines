@@ -1,10 +1,10 @@
 <?php
 
-namespace Siusk24LT;
+namespace OmnivaApi;
 
-use Siusk24LT\Person;
+use OmnivaApi\Person;
 
-use Siusk24LT\Exception\Siusk24LTException;
+use OmnivaApi\Exception\OmnivaApiException;
 
 class Receiver extends Person
 {
@@ -17,13 +17,13 @@ class Receiver extends Person
     public function generateReceiver()
     {
         // iskelti i Person klase kaip atskira metoda, pvz: validatePerson
-        if (!$this->shipping_type) throw new Siusk24LTException('All the fields must be filled. shipping_type is missing.');
-        if (!$this->contact_name) throw new Siusk24LTException('All the fields must be filled. contact_name is missing.');
-        if (!$this->street_name && $this->shipping_type === self::SHIPPING_COURIER) throw new Siusk24LTException('All the fields must be filled. street_name is missing.');
-        if (!$this->zipcode) throw new Siusk24LTException('All the fields must be filled. zipcode is missing.');
-        if (!$this->city && $this->shipping_type === self::SHIPPING_COURIER) throw new Siusk24LTException('All the fields must be filled. city is missing.');
-        if (!$this->phone_number) throw new Siusk24LTException('All the fields must be filled. phone_number is missing.');
-        if (!$this->country_id) throw new Siusk24LTException('All the fields must be filled. country_id is missing.');
+        if (!$this->shipping_type) throw new OmnivaApiException('All the fields must be filled. shipping_type is missing.');
+        if (!$this->contact_name) throw new OmnivaApiException('All the fields must be filled. contact_name is missing.');
+        if (!$this->street_name && $this->shipping_type === self::SHIPPING_COURIER) throw new OmnivaApiException('All the fields must be filled. street_name is missing.');
+        if (!$this->zipcode) throw new OmnivaApiException('All the fields must be filled. zipcode is missing.');
+        if (!$this->city && $this->shipping_type === self::SHIPPING_COURIER) throw new OmnivaApiException('All the fields must be filled. city is missing.');
+        if (!$this->phone_number) throw new OmnivaApiException('All the fields must be filled. phone_number is missing.');
+        if (!$this->country_id) throw new OmnivaApiException('All the fields must be filled. country_id is missing.');
 
 
         // vietoje $this->shipping_type naudoti GetShippingType is Person klases
@@ -52,8 +52,8 @@ class Receiver extends Person
 
     public function generateReceiverOffers()
     {
-        if (!$this->zipcode) throw new Siusk24LTException('All the fields must be filled. zipcode is missing.');
-        if (!$this->country_id) throw new Siusk24LTException('All the fields must be filled. country_id is missing.');
+        if (!$this->zipcode) throw new OmnivaApiException('All the fields must be filled. zipcode is missing.');
+        if (!$this->country_id) throw new OmnivaApiException('All the fields must be filled. country_id is missing.');
 
 
         return array(

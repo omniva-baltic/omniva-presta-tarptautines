@@ -1,8 +1,8 @@
 <?php
 
-namespace Siusk24LT;
+namespace OmnivaApi;
 
-use Siusk24LT\Exception\Siusk24LTException;
+use OmnivaApi\Exception\OmnivaApiException;
 
 /**
  *
@@ -57,11 +57,11 @@ class Parcel
 
     public function generateParcel()
     {
-        if (!$this->amount) throw new Siusk24LTException('All the fields must be filled. amount is missing.');
-        if (!$this->unit_weight) throw new Siusk24LTException('All the fields must be filled. unit_weight is missing.');
-        if (!$this->width) throw new Siusk24LTException('All the fields must be filled. width is missing.');
-        if (!$this->length) throw new Siusk24LTException('All the fields must be filled. length is missing.');
-        if (!$this->height) throw new Siusk24LTException('All the fields must be filled. heigth is missing.');
+        if (!$this->amount) throw new OmnivaApiException('All the fields must be filled. amount is missing.');
+        if (!$this->unit_weight) throw new OmnivaApiException('All the fields must be filled. unit_weight is missing.');
+        if (!$this->width) throw new OmnivaApiException('All the fields must be filled. width is missing.');
+        if (!$this->length) throw new OmnivaApiException('All the fields must be filled. length is missing.');
+        if (!$this->height) throw new OmnivaApiException('All the fields must be filled. heigth is missing.');
         $parcel = array(
             'amount' => $this->amount,
             'weight' => $this->unit_weight,

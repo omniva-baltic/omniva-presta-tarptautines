@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="LOCAL_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+      <path>
+        <item name="ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="REMOTE_ROOT" type="e8cecc67:BranchNodeDescriptor" />
+        <item name="GROUP_NODE:origin" type="e8cecc67:BranchNodeDescriptor" />
+      </path>
+    </expand>
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8ecbc985-4c21-4332-b026-5a4805a075aa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
+    <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
+    <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="composer.json" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="PHP 7.4">
+    <include_path>
+      <path value="$PROJECT_DIR$/vendor/composer" />
+    </include_path>
+  </component>
+  <component name="ProjectId" id="1gE3r4lsDsZ4jT7izChDtKsiXgs" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="settings.php.quality.tools" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8ecbc985-4c21-4332-b026-5a4805a075aa" name="Default Changelist" comment="" />
+      <created>1597666120912</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1597666120912</updated>
+      <workItem from="1597666122602" duration="6331000" />
+      <workItem from="1597673469253" duration="2101000" />
+      <workItem from="1597921091356" duration="2522000" />
+      <workItem from="1597930586851" duration="11898000" />
+      <workItem from="1597996689757" duration="29000" />
+      <workItem from="1597996814276" duration="423000" />
+      <workItem from="1598006824899" duration="1478000" />
+      <workItem from="1598249274625" duration="173000" />
+      <workItem from="1598334461055" duration="2473000" />
+      <workItem from="1598337232406" duration="3818000" />
+      <workItem from="1598353556846" duration="1477000" />
+      <workItem from="1598359297250" duration="3122000" />
+      <workItem from="1598363472587" duration="58000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="988" y="172" width="824" height="691" key="#CLI_Interpreters" timestamp="1597666595368">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="988" y="172" width="824" height="691" key="#CLI_Interpreters/72.27.1848.1053@72.27.1848.1053" timestamp="1597666595368" />
+    <state x="988" y="172" width="824" height="691" key="#Mess_Detector" timestamp="1597666906452">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="988" y="172" width="824" height="691" key="#Mess_Detector/72.27.1848.1053@72.27.1848.1053" timestamp="1597666906452" />
+    <state x="579" y="214" width="824" height="691" key="#PHP_CodeSniffer" timestamp="1597666900171">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="579" y="214" width="824" height="691" key="#PHP_CodeSniffer/72.27.1848.1053@72.27.1848.1053" timestamp="1597666900171" />
+    <state x="779" y="355" width="415" height="412" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1597673859500">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="779" y="355" width="415" height="412" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/72.27.1848.1053@72.27.1848.1053" timestamp="1597673859500" />
+    <state x="2603" y="291" width="524" height="491" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog" timestamp="1598360401886">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="729" y="311" width="524" height="491" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/72.27.1848.1053@72.27.1848.1053" timestamp="1597669144210" />
+    <state x="2603" y="291" width="524" height="491" key="#com.jetbrains.php.actions.copyPaste.importReferences.PhpImportReferencesDialog/72.478.1848.1020/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598360401886" />
+    <state x="774" y="303" width="424" height="520" key="FileChooserDialogImpl" timestamp="1597666893414">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="774" y="303" width="424" height="520" key="FileChooserDialogImpl/72.27.1848.1053@72.27.1848.1053" timestamp="1597666893414" />
+    <state x="894" y="146" width="1022" height="737" key="SettingsEditor" timestamp="1597667083524">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="894" y="146" width="1022" height="737" key="SettingsEditor/72.27.1848.1053@72.27.1848.1053" timestamp="1597667083524" />
+    <state x="72" y="27" width="1464" height="1009" key="dock-window-1" timestamp="1597666595332">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="72" y="27" width="1464" height="1009" key="dock-window-1/72.27.1848.1053@72.27.1848.1053" timestamp="1597666595332" />
+    <state x="660" y="252" key="run.anything.popup" timestamp="1597667712889">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="660" y="252" key="run.anything.popup/72.27.1848.1053@72.27.1848.1053" timestamp="1597667712889" />
+  </component>
+</project>

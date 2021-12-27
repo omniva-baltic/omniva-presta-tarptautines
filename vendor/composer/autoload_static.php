@@ -4,19 +4,19 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit9ec40a3d51a73e3fef8d4f0cf41bafdc
+class ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c
 {
     public static $prefixLengthsPsr4 = array (
-        'S' => 
+        'O' => 
         array (
-            'Siusk24LT\\' => 10,
+            'OmnivaApi\\' => 10,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Siusk24LT\\' => 
+        'OmnivaApi\\' => 
         array (
-            0 => __DIR__ . '/..' . '/siusk24lt/api-lib/src',
+            0 => __DIR__ . '/..' . '/omniva/api-lib/src',
         ),
     );
 
@@ -27,9 +27,9 @@ class ComposerStaticInit9ec40a3d51a73e3fef8d4f0cf41bafdc
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit9ec40a3d51a73e3fef8d4f0cf41bafdc::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit9ec40a3d51a73e3fef8d4f0cf41bafdc::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit9ec40a3d51a73e3fef8d4f0cf41bafdc::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -1,6 +1,6 @@
 <?php
 
-use Siusk24LT\API;
+use OmnivaApi\API;
 require_once __DIR__ . "/../../classes/OmnivaIntTerminal.php";
 require_once __DIR__ . "/../../classes/OmnivaIntService.php";
 

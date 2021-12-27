@@ -1,8 +1,8 @@
 <?php
 
-namespace Siusk24LT;
+namespace OmnivaApi;
 
-use Siusk24LT\Exception\Siusk24LTException;
+use OmnivaApi\Exception\OmnivaApiException;
 
 /**
  *
@@ -39,7 +39,7 @@ class Person
     public function setShippingType($shipping_type)
     {
         if (!in_array($shipping_type, $this->valid_shipping_types)) {
-            throw new Siusk24LTException('Unknown shipping type:<br>' . $shipping_type . '. You need to use one of the following types:<br><br>' . implode("<br>", $this->valid_shipping_types));
+            throw new OmnivaApiException('Unknown shipping type:<br>' . $shipping_type . '. You need to use one of the following types:<br><br>' . implode("<br>", $this->valid_shipping_types));
         }
         $this->shipping_type = $shipping_type;
 

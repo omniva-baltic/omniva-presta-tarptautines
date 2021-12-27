@@ -6,5 +6,5 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Siusk24LT\\' => array($vendorDir . '/siusk24lt/api-lib/src'),
+    'OmnivaApi\\' => array($vendorDir . '/omniva/api-lib/src'),
 );

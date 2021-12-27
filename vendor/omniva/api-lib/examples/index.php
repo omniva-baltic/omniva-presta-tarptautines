@@ -9,13 +9,13 @@ ini_set('error_reporting', E_ALL);
 
 require("../vendor/autoload.php");
 
-use Siusk24LT\API;
-use Siusk24LT\Sender;
-use Siusk24LT\Receiver;
-use Siusk24LT\Item;
-use Siusk24LT\Parcel;
-use Siusk24LT\Order;
-use Siusk24LT\Exception\Siusk24LTException;
+use OmnivaApi\API;
+use OmnivaApi\Sender;
+use OmnivaApi\Receiver;
+use OmnivaApi\Item;
+use OmnivaApi\Parcel;
+use OmnivaApi\Order;
+use OmnivaApi\Exception\OmnivaApiException;
 
 $token = "qk5yeuhSOE4XTJ3Upiq92Qtt";
 
@@ -173,7 +173,7 @@ try {
 //    echo json_encode($manifestLatest);
 //    echo json_encode($manifestLatest);
   echo json_encode($terminals);
-} catch (Siusk24LTException $e) {
+} catch (OmnivaApiException $e) {
     echo $e->getMessage();
 }
 
