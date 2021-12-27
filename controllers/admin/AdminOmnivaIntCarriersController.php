@@ -4,6 +4,8 @@ require_once "AdminOmnivaIntBaseController.php";
 
 class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 {
+    public $price_types;
+
     /**
      * AdminOmnivaIntCategories class constructor
      *
@@ -19,6 +21,23 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->className = 'OmnivaIntCarrier';
         $this->table = 'omniva_int_carrier';
         $this->identifier = 'id';
+        $this->price_types = [
+            [
+                'id' => 'fixed',
+                'value' => 'fixed',
+                'label' => $this->module->l('Fixed'),
+            ],
+            [
+                'id' => 'surcharge-percent',
+                'value' => 'surcharge-percent',
+                'label' => $this->module->l('Surcharge %'),
+            ],
+            [
+                'id' => 'surcharge-fixed',
+                'value' => 'surcharge-fixed',
+                'label' => $this->module->l('Surcharge, Eur'),
+            ],
+        ];
     }
 
     public function init()
@@ -94,6 +113,20 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             )
         );
 
+
+        $switcher_values = array(
+            array(
+                'id' => 'active_on',
+                'value' => 1,
+                'label' => ''
+            ),
+            array(
+                'id' => 'active_off',
+                'value' => 0,
+                'label' => ''
+            )
+        );
+
         $this->fields_form = array(
             'legend' => array(
                 'title' => $this->module->l('Omniva International Carrier'),
@@ -106,6 +139,50 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'name' => 'carrier_name',
                     'required' => true,
                     'col' => '3',
+                ),
+                array(
+                    'type' => 'radio',
+                    'label' => $this->l('Price'),
+                    'name' => 'price_type',
+                    'values' => $this->price_types,
+                    'class' => 'col-xs-2'
+                ),
+                array(
+                    'type' => 'text',
+                    'name' => 'price',
+                    'label' => '',
+                    'col' => '3',
+                ),
+                array(
+                    'type' => 'text',
+                    'name' => 'free_shipping',
+                    'label' => 'Free Shipping',
+                    'col' => '3',
+                    'prefix' => '€'
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Insurance'),
+                    'name' => 'insurance',
+                    'values' => $switcher_values
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Return'),
+                    'name' => 'return',
+                    'values' => $switcher_values
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Carry service'),
+                    'name' => 'carry',
+                    'values' => $switcher_values
+                ),
+                array(
+                    'type' => 'switch',
+                    'label' => $this->l('Document Return'),
+                    'name' => 'insurance',
+                    'values' => $switcher_values
                 ),
                 array(
                     'type' => 'text',

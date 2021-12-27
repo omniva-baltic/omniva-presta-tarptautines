@@ -46,6 +46,7 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
             'name' => array(
                 'title' => $this->module->l('Name'),
                 'align' => 'text-center',
+                'filter_key' => 'a!name'
             ),
             'city' => array(
                 'type' => 'text',
