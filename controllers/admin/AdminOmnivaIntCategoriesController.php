@@ -239,6 +239,6 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                 $omnivaCategory->add();
             }
         } 
-        Tools::redirectAdmin(self::$currentIndex . '&token=' . $this->token,);  
+        Tools::redirectAdmin(self::$currentIndex . '&token=' . $this->token);  
     }
 }

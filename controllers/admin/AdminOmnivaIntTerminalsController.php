@@ -62,9 +62,9 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Address'),
                 'type' => 'text',
             ),
-            'zipcode' => array(
+            'comment' => array(
+                'title' => $this->module->l('Comment'),
                 'type' => 'text',
-                'title' => $this->module->l('Zipcode'),
             ),
         );
 
@@ -112,32 +112,25 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
         $api = new API($token, Configuration::get('OMNIVA_INT_TEST_MODE'));
         $result = true;
 
-        $countries = Country::getCountries(Configuration::get('PS_LANG_DEFAULT'), true);
-        $countries_isos = array_map(function ($country) {
-            return $country['iso_code'];
-        }, $countries);
-
-        foreach($countries_isos as $iso)
+        $response = $api->getTerminals();
+        if($response && isset($response->parcel_machines))
         {
-            $iso = trim($iso);
-            if(!in_array($iso, self::LIST_ALLOWED_COUNTRIES))
-                continue;
-            $response = $api->getTerminals($iso);
-            if($response && isset($response->terminals))
+            $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_terminal`');
+            foreach($response->parcel_machines as $terminal)
             {
-                $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_terminal`');
-                foreach($response->terminals as $terminal)
-                {
-                    $terminalObj = new OmnivaIntTerminal();
-                    $terminalObj->name = $terminal->name;
-                    $terminalObj->city = $terminal->city;
-                    $terminalObj->country_code = $terminal->country_code;
-                    $terminalObj->address = $terminal->address;
-                    $terminalObj->zipcode = $terminal->zipcode;
-                    $result &= $terminalObj->add();
-                }
-            } 
-        }
+                $terminalObj = new OmnivaIntTerminal();
+                $terminalObj->name = $terminal->name;
+                $terminalObj->city = $terminal->city;
+                $terminalObj->country_code = $terminal->country_code;
+                $terminalObj->address = $terminal->address;
+                $terminalObj->x_cord = $terminal->x_cord;
+                $terminalObj->y_cord = $terminal->y_cord;
+                $terminalObj->comment = $terminal->comment;
+                $terminalObj->identifier = $terminal->identifier;
+                $result &= $terminalObj->add();
+            }
+        } 
+        
         if($result)
             $this->confirmations[] = $this->trans('Successfully updated terminals', array(), 'Admin.Notifications.Error');
         else

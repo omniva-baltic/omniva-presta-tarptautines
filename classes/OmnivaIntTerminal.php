@@ -12,7 +12,13 @@ class OmnivaIntTerminal extends ObjectModel
 
     public $address;
 
-    public $zipcode;
+    public $x_cord;
+
+    public $y_cord;
+
+    public $comment;
+
+    public $identifier;
 
     /**
      * @see ObjectModel::$definition
@@ -25,8 +31,10 @@ class OmnivaIntTerminal extends ObjectModel
                 'city' =>           ['type' => self::TYPE_STRING, 'size' => 100],
                 'country_code' =>   ['type' => self::TYPE_STRING, 'size' => 3],
                 'address' =>        ['type' => self::TYPE_STRING, 'size' => 255],
-                'zipcode' =>        ['type' => self::TYPE_STRING, 'size' => 10],
+                'x_cord' =>         ['type' => self::TYPE_FLOAT, 'size' => 10],
+                'y_cord' =>         ['type' => self::TYPE_FLOAT, 'size' => 10],
+                'comment' =>        ['type' => self::TYPE_STRING, 'size' => 255],
+                'identifier' =>     ['type' => self::TYPE_STRING, 'size' => 50],
             ],
         ];
-
 }
