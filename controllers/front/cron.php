@@ -23,7 +23,6 @@ class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
         if($type == 'terminals')
         {
             $response = $api->getTerminals();
-            dump($response);
             if($response && isset($response->parcel_machines))
             {
                 $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_terminal`');

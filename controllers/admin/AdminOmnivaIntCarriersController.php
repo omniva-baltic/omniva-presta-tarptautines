@@ -113,20 +113,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             )
         );
 
-
-        $switcher_values = array(
-            array(
-                'id' => 'active_on',
-                'value' => 1,
-                'label' => ''
-            ),
-            array(
-                'id' => 'active_off',
-                'value' => 0,
-                'label' => ''
-            )
-        );
-
         $this->fields_form = array(
             'legend' => array(
                 'title' => $this->module->l('Omniva International Carrier'),
@@ -160,36 +146,41 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'col' => '3',
                     'prefix' => '€'
                 ),
+                // array(
+                //     'type' => 'switch',
+                //     'label' => $this->l('Insurance'),
+                //     'name' => 'insurance',
+                //     'values' => $switcher_values
+                // ),
+                // array(
+                //     'type' => 'switch',
+                //     'label' => $this->l('Return'),
+                //     'name' => 'return',
+                //     'values' => $switcher_values
+                // ),
+                // array(
+                //     'type' => 'switch',
+                //     'label' => $this->l('Carry service'),
+                //     'name' => 'carry',
+                //     'values' => $switcher_values
+                // ),
+                // array(
+                //     'type' => 'switch',
+                //     'label' => $this->l('Document Return'),
+                //     'name' => 'insurance',
+                //     'values' => $switcher_values
+                // ),
                 array(
-                    'type' => 'switch',
-                    'label' => $this->l('Insurance'),
-                    'name' => 'insurance',
-                    'values' => $switcher_values
-                ),
-                array(
-                    'type' => 'switch',
-                    'label' => $this->l('Return'),
-                    'name' => 'return',
-                    'values' => $switcher_values
-                ),
-                array(
-                    'type' => 'switch',
-                    'label' => $this->l('Carry service'),
-                    'name' => 'carry',
-                    'values' => $switcher_values
-                ),
-                array(
-                    'type' => 'switch',
-                    'label' => $this->l('Document Return'),
-                    'name' => 'insurance',
-                    'values' => $switcher_values
-                ),
-                array(
-                    'type' => 'text',
+                    'type' => 'swap',
                     'label' => $this->module->l('Services'),
-                    'name' => 'service',
-                    'required' => true,
-                    'col' => '3',
+                    'name' => 'services',
+                    'multiple' => true,
+                    'default_value' => $this->l('Multiple select'),
+                    'options' => [
+                        'query' => OmnivaIntService::getServices(),
+                        'id' => 'id',
+                        'name' => 'name',
+                    ],
                     'desc' => $this->module->l('Select all services which will be used by this carrier'),
                 ),
                 array(
@@ -229,6 +220,11 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->fields_form['submit'] = array(
             'title' => $this->module->l('Save'),
         );
+
+        $this->fields_value = 
+        [
+            'services' => Currency::getCurrencies(false, true, true),
+        ];
 
         return parent::renderForm();
     }

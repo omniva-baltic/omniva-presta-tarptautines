@@ -38,5 +38,19 @@ class OmnivaIntService extends ObjectModel
                 'date_upd' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             ],
         ];
+        
+    public static function getServices()
+    {
+        $cacheId = 'OmnivaIntService::getServices';
 
+        if (!Cache::isStored($cacheId)) {
+            $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+				SELECT id, CONCAT(name, " - ", service_code) as name
+				FROM ' . _DB_PREFIX_ . self::$definition['table']);
+            Cache::store($cacheId, $result);
+            return $result;
+        }
+
+        return Cache::retrieve($cacheId);
+    }
 }
