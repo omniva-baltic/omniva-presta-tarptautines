@@ -1,9 +1,14 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
+require_once __DIR__ . "/../../classes/OmnivaIntCarrier.php";
+require_once __DIR__ . "/../../classes/OmnivaIntService.php";
+require_once __DIR__ . "/../../classes/OmnivaIntCarrierService.php";
 
 class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 {
+    const PRICE_TYPES = ['fixed', 'surcharge-percent', 'surcharge-fixed'];
+
     public $price_types;
 
     /**
@@ -18,8 +23,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->list_no_link = true;
         $this->bootstrap = true;
         $this->_orderBy = 'id';
-        $this->className = 'OmnivaIntCarrier';
-        $this->table = 'omniva_int_carrier';
+        $this->className = 'OmnivaIntCarrierService';
+        $this->table = 'omniva_int_carrier_service';
         $this->identifier = 'id';
         $this->price_types = [
             [
@@ -38,6 +43,13 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'label' => $this->module->l('Surcharge, Eur'),
             ],
         ];
+
+        $this->_select = ' c.name as name, oc.*, os.name as service';
+
+        $this->_join = '
+            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier oc ON (oc.id = a.id_carrier)
+            LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_carrier = oc.id_carrier)
+            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = a.id_service)';
     }
 
     public function init()
@@ -113,6 +125,19 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             )
         );
 
+        $fastest_cheapest_switcher_values = array(
+            array(
+                'id' => 'active_on',
+                'value' => 1,
+                'label' => $this->l('Cheapest'),
+            ),
+            array(
+                'id' => 'active_off',
+                'value' => 0,
+                'label' => $this->l('Cheapest')
+            )
+        );
+
         $this->fields_form = array(
             'legend' => array(
                 'title' => $this->module->l('Omniva International Carrier'),
@@ -137,13 +162,14 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'type' => 'text',
                     'name' => 'price',
                     'label' => '',
-                    'col' => '3',
+                    'col' => '2',
+                    'prefix' => '€'
                 ),
                 array(
                     'type' => 'text',
                     'name' => 'free_shipping',
                     'label' => 'Free Shipping',
-                    'col' => '3',
+                    'col' => '2',
                     'prefix' => '€'
                 ),
                 // array(
@@ -184,27 +210,35 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'desc' => $this->module->l('Select all services which will be used by this carrier'),
                 ),
                 array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Width'),
-                    'name' => 'width',
-                    'required' => true,
-                    'col' => '2',
-                    'hint' => $this->module->l('Enter default category item width'),
+                    'type' => 'switch',
+                    'label' => $this->l('My login'),
+                    'name' => 'my_login',
+                    'values' => $switcher_values
                 ),
                 array(
                     'type' => 'text',
-                    'label' => $this->module->l('Height'),
-                    'name' => 'height',
-                    'required' => true,
-                    'col' => '2',
-                    'hint' => $this->module->l('Enter default category item height'),
+                    'label' => $this->module->l('User'),
+                    'name' => 'user',
+                    'col' => '3',
+                ),
+                array(
+                    'type' => 'text',
+                    'label' => $this->module->l('Password'),
+                    'name' => 'password',
+                    'col' => '3',
                 ),
                 array(
                     'type' => 'switch',
-                    'label' => $this->l('Active'),
-                    'name' => 'active',
-                    'desc' => $this->l('Activate/disable this category settings.'),
-                    'values' => $switcher_values
+                    'label' => $this->l('Fastest'),
+                    'name' => 'fastest',
+                    'values' => $fastest_cheapest_switcher_values
+                ),
+                array(
+                    'type' => 'text',
+                    'name' => 'radius',
+                    'label' => 'Radius',
+                    'col' => '3',
+                    'suffix' => 'km'
                 ),
             ),
         );
@@ -227,5 +261,146 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         ];
 
         return parent::renderForm();
+    }
+
+    public function processSave()
+    {
+        if(Tools::getValue('submitAddomniva_int_carrier'))
+        {
+            $carrier = new Carrier();
+            $carrier->name = Tools::getValue('carrier_name', '');
+            $carrier->delay[Configuration::get('PS_LANG_DEFAULT')] = '1-2 business days';
+            $carrier->is_module = true;
+            $carrier->external_module_name = $this->module->name;
+            $carrier->shipping_external = true;
+            $carrier->shipping_handling = false;
+            
+            if (!$carrier->add()) {
+                $this->errors[] = $this->module->l('Select shop');
+            }
+            else
+            {
+                $groups = array_map(function ($group) { return $group['id_group']; }, Group::getGroups(true));
+                $carrier->setGroups($groups);
+                $image_path = _PS_MODULE_DIR_ . $this->module->name . '/logo.png';
+                copy($image_path, _PS_SHIP_IMG_DIR_ . '/' . (int) $carrier->id . '.jpg');
+
+                // Let's add some range weight, which is meaningless, but necessary not to break default carrier edit page..
+                $rangeWeight = new RangeWeight();
+                $rangeWeight->id_carrier = (int) $carrier->id;
+                $rangeWeight->delimiter1 = '0';
+                $rangeWeight->delimiter2 = '9999';
+                $rangeWeight->add();
+
+                // Let's add zone to not wreck Presta's default carrier page..
+                $europe = Zone::getIdByName('Europe');
+
+                // If shop does not have Europe zone, just add the first one we find..
+                if(!$europe)
+                {
+                    $zones = Zone::getZones(true);
+                    $first_zone_id = $zones[0]['id_zone'];
+                    $carrier->addZone($first_zone_id);
+                }
+                else
+                    $carrier->addZone($europe);
+
+                // If ship didn't sink at this point, we created all Omniva Inernational relevant entries.
+                $this->createOmnivaCarrier($carrier);
+            }
+        }
+    }
+
+    public function createOmnivaCarrier($carrier)
+    {
+        // First - the actual OmnivaIntCarrier, which will be linked to international services and carrier logins, should they be used.
+        /* Validation is pretty simple.
+        // 1. Proper carrier name.
+        // 2. At least one EXISTING service (otherwise, there is no point to this module..)
+        // 3. Price type default to surcharge with 0 % (meaning whatever API returns)
+        // 4. Default radius to 100 km ?? */
+
+        $carrier_name = Tools::getValue('carrier_name', '');
+        $services = Tools::getValue('services_selected');
+        $price_type = Tools::getValue('price_type', false);
+        $price = (float) Tools::getValue('price', 0.0);
+        $free_shipping = (float) Tools::getValue('free_shipping', 0.0);
+        $my_login = (bool) Tools::getValue('my_login', 0);
+        $user = Tools::getValue('user', '');
+        $password = Tools::getValue('password', '');
+        $select_fastest = (bool) Tools::getValue('fastest', false);
+        $radius = (int) Tools::getValue('radius', 100);
+
+        if(!Validate::isCarrierName($carrier_name))
+        {
+            $this->errors[] = $this->module->l('Carrier name is invalid.');
+        }
+
+        // Filter out non-existing services, if user is playing around.
+        $final_services = [];
+        if(is_array($services) && !empty($services))
+        {
+            foreach($services as $id_service)
+            {
+                if(OmnivaIntService::checkServiceExists($id_service))
+                {
+                    $final_services[] = $id_service;
+                }
+            }
+        }
+
+        if(empty($final_services))
+        {
+            $this->errors[] = $this->module->l('No valid services were provided. Carrier creation could not be finished.');
+            $carrier->delete();
+            return;
+        }
+
+        if(!$price_type || !in_array($price_type, self::PRICE_TYPES))
+        {
+            $price_type = 'surcharge-percent';
+            $price = 0;
+        }
+
+        $omnivaCarrier = new OmnivaIntCarrier();
+        $omnivaCarrier->id_carrier = $carrier->id;
+        $omnivaCarrier->price_type = $price_type;
+        $omnivaCarrier->price = $price;
+        $omnivaCarrier->free_shipping = $free_shipping;
+        $omnivaCarrier->my_login = $my_login;
+        $omnivaCarrier->user = $user;
+        $omnivaCarrier->password = $password;
+        $omnivaCarrier->select_fastest = $select_fastest;
+        $omnivaCarrier->radius = $radius;
+
+        $result = $omnivaCarrier->add();
+        if(!$result)
+        {
+            $this->errors[] = $this->module->l('Could not create Omniva Carrier.');
+            $carrier->delete();
+            return;
+        }
+        // If carrier was created successfully, we proceed to adding services.
+        else
+            $this->createOmnivaCarrierServices($omnivaCarrier, $final_services);
+    }
+
+    public function createOmnivaCarrierServices($omnivaCarrier, $services)
+    {
+        if(Validate::isLoadedObject($omnivaCarrier))
+        {
+            $id_carrier = $omnivaCarrier->id;
+            foreach($services as $id_service)
+            {
+                $carrier_service = new OmnivaIntCarrierService();
+                $carrier_service->id_carrier = $id_carrier;
+                $carrier_service->id_service = $id_service;
+                $result = $carrier_service->add();
+                if(!$result)
+                    $this->errors[] = $this->module->l('Failed to add service code ') . $id_service;
+            }
+        }
+        else
+            $this->errors[] = $this->module->l('Failed to load Omniva Carrier object.');
     }
 }

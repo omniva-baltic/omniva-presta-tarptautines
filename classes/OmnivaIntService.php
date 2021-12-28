@@ -53,4 +53,9 @@ class OmnivaIntService extends ObjectModel
 
         return Cache::retrieve($cacheId);
     }
+
+    public static function checkServiceExists($id_service)
+    {
+        return (bool) Db::getInstance()->getValue("SELECT id FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE id = " . $id_service);
+    }
 }
