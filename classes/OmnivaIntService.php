@@ -4,7 +4,9 @@ class OmnivaIntService extends ObjectModel
 {
     public $id;
 
-    public $code;
+    public $name;
+
+    public $service_code;
 
     public $insurance;
 

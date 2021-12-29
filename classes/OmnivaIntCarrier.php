@@ -18,7 +18,7 @@ class OmnivaIntCarrier extends ObjectModel
 
     public $password;
 
-    public $select_fastest;
+    public $select_cheapest;
 
     public $radius;
 
@@ -42,7 +42,7 @@ class OmnivaIntCarrier extends ObjectModel
                 'my_login' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
                 'user' =>             ['type' => self::TYPE_STRING, 'size' => 50],
                 'password' =>         ['type' => self::TYPE_STRING, 'size' => 50],
-                'select_fastest' =>   ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
+                'select_cheapest' =>   ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
                 'radius' =>           ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
                 'date_add' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
                 'date_upd' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],

@@ -23,9 +23,18 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->list_no_link = true;
         $this->bootstrap = true;
         $this->_orderBy = 'id';
-        $this->className = 'OmnivaIntCarrierService';
-        $this->table = 'omniva_int_carrier_service';
+        $this->className = 'OmnivaIntCarrier';
+        $this->table = 'omniva_int_carrier';
         $this->identifier = 'id';
+
+        $this->price_type_trans = array_combine(
+            self::PRICE_TYPES, [
+                $this->module->l('Fixed'),
+                $this->module->l('Surcharge %'),
+                $this->module->l('Surcharge, Eur'),
+            ]
+        );
+
         $this->price_types = [
             [
                 'id' => 'fixed',
@@ -44,12 +53,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ],
         ];
 
-        $this->_select = ' c.name as name, oc.*, os.name as service';
+        $this->_select = ' c.name as name, os.name as service';
 
         $this->_join = '
-            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier oc ON (oc.id = a.id_carrier)
-            LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_carrier = oc.id_carrier)
-            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = a.id_service)';
+            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
+            LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_carrier = a.id_carrier)
+            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = ocs.id_service)';
     }
 
     public function init()
@@ -68,43 +77,54 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             'name' => array(
                 'title' => $this->module->l('Name'),
                 'align' => 'text-center',
-                'class' => 'fixed-width-xs',
                 'filter_key' => 'c!name'
             ),
             'service' => array(
                 'type' => 'text',
                 'title' => $this->module->l('Service'),
                 'align' => 'center',
-                'filter_key' => 'ois!name'
+                'filter_key' => 'os!name'
             ),
             'price_type' => array(
                 'title' => $this->module->l('Price Type'),
                 'align' => 'center',
+                'type' => 'select',
+                'filter_key' => 'a!price_type',
+                'list' => $this->price_type_trans,
+                'callback' => 'transPriceType'
             ),
             'price' => array(
                 'title' => $this->module->l('Price'),
                 'align' => 'center',
+                'callback' => 'displayPrice'
             ),
             'free_shipping' => array(
                 'type' => 'numer',
                 'title' => $this->module->l('Free Shipping'),
                 'align' => 'center',
+                'callback' => 'displayPrice'
             ),
-            'select_fastest' => array(
+            'select_cheapest' => array(
                 'type' => 'text',
                 'title' => $this->module->l('Price method'),
                 'align' => 'center',
+                'type' => 'select',
+                'filter_key' => 'a!select_cheapest',
+                'list' => [
+                    $this->module->l('Fastest'),
+                    $this->module->l('Cheapest'),
+                ],
                 'callback' => 'fastestOrCheapest'
             ),
         );
     }
 
-    public function fastestOrCheapest($select_fastest)
+    public function fastestOrCheapest($select_cheapest)
     {
-        if($select_fastest)
-            return $this->module->l('Fastest');
-        else
+        if($select_cheapest)
             return $this->module->l('Cheapest');
+        else
+            return $this->module->l('Fastest');
     }
 
     public function renderForm()
@@ -254,12 +274,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->fields_form['submit'] = array(
             'title' => $this->module->l('Save'),
         );
-
-        $this->fields_value = 
-        [
-            'services' => Currency::getCurrencies(false, true, true),
-        ];
-
+        
         return parent::renderForm();
     }
 
@@ -328,7 +343,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $my_login = (bool) Tools::getValue('my_login', 0);
         $user = Tools::getValue('user', '');
         $password = Tools::getValue('password', '');
-        $select_fastest = (bool) Tools::getValue('fastest', false);
+        $select_cheapest = (bool) Tools::getValue('fastest', false);
         $radius = (int) Tools::getValue('radius', 100);
 
         if(!Validate::isCarrierName($carrier_name))
@@ -370,7 +385,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->my_login = $my_login;
         $omnivaCarrier->user = $user;
         $omnivaCarrier->password = $password;
-        $omnivaCarrier->select_fastest = $select_fastest;
+        $omnivaCarrier->select_cheapest = $select_cheapest;
         $omnivaCarrier->radius = $radius;
 
         $result = $omnivaCarrier->add();
@@ -402,5 +417,15 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
         else
             $this->errors[] = $this->module->l('Failed to load Omniva Carrier object.');
+    }
+
+    public function displayPrice($price)
+    {
+        return Tools::displayPrice($price);
+    }
+
+    public function transPriceType($price_type)
+    {
+        return isset($this->price_type_trans[$price_type]) ? $this->price_type_trans[$price_type] : $this->module->l("Price type not determined.");
     }
 }
