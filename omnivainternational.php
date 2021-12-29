@@ -63,6 +63,18 @@ class OmnivaInternational extends CarrierModule
             'token' => 'OMNIVA_TOKEN',
             'test_mode' => 'OMNIVA_INT_TEST_MODE'
         ),
+        'SHOP' => array(
+            'sender_name' => 'OMNIVA_SENDER_NAME',
+            'shop_contact' => 'OMNIVA_SHOP_CONTACT',
+            'company_code' => 'OMNIVA_SHOP_COMPANY_CODE',
+            'shop_country_code' => 'OMNIVA_SHOP_COUNTRY_CODE',
+            'shop_city' => 'OMNIVA_SHOP_CITY',
+            'shop_address' => 'OMNIVA_SHOP_ADDRESS',
+            'shop_postcode' => 'OMNIVA_SHOP_POSTCODE',
+            'shop_phone' => 'OMNIVA_SHOP_PHONE',
+            'shop_email' => 'OMNIVA_SHOP_EMAIL',
+            'sender_address' => 'OMNIVA_SENDER_ADDRESS',
+        ),
     );
 
     /**

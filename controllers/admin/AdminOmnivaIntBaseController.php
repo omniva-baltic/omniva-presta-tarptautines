@@ -7,17 +7,16 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
 
     public function processSave()
     {
-        if(isset($this->section_id) && isset($this->module->_configKeys[$this->section_id]))
+        // Multi form with several sections.
+        if(isset($this->section_id) && is_array($this->section_id))
         {
             $res = true;
-            $config_keys = $this->module->_configKeys[$this->section_id];
-            foreach(Tools::getAllValues() as $key => $value)
+            foreach($this->section_id as $section)
             {
-                if(in_array($key, $config_keys))
+                if(isset($this->module->_configKeys[$section]))
                 {
-                    $res &= Configuration::updateValue($key, $value);
-                    if($res) 
-                        $this->fields_value[$key] = $value;
+                    $config_keys = $this->module->_configKeys[$section];
+                    $res &= $this->saveConfig($config_keys);
                 }
             }
             if($res)
@@ -25,8 +24,33 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
             else
                 $this->errors[] = $this->trans('Updating Settings failed.', array(), 'Admin.Notifications.Error');
         }
+        // Single form
+        elseif(isset($this->section_id) && isset($this->module->_configKeys[$this->section_id]))
+        {
+            $config_keys = $this->module->_configKeys[$this->section_id];
+            $res = $this->saveConfig($config_keys);
+            if($res)
+                $this->confirmations[] = $this->trans('Update Sucessful', array(), 'Admin.Notifications.Error');
+            else
+                $this->errors[] = $this->trans('Updating Settings failed.', array(), 'Admin.Notifications.Error');
+        }
         else
             parent::processSave();
+    }
+
+    public function saveConfig($config_keys)
+    {
+        $res = true;
+        foreach(Tools::getAllValues() as $key => $value)
+        {
+            if(in_array($key, $config_keys))
+            {
+                $res &= Configuration::updateValue($key, $value);
+                if($res) 
+                    $this->fields_value[$key] = $value;
+            }
+        }
+        return $res;
     }
 
     public function setMedia($isNewTheme = false)
