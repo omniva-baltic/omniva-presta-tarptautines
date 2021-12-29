@@ -111,12 +111,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'align' => 'center',
                 'callback' => 'displayPrice'
             ),
-            'select_cheapest' => array(
+            'cheapest' => array(
                 'type' => 'text',
                 'title' => $this->module->l('Price method'),
                 'align' => 'center',
                 'type' => 'select',
-                'filter_key' => 'a!select_cheapest',
+                'filter_key' => 'a!cheapest',
                 'list' => [
                     $this->module->l('Fastest'),
                     $this->module->l('Cheapest'),
@@ -124,12 +124,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'callback' => 'fastestOrCheapest'
             ),
         );
-        $this->actions = array('edit');
+        $this->actions = array('edit', 'delete');
     }
 
-    public function fastestOrCheapest($select_cheapest)
+    public function fastestOrCheapest($cheapest)
     {
-        if($select_cheapest)
+        if($cheapest)
             return $this->module->l('Cheapest');
         else
             return $this->module->l('Fastest');
@@ -258,7 +258,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 array(
                     'type' => 'switch',
                     'label' => $this->l('Fastest'),
-                    'name' => 'fastest',
+                    'name' => 'cheapest',
                     'values' => $fastest_cheapest_switcher_values
                 ),
                 array(
@@ -368,7 +368,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $my_login = (bool) Tools::getValue('my_login', 0);
         $user = Tools::getValue('user', '');
         $password = Tools::getValue('password', '');
-        $select_cheapest = (bool) Tools::getValue('fastest', false);
+        $cheapest = (bool) Tools::getValue('cheapest', false);
         $radius = (int) Tools::getValue('radius', 100);
 
         if(!Validate::isCarrierName($carrier_name))
@@ -410,7 +410,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->my_login = $my_login;
         $omnivaCarrier->user = $user;
         $omnivaCarrier->password = $password;
-        $omnivaCarrier->select_cheapest = $select_cheapest;
+        $omnivaCarrier->cheapest = $cheapest;
         $omnivaCarrier->radius = $radius;
 
         $result = $omnivaCarrier->add();
@@ -491,6 +491,31 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             $omnivaCarrierService->add();
         }
         foreach($deleted_services as $service)
+        {
+            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierServiced($this->object->id, $service);
+            if((int)$omnivaCarrierServiceId > 0)
+            {
+                $omnivaCarrierService = new OmnivaIntCarrierService($omnivaCarrierServiceId);
+                if(Validate::isLoadedObject($omnivaCarrierService))
+                {
+                    $omnivaCarrierService->delete();
+                }
+            }
+        }
+    }
+
+    public function processDelete()
+    {
+        // Let core delete the OmnivaIntCarrier
+        parent::processDelete();
+
+        // Delete the associated core carrier and carrier services.
+        $carrier = new Carrier($this->object->id_carrier);
+        if(!$carrier->delete())
+            $this->errors[] = $this->module->l('Couldn\'t delete Prestashop carrier.');
+
+        $carrier_services = OmnivaIntCarrierService::getCarrierServices($this->object->id);
+        foreach($carrier_services as $service)
         {
             $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierServiced($this->object->id, $service);
             if((int)$omnivaCarrierServiceId > 0)

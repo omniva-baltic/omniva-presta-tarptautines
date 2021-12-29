@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_carrier` (
     `my_login` tinyint(1),
     `user` varchar(50),
     `password` varchar(50),
-    `select_cheapest` tinyint(1),
+    `cheapest` tinyint(1),
     `radius` int(10),
     `date_add` datetime NOT NULL,
     `date_upd` datetime NOT NULL,
