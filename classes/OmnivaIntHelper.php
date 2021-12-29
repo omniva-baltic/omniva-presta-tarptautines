@@ -14,29 +14,6 @@ class OmnivaIntHelper
     }
 
     /**
-     * Get list of all Prestashop carriers
-     */
-    public function getAllCarriers($id_only = false)
-    {
-        $carriers = Carrier::getCarriers(
-            Context::getContext()->language->id,
-            true,
-            false,
-            false,
-            NULL,
-            PS_CARRIERS_AND_CARRIER_MODULES_NEED_RANGE
-        );
-        if ($id_only) {
-            $id_list = array();
-            foreach ($carriers as $carrier)
-                $id_list[] = $carrier['id_carrier'];
-            return $id_list;
-        }
-
-        return $carriers;
-    }
-
-    /**
      * Check if Prestashop carrier belongs to this module
      */
     public function itIsThisModuleCarrier($carrier_reference)

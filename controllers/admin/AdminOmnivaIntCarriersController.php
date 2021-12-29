@@ -61,10 +61,10 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
         $this->_join = '
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
-            LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_carrier = a.id_carrier)
+            LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_reference = a.id_reference)
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = ocs.id_service)';
 
-            $this->_group = 'GROUP BY id_carrier';
+            $this->_group = 'GROUP BY id_reference';
     }
 
     public function init()
@@ -285,7 +285,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
         if(Tools::isSubmit('updateomniva_int_carrier'))
         {
-            $prestaCarrier = new Carrier($this->object->id_carrier);
+            $prestaCarrier = Carrier::getCarrierByReference($this->object->id_reference);
             $this->fields_value = 
             [
                 'carrier_name' => $prestaCarrier->name,
@@ -403,7 +403,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
 
         $omnivaCarrier = new OmnivaIntCarrier();
-        $omnivaCarrier->id_carrier = $carrier->id;
+        $omnivaCarrier->id_reference = $carrier->id;
         $omnivaCarrier->price_type = $price_type;
         $omnivaCarrier->price = $price;
         $omnivaCarrier->free_shipping = $free_shipping;
@@ -470,7 +470,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
         else
         {
-            $carrier = new Carrier($this->object->id_carrier);
+            $carrier = Carrier::getCarrierByReference($this->object->id_reference);
             $carrier->name = $carrier_name;
             if(!$carrier->save())
                 $this->errors[] = $this->module->l('Couldn\'t update the carrier.');
@@ -510,7 +510,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         parent::processDelete();
 
         // Delete the associated core carrier and carrier services.
-        $carrier = new Carrier($this->object->id_carrier);
+        $carrier = Carrier::getCarrierByReference($this->object->id_reference);
         if(!$carrier->delete())
             $this->errors[] = $this->module->l('Couldn\'t delete Prestashop carrier.');
 

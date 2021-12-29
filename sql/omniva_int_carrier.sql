@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_carrier` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-    `id_carrier` int(10) unsigned NOT NULL,
+    `id_reference` int(10) unsigned NOT NULL,
     `price_type` varchar(30),
     `price` float(10),
     `free_shipping` float(10),
