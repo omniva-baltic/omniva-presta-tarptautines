@@ -162,21 +162,6 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             $this->errors[] = $this->trans("Failed updating services", array(), 'Admin.Notifications.Error');
     }
 
-    // public function processConfirmations()
-    // {
-    //     $conf = Tools::getValue('conf');
-    //     if($conf)
-    //     {
-    //         switch($conf) {
-    //             case 1:
-    //                 $this->confirmations[] = $this->trans('Successfully updated service categories', array(), 'Admin.Notifications.Notification');
-    //                 break;
-    //             default:
-    //                 break;
-    //         }
-    //     }
-    // }
-
     public function processCategories()
     {
         // $this->processConfirmations();
@@ -264,7 +249,7 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                     }
                 }
             }
-            Tools::redirectAdmin(self::$currentIndex . '&conf=4&action=categories&token=' . $this->token . '&id=' . $this->object->id);
+            $this->redirect_after = self::$currentIndex . '&conf=4&action=categories&token=' . $this->token . '&id=' . $this->object->id;
         }
     }
 

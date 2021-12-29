@@ -53,12 +53,18 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ],
         ];
 
-        $this->_select = ' c.name as name, os.name as service';
+        $this->_select = ' c.name as name, 
+                            (SELECT GROUP_CONCAT(os.service_code SEPARATOR ", ") 
+                            FROM `' . _DB_PREFIX_ .'omniva_int_service` os 
+                            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
+                            WHERE os.`id` = ocs.`id_service`) as services';
 
         $this->_join = '
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
             LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_carrier = a.id_carrier)
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = ocs.id_service)';
+
+            $this->_group = 'GROUP BY id_carrier';
     }
 
     public function init()
@@ -79,11 +85,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'align' => 'text-center',
                 'filter_key' => 'c!name'
             ),
-            'service' => array(
+            'services' => array(
                 'type' => 'text',
-                'title' => $this->module->l('Service'),
+                'title' => $this->module->l('Services'),
                 'align' => 'center',
-                'filter_key' => 'os!name'
+                'filter_key' => 'services',
+                'havingFilter' => true
             ),
             'price_type' => array(
                 'title' => $this->module->l('Price Type'),
@@ -117,6 +124,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'callback' => 'fastestOrCheapest'
             ),
         );
+        $this->actions = array('edit');
     }
 
     public function fastestOrCheapest($select_cheapest)
@@ -274,11 +282,28 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->fields_form['submit'] = array(
             'title' => $this->module->l('Save'),
         );
+
+        if(Tools::isSubmit('updateomniva_int_carrier'))
+        {
+            $prestaCarrier = new Carrier($this->object->id_carrier);
+            $this->fields_value = 
+            [
+                'carrier_name' => $prestaCarrier->name,
+                'services' => OmnivaIntCarrierService::getCarrierServices($this->object->id)
+            ];
+        }
+        else
+        {
+            $this->fields_value = 
+            [
+                'services' => []
+            ];
+        }
         
         return parent::renderForm();
     }
 
-    public function processSave()
+    public function processAdd()
     {
         if(Tools::getValue('submitAddomniva_int_carrier'))
         {
@@ -417,6 +442,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
         else
             $this->errors[] = $this->module->l('Failed to load Omniva Carrier object.');
+
+        $this->redirect_after = self::$currentIndex . '&conf=4&token=' . $this->token;
     }
 
     public function displayPrice($price)
@@ -427,5 +454,53 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
     public function transPriceType($price_type)
     {
         return isset($this->price_type_trans[$price_type]) ? $this->price_type_trans[$price_type] : $this->module->l("Price type not determined.");
+    }
+
+    public function processUpdate()
+    {
+        // Core can handle OmnivaIntCarrier fields.
+        parent::processUpdate();
+
+        // Extra handling for core Carrier and new carrier services, or removed ones.
+        $carrier_name = Tools::getValue('carrier_name', '');
+
+        if(!Validate::isCarrierName($carrier_name))
+        {
+            $this->errors[] = $this->module->l('Carrier name is invalid.');
+        }
+        else
+        {
+            $carrier = new Carrier($this->object->id_carrier);
+            $carrier->name = $carrier_name;
+            if(!$carrier->save())
+                $this->errors[] = $this->module->l('Couldn\'t update the carrier.');
+        }
+
+        // Handle services. If there are new one(s) selected - add them. If any were removed - delete them.
+        $current_services = OmnivaIntCarrierService::getCarrierServices($this->object->id);
+        $services_selected = Tools::getValue('services_selected');
+
+        $selected_services_new = array_diff($services_selected, $current_services);
+        $deleted_services = array_diff($current_services, $services_selected);
+
+        foreach($selected_services_new as $service)
+        {
+            $omnivaCarrierService = new OmnivaIntCarrierService();
+            $omnivaCarrierService->id_carrier = $this->object->id;
+            $omnivaCarrierService->id_service = $service;
+            $omnivaCarrierService->add();
+        }
+        foreach($deleted_services as $service)
+        {
+            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierServiced($this->object->id, $service);
+            if((int)$omnivaCarrierServiceId > 0)
+            {
+                $omnivaCarrierService = new OmnivaIntCarrierService($omnivaCarrierServiceId);
+                if(Validate::isLoadedObject($omnivaCarrierService))
+                {
+                    $omnivaCarrierService->delete();
+                }
+            }
+        }
     }
 }

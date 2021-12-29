@@ -24,7 +24,7 @@ class OmnivaIntServiceCategory extends ObjectModel
         {
             $query = (new DbQuery())
                 ->select("id_category")
-                ->from('omniva_int_service_category')
+                ->from(self::$definition['table'])
                 ->where('id_service = ' . $id_service);
 
             return array_map(function($category) {
@@ -36,7 +36,7 @@ class OmnivaIntServiceCategory extends ObjectModel
         {
             $query = (new DbQuery())
                 ->select("id")
-                ->from('omniva_int_service_category')
+                ->from(self::$definition['table'])
                 ->where('id_service = ' . $id_service)
                 ->where('id_category = ' . $id_category);
 
