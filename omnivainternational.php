@@ -21,6 +21,8 @@ if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }
 
+use OmnivaApi\Sender;
+
 class OmnivaInternational extends CarrierModule
 {
     const CONTROLLER_OMNIVA_MAIN = 'AdminOmnivaIntMain';
@@ -380,13 +382,37 @@ class OmnivaInternational extends CarrierModule
     public function getOrderShippingCost($params, $shipping_cost) {
         $carrier = new Carrier($this->id_carrier);
         $carrier_reference = $carrier->id_reference;
+        $cart = $this->context->cart;
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
-        $cart_without_shipping = $this->context->cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING);
+        $cart_without_shipping = $cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING);
+
+        $address = new Address($cart->id_address_delivery);
+        $country = new Country();
+        $country_code = OmnivaIntCountry::getCountryIdByIso($country->getIsoById($address->id_country));
+
+        $sender = $this->getSender();
+
         if($cart_without_shipping >= $omnivaCarrier->free_shipping)
         {
             return 0;
         }
         return $omnivaCarrier->price;
+    }
+
+    public function getSender()
+    {
+        $sender = new Sender();
+        $sender
+            ->setShippingType('courier')
+            ->setCompanyName(Configuration::get($this->getConfigKey('sender_name', 'SHOP')))
+            ->setContactName(Configuration::get($this->getConfigKey('shop_contact', 'SHOP')))
+            ->setStreetName(Configuration::get($this->getConfigKey('shop_address', 'SHOP')))
+            ->setZipcode(Configuration::get($this->getConfigKey('shop_postcode', 'SHOP')))
+            ->setCity(Configuration::get($this->getConfigKey('shop_city', 'SHOP')))
+            ->setPhoneNumber(Configuration::get($this->getConfigKey('shop_phone', 'SHOP')))
+            ->setCountryId(Configuration::get($this->getConfigKey('shop_country_code', 'SHOP')));
+
+        return $sender;
     }
 
     public function getOrderShippingCostExternal($params) {

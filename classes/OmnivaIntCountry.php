@@ -22,4 +22,10 @@ class OmnivaIntCountry extends ObjectModel
                 'code' =>           ['type' => self::TYPE_STRING, 'size' => 3],
             ],
         ];
+
+
+    public static function getCountryIdByIso($iso)
+    {
+        return (int) Db::getInstance()->getValue("SELECT id_country FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE code = '$iso'");
+    }
 }

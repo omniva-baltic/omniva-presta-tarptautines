@@ -13,6 +13,15 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
         $this->toolbar_title = $this->module->l('Omniva Settings');
         $this->multiple_fieldsets = true;
         $this->section_id = ['API', 'SHOP'];
+
+        // Map active countries to Omniva countries IDs 
+        $countries = Country::getCountries($this->context->language->id, true);
+        array_walk($countries, function(&$item, $key) {
+            if($k = OmnivaIntCountry::getCountryIdByIso($item['iso_code']))
+            {
+                $item['id_country'] = $k;
+            }
+        });
         $switcher_values = [
             [
                 'id' => 'active_on',
@@ -97,7 +106,7 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
                             'label' => $this->l('Country Code'),
                             'name' => $this->module->getConfigKey('shop_country_code', $this->section_id[1]),
                             'options' => [
-                                'query' => Country::getCountries($this->context->language->id, true),
+                                'query' => $countries,
                                 'id' => 'id_country',
                                 'name' => 'name'
                             ],
