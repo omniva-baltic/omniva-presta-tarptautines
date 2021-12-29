@@ -5,9 +5,6 @@ require_once __DIR__ . "/../../classes/OmnivaIntCategory.php";
 
 class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
 {
-    /** @var bool Is bootstrap used */
-    public $bootstrap = true;
-
     /**
      * AdminOmnivaIntCategories class constructor
      *

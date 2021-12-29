@@ -314,6 +314,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             $carrier->external_module_name = $this->module->name;
             $carrier->shipping_external = true;
             $carrier->shipping_handling = false;
+            $carrier->need_range = true;
             
             if (!$carrier->add()) {
                 $this->errors[] = $this->module->l('Select shop');

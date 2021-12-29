@@ -17,7 +17,6 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         parent::__construct();
         $this->title_icon = 'icon-server';
         $this->list_no_link = true;
-        $this->bootstrap = true;
         $this->_orderBy = 'id';
         $this->className = 'OmnivaIntService';
         $this->table = 'omniva_int_service';

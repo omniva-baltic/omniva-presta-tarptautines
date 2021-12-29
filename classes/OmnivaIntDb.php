@@ -10,7 +10,8 @@ class OmnivaIntDb
         'omniva_int_shipment',
         'omniva_int_terminal',
         'omniva_int_carrier_service',
-        'omniva_int_service_category'
+        'omniva_int_service_category',
+        'omniva_int_country'
     ];
     /**
      * Create tables for module

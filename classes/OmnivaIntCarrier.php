@@ -49,4 +49,24 @@ class OmnivaIntCarrier extends ObjectModel
             ],
         ];
 
+
+            /**
+     * Get carrier using the reference id.
+     */
+    public static function getCarrierByReference($id_reference)
+    {
+
+        $query = (new DbQuery())
+            ->select("id")
+            ->from(self::$definition['table'])
+            ->where('id_reference = ' . $id_reference);
+
+        $id_carrier = Db::getInstance()->getValue($query);
+        if (!$id_carrier) {
+            return false;
+        }
+
+        return new OmnivaIntCarrier($id_carrier);
+    }
+
 }

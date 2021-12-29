@@ -9,6 +9,7 @@ require_once __DIR__ . "/classes/OmnivaIntManifest.php";
 require_once __DIR__ . "/classes/OmnivaIntService.php";
 require_once __DIR__ . "/classes/OmnivaIntShipment.php";
 require_once __DIR__ . "/classes/OmnivaIntTerminal.php";
+require_once __DIR__ . "/classes/OmnivaIntCountry.php";
 require_once __DIR__ . "/vendor/autoload.php";
 
 if (!defined('_PS_VERSION_')) {
@@ -34,6 +35,8 @@ class OmnivaInternational extends CarrierModule
 
     const CONTROLLER_OMNIVA_SERVICES = 'AdminOmnivaIntServices';
 
+    const CONTROLLER_OMNIVA_COUNTRIES = 'AdminOmnivaIntCountries';
+
     /**
      * List of hooks
      */
@@ -48,7 +51,8 @@ class OmnivaInternational extends CarrierModule
         'displayAdminListBefore',
         'actionCarrierProcess',
         'displayAdminOmnivaIntServicesListBefore',
-        'displayAdminOmnivaIntTerminalsListBefore'
+        'displayAdminOmnivaIntTerminalsListBefore',
+        'displayAdminOmnivaIntCountriesListBefore'
     );
 
     /**
@@ -103,6 +107,8 @@ class OmnivaInternational extends CarrierModule
         'OmnivaIntCategory',
         'OmnivaIntRateCache'
     ];
+
+    public $id_carrier;
 
     /**
      * Class constructor
@@ -205,6 +211,10 @@ class OmnivaInternational extends CarrierModule
             ),
             self::CONTROLLER_TERMINALS => array(
                 'title' => $this->l('Terminals'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
+            ),
+            self::CONTROLLER_OMNIVA_COUNTRIES => array(
+                'title' => $this->l('Countries'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
         );
@@ -356,7 +366,15 @@ class OmnivaInternational extends CarrierModule
     }
 
     public function getOrderShippingCost($params, $shipping_cost) {
-        return $shipping_cost;
+        $carrier = new Carrier($this->id_carrier);
+        $carrier_reference = $carrier->id_reference;
+        $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
+        $cart_without_shipping = $this->context->cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING);
+        if($cart_without_shipping >= $omnivaCarrier->free_shipping)
+        {
+            return 0;
+        }
+        return $omnivaCarrier->price;
     }
 
     public function getOrderShippingCostExternal($params) {
@@ -597,6 +615,16 @@ class OmnivaInternational extends CarrierModule
     {
         $link = $this->context->link->getModuleLink($this->name, 'cron', ['type' => 'terminals', 'token' => Configuration::get('OMNIVA_CRON_TOKEN')]);
         $content = $this->l("To udate terminals periodically, add this CRON job to your cron table: ");
+
+        $sugar = "<b><i>$link</i></b>";
+
+        return $this->helper->displayAlert($content, $sugar);
+    }
+
+    public function hookDisplayAdminOmnivaIntCountriesListBefore($params)
+    {
+        $link = $this->context->link->getModuleLink($this->name, 'cron', ['type' => 'countries', 'token' => Configuration::get('OMNIVA_CRON_TOKEN')]);
+        $content = $this->l("To udate countries periodically, add this CRON job to your cron table: ");
 
         $sugar = "<b><i>$link</i></b>";
 

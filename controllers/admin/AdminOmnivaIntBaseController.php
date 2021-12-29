@@ -2,6 +2,9 @@
 
 abstract class AdminOmnivaIntBaseController extends ModuleAdminController
 {
+    /** @var bool Is bootstrap used */
+    public $bootstrap = true;
+
     public function processSave()
     {
         if(isset($this->section_id) && isset($this->module->_configKeys[$this->section_id]))

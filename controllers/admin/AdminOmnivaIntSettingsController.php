@@ -6,7 +6,6 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
 {
     public function __construct()
     {
-        $this->bootstrap = true;
         $this->display = 'edit';
         $this->show_form_cancel_button = false;
         $this->submit_action = 'submitAddconfigurationAndStay';

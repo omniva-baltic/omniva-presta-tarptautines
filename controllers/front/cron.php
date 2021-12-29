@@ -3,6 +3,7 @@
 use OmnivaApi\API;
 require_once __DIR__ . "/../../classes/OmnivaIntTerminal.php";
 require_once __DIR__ . "/../../classes/OmnivaIntService.php";
+require_once __DIR__ . "/../../classes/OmnivaIntCountry.php";
 
 class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
 {
@@ -65,6 +66,28 @@ class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
                 echo 'Successfully updated services';
             else
                 echo "Failed updating services";  
+        }
+        elseif($type == 'countries')
+        {
+            $response = $api->listAllCountries();
+            if($response && !empty($response))
+            {
+                $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_country`');
+                foreach($response as $country)
+                {
+                    $countryObj = new OmnivaIntCountry();
+                    $countryObj->id = $country->id;
+                    $countryObj->name = $country->name;
+                    $countryObj->en_name = $country->en_name;
+                    $countryObj->code = $country->code;
+                    $countryObj->force_id = true;
+                    $result &= $countryObj->add();
+                }
+            }
+            if($result)
+                echo 'Successfully updated countries';
+            else
+                echo "Failed updating countries";  
         }
         die();
     }

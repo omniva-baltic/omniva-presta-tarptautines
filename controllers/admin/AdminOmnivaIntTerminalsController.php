@@ -6,11 +6,6 @@ use OmnivaApi\API;
 
 class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 {
-    const LIST_ALLOWED_COUNTRIES = ['LT', 'LV', 'EE'];
-
-    /** @var bool Is bootstrap used */
-    public $bootstrap = true;
-
     public function __construct()
     {
         parent::__construct();
