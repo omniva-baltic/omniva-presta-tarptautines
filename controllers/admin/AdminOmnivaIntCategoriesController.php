@@ -97,7 +97,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
      */
     public function processStatus()
     {
-        $id_omniva_category = (int) Tools::getValue('id');
+        $id_omniva_category = (int) Tools::getValue('id_category');
         $current_status = (int) Db::getInstance()->getValue('SELECT `active` FROM ' . _DB_PREFIX_ . 'omniva_int_category WHERE `id_category` = ' . $id_omniva_category);
         $result = Db::getInstance()->update('omniva_int_category', ['active' => !$current_status], 'id_category = ' . $id_omniva_category);
 

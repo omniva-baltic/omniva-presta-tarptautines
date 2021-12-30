@@ -108,10 +108,10 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
         $result = true;
 
         $response = $api->getTerminals();
-        if($response && isset($response->parcel_machines))
+        if($response && isset($response->terminals))
         {
             $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_terminal`');
-            foreach($response->parcel_machines as $terminal)
+            foreach($response->terminals as $terminal)
             {
                 $terminalObj = new OmnivaIntTerminal();
                 $terminalObj->name = $terminal->name;

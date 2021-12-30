@@ -29,9 +29,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
         $this->price_type_trans = array_combine(
             self::PRICE_TYPES, [
-                $this->module->l('Fixed'),
-                $this->module->l('Surcharge %'),
-                $this->module->l('Surcharge, Eur'),
+                $this->module->l('Fixed, EUR'),
+                $this->module->l('Surcharge, %'),
+                $this->module->l('Surcharge, EUR'),
             ]
         );
 
@@ -39,17 +39,17 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             [
                 'id' => 'fixed',
                 'value' => 'fixed',
-                'label' => $this->module->l('Fixed'),
+                'label' => $this->module->l('Fixed, EUR'),
             ],
             [
                 'id' => 'surcharge-percent',
                 'value' => 'surcharge-percent',
-                'label' => $this->module->l('Surcharge %'),
+                'label' => $this->module->l('Surcharge, %'),
             ],
             [
                 'id' => 'surcharge-fixed',
                 'value' => 'surcharge-fixed',
-                'label' => $this->module->l('Surcharge, Eur'),
+                'label' => $this->module->l('Surcharge, EUR'),
             ],
         ];
 
@@ -103,10 +103,10 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             'price' => array(
                 'title' => $this->module->l('Price'),
                 'align' => 'center',
-                'callback' => 'displayPrice'
+                'callback' => 'displayPriceType'
             ),
             'free_shipping' => array(
-                'type' => 'numer',
+                'type' => 'number',
                 'title' => $this->module->l('Free Shipping'),
                 'align' => 'center',
                 'callback' => 'displayPrice'
@@ -191,7 +191,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'name' => 'price',
                     'label' => '',
                     'col' => '2',
-                    'prefix' => '€'
                 ),
                 array(
                     'type' => 'text',
@@ -450,6 +449,25 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
     public function displayPrice($price)
     {
         return Tools::displayPrice($price);
+    }
+
+    public function displayPriceType($price, $tr)
+    {
+        switch($tr['price_type'])
+        {
+            case 'fixed':
+                return Tools::displayPrice($price);
+                break;
+            case 'surcharge-percent':
+                return '+ ' . $price . ' %';
+                break;
+            case 'surcharge-fixed':
+                return '+ ' . $price . ' EUR';
+                break;
+            default:
+                return $price;
+                break;
+        }
     }
 
     public function transPriceType($price_type)
