@@ -10,6 +10,7 @@ require_once __DIR__ . "/classes/OmnivaIntService.php";
 require_once __DIR__ . "/classes/OmnivaIntShipment.php";
 require_once __DIR__ . "/classes/OmnivaIntTerminal.php";
 require_once __DIR__ . "/classes/OmnivaIntCountry.php";
+require_once __DIR__ . "/classes/OmnivaIntCarrierService.php";
 require_once __DIR__ . "/vendor/autoload.php";
 
 if (!defined('_PS_VERSION_')) {
@@ -21,7 +22,10 @@ if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }
 
+use OmnivaApi\API;
 use OmnivaApi\Sender;
+use OmnivaApi\Receiver;
+use OmnivaApi\Parcel;
 
 class OmnivaInternational extends CarrierModule
 {
@@ -124,6 +128,8 @@ class OmnivaInternational extends CarrierModule
 
     public $id_carrier;
 
+    public $api;
+
     /**
      * Class constructor
      */
@@ -137,6 +143,7 @@ class OmnivaInternational extends CarrierModule
         $this->ps_versions_compliancy = array('min' => '1.6.0', 'max' => '1.7.8');
         $this->bootstrap = true;
         $this->helper = new OmnivaIntHelper();
+        $this->api = new API(Configuration::get('OMNIVA_TOKEN'), Configuration::get('OMNIVA_INT_TEST_MODE'));
 
         parent::__construct();
 
@@ -387,16 +394,68 @@ class OmnivaInternational extends CarrierModule
         $cart_without_shipping = $cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING);
 
         $address = new Address($cart->id_address_delivery);
-        $country = new Country();
-        $country_code = OmnivaIntCountry::getCountryIdByIso($country->getIsoById($address->id_country));
 
         $sender = $this->getSender();
+        $receiver = $this->getReceiver($address);
+        $parcels = $this->getParcels($cart);
 
-        if($cart_without_shipping >= $omnivaCarrier->free_shipping)
+        $offers = $this->api->getOffers($sender, $receiver, $parcels);
+        
+        // Check if this carrier matches any offer. Return false, if no.
+        if(!empty($offers) && $carrier_offers = $this->checkIfCarrierMatchesOffers($omnivaCarrier, $offers))
         {
-            return 0;
+            // When there is only one offer, simply return it's price.
+            if(count($carrier_offers) == 1)
+            {
+                $offer = $carrier_offers[0];
+                if($cart_without_shipping >= $omnivaCarrier->free_shipping)
+                {
+                    return 0;
+                }
+                return $offer->price;
+            }
+            else
+            {
+                if($omnivaCarrier->cheapest)
+                {
+                    $prices = array_map(function($offer) {
+                        return (float) $offer->price;
+                    }, $carrier_offers);
+                    sort($prices);
+                    return $prices[0];
+                }
+                // Fastest
+                else
+                {
+                    $lower_bound_days = array_map(function($offer) {
+                        return (int) explode('-', $offer->delivery_time)[0];
+                    }, $carrier_offers);
+                    // Check the lower bound day (format: X-Y days)
+                    asort($lower_bound_days);
+
+                    // Get first key, which will correspond to fastest offer (parallel arrays)
+                    $fastest_key = array_key_first($lower_bound_days);
+                    return $carrier_offers[$fastest_key]->price;
+                }
+            }
         }
-        return $omnivaCarrier->price;
+        else
+            return false;
+    }
+
+    public function checkIfCarrierMatchesOffers($omnivaCarrier, $offers)
+    {
+        // First find appropriate offers.
+        $codes = OmnivaIntCarrierService::getCarrierServicesCodes($omnivaCarrier->id);
+        $carrier_offers = [];
+        foreach($offers as $offer)
+        {
+            if(in_array($offer->service_code, $codes))
+            {
+                $carrier_offers[] = $offer;
+            }
+        }
+        return !empty($carrier_offers) ? $carrier_offers : false;
     }
 
     public function getSender()
@@ -415,6 +474,49 @@ class OmnivaInternational extends CarrierModule
         return $sender;
     }
 
+    public function getReceiver($address)
+    {
+        $country = new Country();
+        $country_code = OmnivaIntCountry::getCountryIdByIso($country->getIsoById($address->id_country));
+
+        $receiver = new Receiver('courier');
+        $receiver
+            ->setShippingType('courier')
+            ->setContactName($address->firstname . ' ' . $address->lastname)
+            ->setStreetName($address->address1)
+            ->setZipcode($address->postcode)
+            ->setCity($address->city)
+            ->setPhoneNumber($address->phone)
+            ->setCountryId($country_code);
+
+        $customer = new Customer($address->id_customer);
+        if($customer->company && $address->company)
+        {
+            $receiver->setCompanyName($address->company);
+        }
+
+        return $receiver;
+    }
+
+    public function getParcels($cart)
+    {
+        $cart_products = $cart->getProducts();
+        $parcels = [];
+        foreach ($cart_products as $product)
+        {
+            $id_category = $product['id_category_default'];
+            $parcel = new Parcel();
+            $parcel
+                ->setAmount(2)
+                ->setUnitWeight(1)
+                ->setWidth(20)
+                ->setLength(20)
+                ->setHeight(20);
+            $parcels[] = $parcel->generateParcel(); 
+        }
+        return $parcels;
+    }
+
     public function getOrderShippingCostExternal($params) {
         return true;
     }
@@ -425,12 +527,13 @@ class OmnivaInternational extends CarrierModule
         foreach($categories as $category)
         {
             $omnivaCategory = new OmnivaIntCategory();
-            $omnivaCategory->id_category = $category['id_category'];
+            $omnivaCategory->id = $category['id_category'];
             $omnivaCategory->weight = 0;
             $omnivaCategory->length = 0;
             $omnivaCategory->width = 0;
             $omnivaCategory->height = 0;
             $omnivaCategory->active = 1;
+            $omnivaCategory->force_id = true;
             $omnivaCategory->add();
         }   
     }

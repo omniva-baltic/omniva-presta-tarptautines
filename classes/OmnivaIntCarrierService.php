@@ -42,5 +42,19 @@ class OmnivaIntCarrierService extends ObjectModel
             ->where('id_service = ' . $id_service);
 
         return  Db::getInstance()->getValue($query);
-    } 
+    }
+
+    public static function getCarrierServicesCodes($id_carrier)
+    {
+        $query = (new DbQuery())
+            ->select("os.service_code")
+            ->from(self::$definition['table'], 'ocs')
+            ->leftJoin('omniva_int_service', 'os', 'os.id = ocs.id_service')
+            ->where('ocs.id_carrier = ' . $id_carrier);
+
+        return array_map(function($service) {
+                return $service['service_code'];
+        }, Db::getInstance()->executeS($query));
+    }
+
 }

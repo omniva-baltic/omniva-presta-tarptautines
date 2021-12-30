@@ -14,10 +14,10 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
     {
         $this->list_no_link = true;
         $this->title_icon = 'icon-moon-o';
-        $this->_orderBy = 'id';
+        $this->_orderBy = 'id_category';
         $this->className = 'OmnivaIntCategory';
         $this->table = 'omniva_int_category';
-        $this->identifier = 'id';
+        $this->identifier = 'id_category';
         parent::__construct();
 
         $this->_select = " CONCAT(a.weight, ' ', 'kg') as weight,
@@ -98,8 +98,8 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
     public function processStatus()
     {
         $id_omniva_category = (int) Tools::getValue('id');
-        $current_status = (int) Db::getInstance()->getValue('SELECT `active` FROM ' . _DB_PREFIX_ . 'omniva_int_category WHERE `id` = ' . $id_omniva_category);
-        $result = Db::getInstance()->update('omniva_int_category', ['active' => !$current_status], 'id = ' . $id_omniva_category);
+        $current_status = (int) Db::getInstance()->getValue('SELECT `active` FROM ' . _DB_PREFIX_ . 'omniva_int_category WHERE `id_category` = ' . $id_omniva_category);
+        $result = Db::getInstance()->update('omniva_int_category', ['active' => !$current_status], 'id_category = ' . $id_omniva_category);
 
         return $result;
     }
@@ -107,7 +107,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
     public function renderForm()
     {
         $this->table = 'omniva_int_category';
-        $this->identifier = 'id';
+        $this->identifier = 'id_category';
 
         $switcher_values = array(
             array(
@@ -219,7 +219,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
         $categories = Category::getSimpleCategories($this->context->language->id);
         $omnivaCategoriesObj = (new PrestaShopCollection('OmnivaIntCategory'))->getResults();
         $omnivaCategories = array_map(function($omnivaCategory) {
-            return $omnivaCategory->id_category;
+            return $omnivaCategory->id;
         }, $omnivaCategoriesObj);
 
         foreach($categories as $category)
@@ -227,15 +227,16 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
             if(!in_array($category['id_category'], $omnivaCategories))
             {
                 $omnivaCategory = new OmnivaIntCategory();
-                $omnivaCategory->id_category = $category['id_category'];
+                $omnivaCategory->id = $category['id_category'];
                 $omnivaCategory->weight = 0;
                 $omnivaCategory->length = 0;
                 $omnivaCategory->width = 0;
                 $omnivaCategory->height = 0;
                 $omnivaCategory->active = 1;
+                $omnivaCategory->force_id = true;
                 $omnivaCategory->add();
             }
         } 
-        Tools::redirectAdmin(self::$currentIndex . '&token=' . $this->token);  
+        $this->redirect_after = self::$currentIndex . '&token=' . $this->token;  
     }
 }
