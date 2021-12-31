@@ -13,3 +13,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_carrier` (
     `date_upd` datetime NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+ALTER TABLE `_DB_PREFIX_omniva_int_carrier` ADD KEY `id_reference` (`id_reference`);
