@@ -53,14 +53,14 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                 'align' => 'center',
                 'search' => false
             ),
+            'cod' => array(
+                'type' => 'bool',
+                'title' => $this->module->l('COD'),
+                'align' => 'center',
+            ),
             'insurance' => array(
                 'type' => 'bool',
                 'title' => $this->module->l('Insurance'),
-                'align' => 'center',
-            ),
-            'return' => array(
-                'type' => 'bool',
-                'title' => $this->module->l('Return'),
                 'align' => 'center',
             ),
             'carry_service' => array(
@@ -71,6 +71,16 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             'doc_return' => array(
                 'type' => 'bool',
                 'title' => $this->module->l('Document Return'),
+                'align' => 'center',
+            ),
+            'own_login' => array(
+                'type' => 'bool',
+                'title' => $this->module->l('Own Login'),
+                'align' => 'center',
+            ),
+            'fragile' => array(
+                'type' => 'bool',
+                'title' => $this->module->l('Fragile'),
                 'align' => 'center',
             ),
         );

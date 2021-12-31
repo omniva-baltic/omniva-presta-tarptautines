@@ -6,6 +6,12 @@ use OmnivaApi\API;
 
 class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 {
+
+    const IDENTIFIER_MAPPINGS = [
+        'omniva' => 'Omniva',
+        'lp_express' => 'LP Express'
+    ];
+
     public function __construct()
     {
         parent::__construct();
@@ -37,6 +43,17 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 
     protected function terminalList()
     {
+        $identifiers = Db::getInstance()->executeS("SELECT DISTINCT `identifier` FROM " . _DB_PREFIX_ . "omniva_int_terminal");
+        $identifiers = array_map(function($identifier) {
+            return $identifier['identifier'];
+        }, $identifiers);
+
+        $identifiers_trans = array_map(function($identifier) {
+            return $this->transTerminalIdentifier($identifier);
+        }, $identifiers);
+
+        $terminal_identifiers = array_combine($identifiers, $identifiers_trans);
+
         $this->fields_list = array(
             'name' => array(
                 'title' => $this->module->l('Name'),
@@ -61,9 +78,22 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Comment'),
                 'type' => 'text',
             ),
+            'identifier' => array(
+                'title' => $this->module->l('Identifier'),
+                'align' => 'center',
+                'type' => 'select',
+                'filter_key' => 'a!identifier',
+                'list' => $terminal_identifiers,
+                'callback' => 'transTerminalIdentifier'
+            ),
         );
 
         $this->bulk_actions = [];
+    }
+
+    public function transTerminalIdentifier($identifier)
+    {
+        return isset(self::IDENTIFIER_MAPPINGS[$identifier]) ? self::IDENTIFIER_MAPPINGS[$identifier] : $identifier;
     }
 
     public function initToolbar()

@@ -4,17 +4,21 @@ class OmnivaIntShipment extends ObjectModel
 {
     public $id;
 
-    public $id_cart;
-
-    public $id_order;
-
     public $id_shop;
-
-    public $id_terminal;
 
     public $id_manifest;
 
-    public $shipment_weight;
+    public $cod;
+
+    public $insurance;
+
+    public $carry_service;
+
+    public $doc_return;
+
+    public $own_login;
+
+    public $fragile;
 
     /** @var string Object creation date */
     public $date_add;
@@ -27,14 +31,16 @@ class OmnivaIntShipment extends ObjectModel
      */
     public static $definition = [
         'table' => 'omniva_int_shipment',
-        'primary' => 'id',
+        'primary' => 'id_shipment',
         'fields' => [
-            'id_cart' =>             ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
-            'id_order' =>            ['type' => self::TYPE_INT, 'size' => 10],
             'id_shop' =>             ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
-            'id_terminal' =>         ['type' => self::TYPE_INT, 'size' => 10],
             'id_manifest' =>         ['type' => self::TYPE_INT, 'size' => 10],
-            'shipment_weight' =>     ['type' => self::TYPE_FLOAT, 'size' => 10],
+            'cod' =>                 ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'insurance' =>           ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'carry_service' =>       ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'doc_return' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'own_login' =>           ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'fragile' =>             ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'date_add' =>            ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             'date_upd' =>            ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             ],

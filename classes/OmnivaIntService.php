@@ -8,13 +8,17 @@ class OmnivaIntService extends ObjectModel
 
     public $service_code;
 
-    public $insurance;
+    public $cod;
 
-    public $return;
+    public $insurance;
 
     public $carry_service;
 
     public $doc_return;
+
+    public $own_login;
+
+    public $fragile;
 
     /** @var string Object creation date */
     public $date_add;
@@ -32,10 +36,12 @@ class OmnivaIntService extends ObjectModel
                 'name' =>             ['type' => self::TYPE_STRING, 'size' => 100],
                 'service_code' =>     ['type' => self::TYPE_STRING, 'size' => 20],
                 'image' =>            ['type' => self::TYPE_STRING, 'size' => 255],
+                'cod' =>              ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'insurance' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'return' =>           ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'carry_service' =>    ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'doc_return' =>       ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'own_login' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'fragile' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'date_add' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
                 'date_upd' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             ],

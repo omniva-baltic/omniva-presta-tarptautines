@@ -59,6 +59,15 @@ class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
                     $serviceObj->name = $service->name;
                     $serviceObj->service_code = $service->service_code;
                     $serviceObj->image = $service->image;
+                    if(isset($service->additional_services))
+                    {
+                        $serviceObj->cod = $service->additional_services->cod;
+                        $serviceObj->insurance = $service->additional_services->insurance;
+                        $serviceObj->carry_service = $service->additional_services->carry_service;
+                        $serviceObj->doc_return = $service->additional_services->doc_return;
+                        $serviceObj->own_login = $service->additional_services->own_login;
+                        $serviceObj->fragile = $service->additional_services->fragile;
+                    }
                     $result &= $serviceObj->add();
                 }
             }
