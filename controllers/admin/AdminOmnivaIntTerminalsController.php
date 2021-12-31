@@ -1,6 +1,7 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
+require_once __DIR__ . "/../../classes/OmnivaIntUpdater.php";
 
 use OmnivaApi\API;
 
@@ -125,38 +126,8 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 
     public function updateTerminals()
     {
-        $cron_token = Configuration::get('OMNIVA_CRON_TOKEN');
-        $token = Tools::getValue('cron_token');
-        if($token != $cron_token)
-        {
-            $this->errors[] = $this->trans('Invalid cron token.', array(), 'Admin.Notifications.Error');
-            return;
-        }
-
-        $token = Configuration::get('OMNIVA_TOKEN');
-        $api = new API($token, Configuration::get('OMNIVA_INT_TEST_MODE'));
-        $result = true;
-
-        $response = $api->getTerminals();
-        if($response && isset($response->terminals))
-        {
-            $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_terminal`');
-            foreach($response->terminals as $terminal)
-            {
-                $terminalObj = new OmnivaIntTerminal();
-                $terminalObj->name = $terminal->name;
-                $terminalObj->city = $terminal->city;
-                $terminalObj->country_code = $terminal->country_code;
-                $terminalObj->address = $terminal->address;
-                $terminalObj->x_cord = $terminal->x_cord;
-                $terminalObj->y_cord = $terminal->y_cord;
-                $terminalObj->comment = $terminal->comment;
-                $terminalObj->identifier = $terminal->identifier;
-                $result &= $terminalObj->add();
-            }
-        } 
-        
-        if($result)
+        $updater = new OmnivaIntUpdater('terminals');
+        if($updater->run())
             $this->confirmations[] = $this->trans('Successfully updated terminals', array(), 'Admin.Notifications.Error');
         else
             $this->errors[] = $this->trans("Failed updating terminals", array(), 'Admin.Notifications.Error');

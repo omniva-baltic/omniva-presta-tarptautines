@@ -457,16 +457,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         {
             case 'fixed':
                 return Tools::displayPrice($price);
-                break;
             case 'surcharge-percent':
                 return '+ ' . $price . ' %';
-                break;
             case 'surcharge-fixed':
                 return '+ ' . $price . ' EUR';
-                break;
             default:
                 return $price;
-                break;
         }
     }
 

@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_service` (
     `doc_return` tinyint(1),
     `own_login` tinyint(1),
     `fragile` tinyint(1),
+    `manage_categories` tinyint(1),
     `date_add` datetime NOT NULL,
     `date_upd` datetime NOT NULL,
     PRIMARY KEY (`id`)

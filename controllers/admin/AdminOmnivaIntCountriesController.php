@@ -1,6 +1,7 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
+require_once __DIR__ . "/../../classes/OmnivaIntUpdater.php";
 
 use OmnivaApi\API;
 
@@ -82,35 +83,8 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
 
     public function updateCountries()
     {
-        $cron_token = Configuration::get('OMNIVA_CRON_TOKEN');
-        $token = Tools::getValue('cron_token');
-        if($token != $cron_token)
-        {
-            $this->errors[] = $this->trans('Invalid cron token.', array(), 'Admin.Notifications.Error');
-            return;
-        }
-
-        $token = Configuration::get('OMNIVA_TOKEN');
-        $api = new API($token, Configuration::get('OMNIVA_INT_TEST_MODE'));
-        $result = true;
-
-        $response = $api->listAllCountries();
-        if($response && !empty($response))
-        {
-            $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_country`');
-            foreach($response as $country)
-            {
-                $countryObj = new OmnivaIntCountry();
-                $countryObj->id = $country->id;
-                $countryObj->name = $country->name;
-                $countryObj->en_name = $country->en_name;
-                $countryObj->code = $country->code;
-                $countryObj->force_id = true;
-                $result &= $countryObj->add();
-            }
-        } 
-        
-        if($result)
+        $updater = new OmnivaIntUpdater('countries');
+        if($updater->run())
             $this->confirmations[] = $this->trans('Successfully updated countries', array(), 'Admin.Notifications.Error');
         else
             $this->errors[] = $this->trans("Failed updating countries", array(), 'Admin.Notifications.Error');

@@ -20,6 +20,8 @@ class OmnivaIntService extends ObjectModel
 
     public $fragile;
 
+    public $manage_categories;
+
     /** @var string Object creation date */
     public $date_add;
 
@@ -33,17 +35,18 @@ class OmnivaIntService extends ObjectModel
         'table' => 'omniva_int_service',
         'primary' => 'id',
         'fields' => [
-                'name' =>             ['type' => self::TYPE_STRING, 'size' => 100],
-                'service_code' =>     ['type' => self::TYPE_STRING, 'size' => 20],
-                'image' =>            ['type' => self::TYPE_STRING, 'size' => 255],
-                'cod' =>              ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'insurance' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'carry_service' =>    ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'doc_return' =>       ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'own_login' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'fragile' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-                'date_add' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
-                'date_upd' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
+                'name' =>                       ['type' => self::TYPE_STRING, 'size' => 100],
+                'service_code' =>               ['type' => self::TYPE_STRING, 'size' => 20],
+                'image' =>                      ['type' => self::TYPE_STRING, 'size' => 255],
+                'cod' =>                        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'insurance' =>                  ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'carry_service' =>              ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'doc_return' =>                 ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'own_login' =>                  ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'fragile' =>                    ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'manage_categories' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'date_add' =>                   ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
+                'date_upd' =>                   ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             ],
         ];
         

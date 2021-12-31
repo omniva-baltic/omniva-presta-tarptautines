@@ -2,6 +2,7 @@
 
 require_once "AdminOmnivaIntBaseController.php";
 require_once __DIR__ . "/../../classes/OmnivaIntServiceCategory.php";
+require_once __DIR__ . "/../../classes/OmnivaIntUpdater.php";
 
 use OmnivaApi\API;
 
@@ -140,32 +141,8 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
 
     public function updateServices()
     {
-        $cron_token = Configuration::get('OMNIVA_CRON_TOKEN');
-        $token = Tools::getValue('cron_token');
-        if($token != $cron_token)
-        {
-            $this->errors[] = $this->trans('Invalid cron token.', array(), 'Admin.Notifications.Error');
-            return;
-        }
-
-        $token = Configuration::get('OMNIVA_TOKEN');
-        $api = new API($token, Configuration::get('OMNIVA_INT_TEST_MODE'));
-        $result = true;
-
-        $response = $api->listAllServices();
-        if($response && !empty($response))
-        {
-            $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_service`');
-            foreach($response as $service)
-            {
-                $serviceObj = new OmnivaIntService();
-                $serviceObj->name = $service->name;
-                $serviceObj->service_code = $service->service_code;
-                $serviceObj->image = $service->image;
-                $result &= $serviceObj->add();
-            }
-        }
-        if($result)
+        $updater = new OmnivaIntUpdater('services');
+        if($updater->run())
             $this->confirmations[] = $this->trans('Successfully updated services', array(), 'Admin.Notifications.Error');
         else
             $this->errors[] = $this->trans("Failed updating services", array(), 'Admin.Notifications.Error');
