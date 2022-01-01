@@ -17,7 +17,7 @@ class OmnivaIntOffersProvider
 
     private $module;
     
-    public function getSender($type)
+    private function getSender($type)
     {
         $sender = new Sender();
         $sender
@@ -32,7 +32,7 @@ class OmnivaIntOffersProvider
         return $sender;
     }
 
-    public function getReceiver($address)
+    private function getReceiver($address)
     {
         $country = new Country();
         $country_code = OmnivaIntCountry::getCountryIdByIso($country->getIsoById($address->id_country));
@@ -56,28 +56,39 @@ class OmnivaIntOffersProvider
         return $receiver;
     }
 
-    public function getParcels($cart)
+    private function getParcels($cart)
     {
         $cart_products = $cart->getProducts();
         $parcels = [];
         foreach ($cart_products as $product)
         {
             $id_category = $product['id_category_default'];
+            $parcel = new Parcel();
+            $parcel->setAmount((int) $product['cart_quantity']);
             $omnivaCategory = new OmnivaIntCategory($id_category);
             
-            $parcel = new Parcel();
-            $parcel
-                ->setAmount((int) $product['cart_quantity'])
+            if($omnivaCategory->active)
+            {
+                $parcel
                 ->setUnitWeight($this->unZero($omnivaCategory->weight))
                 ->setWidth($this->unZero($omnivaCategory->width))
                 ->setLength($this->unZero($omnivaCategory->length))
                 ->setHeight($this->unZero($omnivaCategory->height));
+            }
+            else
+            {
+                $parcel
+                ->setUnitWeight($this->unZero($product['weight']))
+                ->setWidth($this->unZero($product['width'] / 100))
+                ->setLength($this->unZero($product['depth'] / 100))
+                ->setHeight($this->unZero($product['height'] / 100));
+            }
             $parcels[] = $parcel->generateParcel(); 
         }
         return $parcels;
     }
 
-    public function cartIsSuitableForCarriers($cart)
+    private function cartIsSuitableForCarriers($cart)
     {
         $cart_products = $cart->getProducts();
         $parcels = [];
@@ -93,7 +104,7 @@ class OmnivaIntOffersProvider
         return true;
     }
 
-    public function checkIfCarrierMatchesOffers($omnivaCarrier, $offers)
+    private function checkIfCarrierMatchesOffers($omnivaCarrier, $offers)
     {
         // First find appropriate offers.
         $codes = OmnivaIntCarrierService::getCarrierServicesCodes($omnivaCarrier->id);
@@ -108,7 +119,7 @@ class OmnivaIntOffersProvider
         return !empty($carrier_offers) ? $carrier_offers : false;
     }
 
-    public function addSurcharge($price, $omniva_price, $price_type)
+    private function addSurcharge($price, $omniva_price, $price_type)
     {
         if($price_type == 'surcharge-percent')
         {
@@ -124,12 +135,9 @@ class OmnivaIntOffersProvider
 
     public function getPrice()
     {
+        $context = Context::getContext();
+        $cookie = $context->cookie;
         $cart = $this->cart;
-        if(!$this->cartIsSuitableForCarriers($cart))
-        {
-            return false;
-        }
-        
         $omnivaCarrier = $this->carrier;
         $cart_without_shipping = $cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING);
 
@@ -146,6 +154,8 @@ class OmnivaIntOffersProvider
             // If price type is fixed, we just return that fixed price for all applicable services.
             if($omnivaCarrier->price_type == 'fixed')
             {
+                $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[0]->service_code;
+                $cookie->write();
                 if($cart_without_shipping >= $omnivaCarrier->free_shipping)
                 {
                     return 0;
@@ -158,6 +168,8 @@ class OmnivaIntOffersProvider
             if(count($carrier_offers) == 1)
             {
                 $offer = $carrier_offers[0];
+                $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $offer->service_code;
+                $cookie->write();
                 if($cart_without_shipping >= $omnivaCarrier->free_shipping)
                 {
                     return 0;
@@ -171,8 +183,11 @@ class OmnivaIntOffersProvider
                     $prices = array_map(function($offer) {
                         return (float) $offer->price;
                     }, $carrier_offers);
-                    sort($prices);
-                    return $this->addSurcharge($prices[0], $omnivaCarrier->price, $omnivaCarrier->price_type);
+                    asort($prices);
+                    $cheapest_key = array_key_first($prices);
+                    $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$cheapest_key]->service_code;
+                    $cookie->write();
+                    return $this->addSurcharge($prices[$cheapest_key], $omnivaCarrier->price, $omnivaCarrier->price_type);
                 }
                 // Fastest
                 else
@@ -185,12 +200,19 @@ class OmnivaIntOffersProvider
 
                     // Get first key, which will correspond to fastest offer (parallel arrays)
                     $fastest_key = array_key_first($lower_bound_days);
+                    $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$fastest_key]->service_code;
+                    $cookie->write();
                     return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrier->price, $omnivaCarrier->price_type);
                 }
             }
         }
         else
             return false;
+    }
+
+    public function filterOffersByCategories($offers)
+    {
+        return $offers;
     }
 
     // Hacky way to avoid API exception as it does not allow any zero values (weight, length, width, height) for items

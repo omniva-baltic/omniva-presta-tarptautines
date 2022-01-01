@@ -1,6 +1,6 @@
 <?php
 
-class OmnivaIntShipment extends ObjectModel
+class OmnivaIntOrder extends ObjectModel
 {
     public $id;
 
@@ -30,11 +30,12 @@ class OmnivaIntShipment extends ObjectModel
      * @see ObjectModel::$definition
      */
     public static $definition = [
-        'table' => 'omniva_int_shipment',
+        'table' => 'omniva_int_order',
         'primary' => 'id_shipment',
         'fields' => [
             'id_shop' =>             ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
             'id_manifest' =>         ['type' => self::TYPE_INT, 'size' => 10],
+            'service_code' =>        ['type' => self::TYPE_STRING, 'size' => 20],
             'cod' =>                 ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'insurance' =>           ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'carry_service' =>       ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],

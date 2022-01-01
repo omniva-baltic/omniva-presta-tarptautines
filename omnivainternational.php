@@ -1,13 +1,12 @@
 <?php
 
-require_once __DIR__ . "/classes/models/OmnivaIntShipment.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
 require_once __DIR__ . "/classes/OmnivaIntDb.php";
 require_once __DIR__ . "/classes/OmnivaIntHelper.php";
 require_once __DIR__ . "/classes/models/OmnivaIntManifest.php";
 require_once __DIR__ . "/classes/models/OmnivaIntService.php";
-require_once __DIR__ . "/classes/models/OmnivaIntShipment.php";
+require_once __DIR__ . "/classes/models/OmnivaIntOrder.php";
 require_once __DIR__ . "/classes/models/OmnivaIntTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCountry.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
@@ -118,7 +117,7 @@ class OmnivaInternational extends CarrierModule
     );
 
     public static $_classes = [
-        'OmnivaIntShipment',
+        'OmnivaIntOrder',
         'OmnivaIntTerminal',
         'OmnivaIntManifest',
         'OmnivaIntService',
@@ -538,37 +537,16 @@ class OmnivaInternational extends CarrierModule
     public function hookActionValidateOrder($params)
     {
         $order = $params['order'];
-        $cart = $params['cart'];
-        $id_order = $order->id;
-        $id_cart = $cart->id;
-
-        $carrier = new Carrier($cart->id_carrier);
+        $carrier = new Carrier($order->id_carrier);
         $carrier_reference = $carrier->id_reference;
-        if(!in_array($carrier_reference, Configuration::getMultiple([self::$_carriers['courier']['reference_name'], self::$_carriers['pickup']['reference_name']])))
-            return;
-
-        $cDb = new OmnivaIntDb();
-        $check_order_id = $cDb->getOrderIdByCartId($id_cart);
-
-        if (empty($check_order_id)) {
-
-            $order_weight = $order->getTotalWeight();
-
-            // Convert to kg, if weight is in grams.
-            if(Configuration::get('PS_WEIGHT_UNIT') == 'g')
-                $order_weight *= 0.001;
-
-            $is_cod = 0;
-            if(in_array($order->module, self::$_codModules))
-                $is_cod = 1;
-
-             $cDb->updateOrderInfo($id_cart, array(
-                 'id_order' => $id_order,
-                 'warehouse_id' => MjvpWarehouse::getDefaultWarehouse(),
-                 'order_weight' => $order_weight,
-                 'cod_amount' => $order->total_paid_tax_incl,
-                 'is_cod' => $is_cod
-             ));
+        if($carrier->external_module_name == $this->name)
+        {
+            $omnivaOrder = new OmnivaIntOrder();
+            $omnivaOrder->force_id = true;
+            $omnivaOrder->id = $order->id;
+            $omnivaOrder->id_shop = $order->id_shop; 
+            $omnivaOrder->service_code = $this->context->cookie->{'omniva_carrier_' . $carrier_reference};
+            $omnivaOrder->add();
         }
     }
 
