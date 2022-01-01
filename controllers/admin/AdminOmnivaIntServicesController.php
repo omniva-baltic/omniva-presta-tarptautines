@@ -1,8 +1,8 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/OmnivaIntServiceCategory.php";
-require_once __DIR__ . "/../../classes/OmnivaIntUpdater.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntServiceCategory.php";
+require_once __DIR__ . "/../../classes/proxy/OmnivaIntUpdater.php";
 
 use OmnivaApi\API;
 
@@ -23,6 +23,10 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         $this->table = 'omniva_int_service';
         $this->identifier = 'id';
         $this->override_folder = _PS_MODULE_DIR_ . $this->module->name . '/views/admin/';
+
+        $this->_error = [
+            1 => $this->trans('You cannot assign categories to this service. Please enable the category mangment first.', [],'Admin.Catalog.Error'),
+        ];
     }
 
     public function init()
@@ -84,6 +88,12 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Fragile'),
                 'align' => 'center',
             ),
+            'manage_categories' => array(
+                'type' => 'bool',
+                'title' => $this->module->l('Manage Categories'),
+                'active' => 'status',
+                'align' => 'center',
+            ),
         );
 
         $this->actions = array('manageCategories');
@@ -94,6 +104,9 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
      */
     public function displayManageCategoriesLink($token, $id, $name = null)
     {
+        $omnivaService = new OmnivaIntService($id);
+        if(!$omnivaService->manage_categories)
+            return false;
         if (!array_key_exists('Manage Categories', self::$cache_lang)) {
             self::$cache_lang['Manage Categories'] = Context::getContext()->getTranslator()->trans('Manage Categories', [], 'Admin.Actions');
         }
@@ -153,6 +166,13 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         // $this->processConfirmations();
         $this->display = 'edit';
         $this->loadObject();
+
+        // nope...
+        if(!$this->object->manage_categories)
+        {
+            Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
+        }
+
         $this->fields_form = array(
             'legend' => array(
                 'title' => $this->module->l('Edit Categories for Service ') . $this->object->name,

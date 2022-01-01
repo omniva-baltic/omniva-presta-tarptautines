@@ -26,7 +26,7 @@ class OmnivaIntCategory extends ObjectModel
                 'width' =>         ['type' => self::TYPE_FLOAT, 'size' => 10],
                 'height' =>        ['type' => self::TYPE_FLOAT, 'size' => 10],
                 'active' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
-            ],
-        ];
+        ],
+    ];
 
 }

@@ -1,15 +1,15 @@
 <?php
 
 use OmnivaApi\API;
-require_once "OmnivaIntTerminal.php";
-require_once "OmnivaIntService.php";
-require_once "OmnivaIntCountry.php";
+require_once __DIR__ . "/../models/OmnivaIntTerminal.php";
+require_once __DIR__ . "/../models/OmnivaIntService.php";
+require_once __DIR__ . "/../models/OmnivaIntCountry.php";
 
 class OmnivaIntUpdater {
 
-    public $api;
+    private $api;
 
-    public $type;
+    private $type;
 
     public function __construct($type)
     {

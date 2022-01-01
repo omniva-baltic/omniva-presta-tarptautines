@@ -1,7 +1,7 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/OmnivaIntCategory.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntCategory.php";
 
 class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
 {
@@ -87,21 +87,6 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
         );
 
         $this->actions = array('edit', 'delete');
-    }
-        /**
-     * Change object status (active, inactive).
-     *
-     * @return ObjectModel|false
-     *
-     * @throws PrestaShopException
-     */
-    public function processStatus()
-    {
-        $id_omniva_category = (int) Tools::getValue('id_category');
-        $current_status = (int) Db::getInstance()->getValue('SELECT `active` FROM ' . _DB_PREFIX_ . 'omniva_int_category WHERE `id_category` = ' . $id_omniva_category);
-        $result = Db::getInstance()->update('omniva_int_category', ['active' => !$current_status], 'id_category = ' . $id_omniva_category);
-
-        return $result;
     }
 
     public function renderForm()
@@ -237,6 +222,6 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                 $omnivaCategory->add();
             }
         } 
-        $this->redirect_after = self::$currentIndex . '&token=' . $this->token;  
+        $this->redirect_after = self::$currentIndex . '&conf=4&token=' . $this->token;  
     }
 }

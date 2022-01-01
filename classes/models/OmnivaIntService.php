@@ -69,4 +69,11 @@ class OmnivaIntService extends ObjectModel
     {
         return (bool) Db::getInstance()->getValue("SELECT id FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE id = " . $id_service);
     }
+
+    public function toggleStatus()
+    {
+        $this->setFieldsToUpdate(['manage_categories' => true]);
+        $this->manage_categories = !(int) $this->manage_categories;
+        return $this->update(false);
+    }
 }

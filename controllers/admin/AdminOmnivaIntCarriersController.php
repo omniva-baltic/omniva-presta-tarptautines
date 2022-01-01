@@ -1,9 +1,9 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/OmnivaIntCarrier.php";
-require_once __DIR__ . "/../../classes/OmnivaIntService.php";
-require_once __DIR__ . "/../../classes/OmnivaIntCarrierService.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntCarrier.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntService.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntCarrierService.php";
 
 class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 {
