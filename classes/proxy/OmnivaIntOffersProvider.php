@@ -56,7 +56,7 @@ class OmnivaIntOffersProvider
         return $receiver;
     }
 
-    private function getParcels($cart)
+    public function getParcels($cart)
     {
         $cart_products = $cart->getProducts();
         $parcels = [];
@@ -64,24 +64,25 @@ class OmnivaIntOffersProvider
         {
             $id_category = $product['id_category_default'];
             $parcel = new Parcel();
-            $parcel->setAmount((int) $product['cart_quantity']);
+            $amount = (int) $product['cart_quantity'];
+            $parcel->setAmount($amount);
             $omnivaCategory = new OmnivaIntCategory($id_category);
             
             if($omnivaCategory->active)
             {
                 $parcel
-                ->setUnitWeight($this->unZero($omnivaCategory->weight))
-                ->setWidth($this->unZero($omnivaCategory->width))
-                ->setLength($this->unZero($omnivaCategory->length))
-                ->setHeight($this->unZero($omnivaCategory->height));
+                ->setUnitWeight($this->unZero($omnivaCategory->weight) * $amount)
+                ->setWidth($this->unZero($omnivaCategory->width) * $amount)
+                ->setLength($this->unZero($omnivaCategory->length) * $amount)
+                ->setHeight($this->unZero($omnivaCategory->height) * $amount);
             }
             else
             {
                 $parcel
-                ->setUnitWeight($this->unZero($product['weight']))
-                ->setWidth($this->unZero($product['width'] / 100))
-                ->setLength($this->unZero($product['depth'] / 100))
-                ->setHeight($this->unZero($product['height'] / 100));
+                ->setUnitWeight($this->unZero($product['weight']) * $amount)
+                ->setWidth($this->unZero($product['width'] / 100) * $amount)
+                ->setLength($this->unZero($product['depth'] / 100) * $amount)
+                ->setHeight($this->unZero($product['height'] / 100) * $amount);
             }
             $parcels[] = $parcel->generateParcel(); 
         }

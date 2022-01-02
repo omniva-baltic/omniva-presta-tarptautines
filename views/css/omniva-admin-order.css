@@ -1,0 +1,148 @@
+#omniva_shipment_form .panel {
+    position: relative;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid #dbe6e9;
+    border-radius: 5px;
+    -webkit-box-shadow: 0 0 4px 0 rgb(0 0 0 / 6%);
+    box-shadow: 0 0 4px 0 rgb(0 0 0 / 6%);
+}
+
+#omniva_shipment_form .panel-heading {
+    border-top-right-radius: 3px;
+    border-top-left-radius: 3px;
+    line-height: 1.5rem;
+    background-color: #fafbfc;
+    border: none;
+    border-bottom: 1px solid #dbe6e9;
+    margin: -20px -20px 15px -20px;
+    padding: 10px;
+    font-weight: 600;
+    color: #363a41;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media(min-width: 768px)
+{
+    #omniva_shipment_form {
+        width: 50%;
+    }
+}
+
+#omniva_shipment_form .switch a {
+    -webkit-box-shadow: "#1B7088" 0 -1px 0 inset;
+    background-color: #2eacce;
+    border: 1px solid #279cbb;
+    box-shadow: inset 0 -1px 0 "#1B7088";
+    color: #fff;
+    height: 100%;
+    left: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 50%;
+    z-index: 1;
+}
+
+#omniva_shipment_form .prestashop-switch input:first-of-type:checked ~ .slide-button::after {
+    -webkit-transform: translate(15px, -48%);
+    transform: translate(15px, -48%);
+}
+
+#omniva_shipment_form .prestashop-switch input:checked {
+    z-index: 0;
+}
+
+#omniva_shipment_form .prestashop-switch {
+    -webkit-box-shadow: rgba(0,0,0,.15) 0 1px 4px 1px inset;
+    background-color: #eee;
+    border-radius: 3px;
+    box-shadow: inset 0 1px 4px 1px rgba(0,0,0,.15);
+    color: #333;
+    margin-top: 3px;
+    text-align: center;
+}
+
+#omniva_shipment_form .form-horizontal .form-wrapper {
+    -webkit-box-flex: 0;
+    -ms-flex: 0 0 83.33333%;
+    flex: 0 0 83.33333%;
+    max-width: 83.33333%;
+    padding: 14px 0;
+    margin: auto;
+}
+
+#omniva_shipment_form .switch input {
+    opacity: 0;
+    position: absolute;
+}
+
+#omniva_shipment_form .prestashop-switch input:checked+label {
+    color: #fff;
+}
+
+#omniva_shipment_form .prestashop-switch label {
+    -webkit-transition: color .2s ease-out;
+    color: #bbb;
+    cursor: pointer;
+    font-weight: 400;
+    text-transform: uppercase;
+    transition: color .2s ease-out;
+}
+
+#omniva_shipment_form .switch input:last-of-type:checked~a {
+    -webkit-box-shadow: "#5C5C5C" 0 -1px 0 inset;
+    background-color: #e08f95;
+    border: 1px solid #ca6f6f;
+    box-shadow: inset 0 -1px 0 "#5C5C5C";
+    left: 50%;
+}
+
+#omniva_shipment_form .switch label {
+    float: left;
+    height: 100%;
+    margin: 0;
+    position: relative;
+    text-align: center;
+    width: 50%;
+    z-index: 2;
+    line-height: 26px;
+    vertical-align: middle;
+}
+
+#omniva_shipment_form .switch {
+    display: block;
+    height: 26px;
+    position: relative;
+}
+
+#omniva_shipment_form .fixed-width-lg {
+    width: 160px!important;
+}
+
+#omniva_shipment_form .form-horizontal .control-label {
+    margin-bottom: 0;
+    padding-top: 7px;
+    text-align: right;
+}
+
+#omniva_shipment_form .control-label.col-lg-4, #omniva_shipment_form .col-lg-8 {
+    float: left;
+}
+
+#omniva_shipment_form .form-group:before, #omniva_shipment_form .form-group:after {
+    content: " ";
+    display: table;
+}
+
+#omniva_shipment_form .form-group {
+    margin-bottom: 3rem;
+}
+
+#omniva_shipment_form .panel-heading.additional {
+    border-top: 1px solid #bbcdd2;
+    font-size: 12px;
+    border-radius: 0;
+}

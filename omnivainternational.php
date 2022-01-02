@@ -11,6 +11,7 @@ require_once __DIR__ . "/classes/models/OmnivaIntTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCountry.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
+require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
 require_once __DIR__ . "/vendor/autoload.php";
 
 if (!defined('_PS_VERSION_')) {
@@ -42,6 +43,8 @@ class OmnivaInternational extends CarrierModule
     const CONTROLLER_OMNIVA_SERVICES = 'AdminOmnivaIntServices';
 
     const CONTROLLER_OMNIVA_COUNTRIES = 'AdminOmnivaIntCountries';
+
+    const CONTROLLER_OMNIVA_ORDER = 'AdminOmnivaIntOrder';
 
     /**
      * List of hooks
@@ -238,6 +241,10 @@ class OmnivaInternational extends CarrierModule
             self::CONTROLLER_OMNIVA_COUNTRIES => array(
                 'title' => $this->l('Countries'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
+            ),
+            self::CONTROLLER_OMNIVA_ORDER => array(
+                'title' => $this->l('Omniva Order'),
+                'parent_tab' => -1,
             ),
         );
     }
@@ -505,56 +512,91 @@ class OmnivaInternational extends CarrierModule
 
         $form_fields = array(
             array(
-                'type' => 'text',
-                'label' => $this->l('API username'),
-                'name' => 'test2',
-                'size' => 20,
-                'required' => true,
-                'class' => 'form-control'
+                'type' => 'switch',
+                'label' => $this->l('C.O.D'),
+                'name' => 'cod',
+                'values' => $switcher_values
             ),
             array(
-                'type' => 'text',
-                'label' => $this->l('API password'),
-                'name' => 'test3',
-                'size' => 20,
-                'required' => true
+                'type' => 'switch',
+                'label' => $this->l('Insurance'),
+                'name' => 'insurance',
+                'values' => $switcher_values
+            ),
+            array(
+                'type' => 'switch',
+                'label' => $this->l('Carry service'),
+                'name' => 'carry_service',
+                'values' => $switcher_values
+            ),
+            array(
+                'type' => 'switch',
+                'label' => $this->l('Document Return'),
+                'name' => 'doc_return',
+                'values' => $switcher_values
+            ),
+            array(
+                'type' => 'switch',
+                'label' => $this->l('Fragile'),
+                'name' => 'fragile',
+                'values' => $switcher_values
+            ),
+            array(
+                'type' => 'hidden',
+                'name' => 'id_order',
+                'value' => $id_order,
             ),
         );
-
-
 
         if(Validate::isLoadedObject($order))
         {
             $order_carrier = new Carrier($order->id_carrier);
             if($order_carrier->external_module_name == $this->name)
             {
-                $adminThemeCSSFile = _PS_BO_ALL_THEMES_DIR_ . $this->bo_theme . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'theme.css';
-                $this->context->controller->addCSS($adminThemeCSSFile);
+                $this->context->smarty->assign('admin_default_tpl_path', _PS_BO_ALL_THEMES_DIR_ . 'default/template/');
                 $fieldsForm[0]['form'] = array(
                     'legend' => array(
                         'title' => 'Omniva International Shipment',
                     ),
                     'input' => $form_fields,
-                    'submit' => array(
-                        'title' => (!empty($submit_title)) ? $submit_title : $this->l('Save'),
-                        'class' => 'btn btn-default pull-right'
-                    ),
+                    'buttons' => [
+                        array(
+                            'title' => $this->l('Save'),
+                            'class' => 'btn btn-dark',
+                            'id' => 'save-shipment'
+                        ),
+                        array(
+                            'title' => $this->l('Send Shipment'),
+                            'class' => 'btn btn-primary',
+                            'id' => 'send-shipment'
+                        ),
+                    ]
                 );
         
                 $helper = new HelperForm();
+
+                $omnivaOrder = new OmnivaIntOrder($id_order);
+                $helper->fields_value = [
+                    'id_order' => $id_order,
+                    'cod' => $omnivaOrder->cod,
+                    'insurance' => $omnivaOrder->insurance,
+                    'carry_service' => $omnivaOrder->carry_service,
+                    'doc_return' => $omnivaOrder->doc_return,
+                    'fragile' => $omnivaOrder->fragile,
+                ];
         
                 // Module, token and currentIndex
                 $helper->module = $this;
+                $helper->table = 'omniva_shipment';
                 // $helper->bootstrap = true;
                 $helper->name_controller = $this->name;
-                $helper->token = Tools::getAdminTokenLite('AdminModules');
-                $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
         
                 // Title and toolbar
                 $helper->title = $this->displayName;
                 $helper->show_toolbar = true;        // false -> remove toolbar
                 $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
-                $helper->submit_action = 'submit' . $this->name . 'test';
+                $helper->submit_action = 'submit' . $this->name . 'shipment';
+
                 return $helper->generateForm($fieldsForm);
             }
         }
@@ -611,6 +653,7 @@ class OmnivaInternational extends CarrierModule
     public function hookActionValidateOrder($params)
     {
         $order = $params['order'];
+        $cart = $params['cart'];
         $carrier = new Carrier($order->id_carrier);
         $carrier_reference = $carrier->id_reference;
         if($carrier->external_module_name == $this->name)
@@ -621,15 +664,36 @@ class OmnivaInternational extends CarrierModule
             $omnivaOrder->id_shop = $order->id_shop; 
             $omnivaOrder->service_code = $this->context->cookie->{'omniva_carrier_' . $carrier_reference};
             $omnivaOrder->add();
+            if(Validate::isLoadedObject($omnivaOrder))
+            {
+                $offersProvider = new OmnivaIntOffersProvider();
+                $offersProvider->setModule($this);
+                $parcels = $offersProvider->getParcels($cart);
+                foreach($parcels as $parcel)
+                {
+                    $omnivaParcel = new OmnivaIntParcel();
+                    $omnivaParcel->id_shipment = $omnivaOrder->id;
+                    $omnivaParcel->amount = $parcel['amount'];
+                    $omnivaParcel->weight = $parcel['weight'];
+                    $omnivaParcel->length = $parcel['x'];
+                    $omnivaParcel->width = $parcel['y'];
+                    $omnivaParcel->height = $parcel['z'];
+                    $omnivaParcel->add();
+                }
+            }
         }
     }
 
     public function hookActionAdminControllerSetMedia()
     {
-        if(Tools::getValue('configure') == $this->name)
-        {
-            $this->context->controller->addJs('modules/' . $this->name . '/views/js/mjvp-admin.js');
-            $this->context->controller->addCSS($this->_path . 'views/css/mjvp-admin.css');
+        if (get_class($this->context->controller) == 'AdminOrdersController' || get_class($this->context->controller) == 'AdminLegacyLayoutControllerCore') {
+            {
+                Media::addJsDef([
+                    'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder'),
+                ]);
+                $this->context->controller->addCSS($this->_path . 'views/css/omniva-admin-order.css');
+                $this->context->controller->addJS($this->_path . 'views/js/omniva-admin-order.js');
+            }
         }
     }
 
