@@ -143,7 +143,8 @@ class OmnivaInternational extends CarrierModule
         $this->ps_versions_compliancy = array('min' => '1.6.0', 'max' => '1.7.8');
         $this->bootstrap = true;
         $this->helper = new OmnivaIntHelper();
-        $this->api = new API(Configuration::get('OMNIVA_TOKEN'), Configuration::get('OMNIVA_INT_TEST_MODE'));
+        if(Configuration::get('OMNIVA_TOKEN'))
+            $this->api = new API(Configuration::get('OMNIVA_TOKEN'), Configuration::get('OMNIVA_INT_TEST_MODE'));
 
         parent::__construct();
 
@@ -387,7 +388,8 @@ class OmnivaInternational extends CarrierModule
     }
 
     public function getOrderShippingCost($params, $shipping_cost) {
-
+        if($this->context->controller instanceof AdminController)
+            return false;
         $cart = $this->context->cart;
         $carrier = new Carrier($this->id_carrier);
         $carrier_reference = $carrier->id_reference;
@@ -484,6 +486,78 @@ class OmnivaInternational extends CarrierModule
      */
     public function hookDisplayAdminOrder($params)
     {
+        $id_order = Tools::getValue('id_order');
+        $order = new Order($id_order);
+
+
+        $switcher_values = array(
+            array(
+                'id' => 'active_on',
+                'value' => 1,
+                'label' => $this->l('Yes')
+            ),
+            array(
+                'id' => 'active_off',
+                'value' => 0,
+                'label' => $this->l('No')
+            )
+        );
+
+        $form_fields = array(
+            array(
+                'type' => 'text',
+                'label' => $this->l('API username'),
+                'name' => 'test2',
+                'size' => 20,
+                'required' => true,
+                'class' => 'form-control'
+            ),
+            array(
+                'type' => 'text',
+                'label' => $this->l('API password'),
+                'name' => 'test3',
+                'size' => 20,
+                'required' => true
+            ),
+        );
+
+
+
+        if(Validate::isLoadedObject($order))
+        {
+            $order_carrier = new Carrier($order->id_carrier);
+            if($order_carrier->external_module_name == $this->name)
+            {
+                $adminThemeCSSFile = _PS_BO_ALL_THEMES_DIR_ . $this->bo_theme . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'theme.css';
+                $this->context->controller->addCSS($adminThemeCSSFile);
+                $fieldsForm[0]['form'] = array(
+                    'legend' => array(
+                        'title' => 'Omniva International Shipment',
+                    ),
+                    'input' => $form_fields,
+                    'submit' => array(
+                        'title' => (!empty($submit_title)) ? $submit_title : $this->l('Save'),
+                        'class' => 'btn btn-default pull-right'
+                    ),
+                );
+        
+                $helper = new HelperForm();
+        
+                // Module, token and currentIndex
+                $helper->module = $this;
+                // $helper->bootstrap = true;
+                $helper->name_controller = $this->name;
+                $helper->token = Tools::getAdminTokenLite('AdminModules');
+                $helper->currentIndex = AdminController::$currentIndex . '&configure=' . $this->name;
+        
+                // Title and toolbar
+                $helper->title = $this->displayName;
+                $helper->show_toolbar = true;        // false -> remove toolbar
+                $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
+                $helper->submit_action = 'submit' . $this->name . 'test';
+                return $helper->generateForm($fieldsForm);
+            }
+        }
     }
 
     public function hookActionValidateStepComplete($params)

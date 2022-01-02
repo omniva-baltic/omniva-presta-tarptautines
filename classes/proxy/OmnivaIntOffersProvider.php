@@ -142,6 +142,11 @@ class OmnivaIntOffersProvider
         $cart_without_shipping = $cart->getOrderTotal(true, Cart::BOTH_WITHOUT_SHIPPING);
 
         $address = new Address($cart->id_address_delivery);
+
+        // If there is no address in the cart, it's not possible to fetch rates yet.
+        if(!Validate::isLoadedObject($address))
+            return false;
+
         $sender = $this->getSender('courier');
         $receiver = $this->getReceiver($address);
         $parcels = $this->getParcels($cart);
