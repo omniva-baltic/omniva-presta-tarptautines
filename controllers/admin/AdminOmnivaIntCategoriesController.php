@@ -21,7 +21,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
         parent::__construct();
 
         $this->_select = " CONCAT(a.weight, ' ', 'kg') as weight,
-            CONCAT(a.width, ' x ', a.length, ' x ', a.height) as measures,
+            CONCAT(a.width, ' cm x ', a.length, ' cm x ', a.height, ' cm') as measures,
             cl.name as name, cl2.name as parent";
 
         $this->_join = '
@@ -120,6 +120,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'required' => true,
                     'col' => '3',
                     'hint' => $this->module->l('Enter default category item weight'),
+                    'prefix' => 'kg'
                 ),
                 array(
                     'type' => 'text',
@@ -128,6 +129,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'required' => true,
                     'col' => '2',
                     'hint' => $this->module->l('Enter default category item length'),
+                    'prefix' => 'cm'
                 ),
                 array(
                     'type' => 'text',
@@ -136,6 +138,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'required' => true,
                     'col' => '2',
                     'hint' => $this->module->l('Enter default category item width'),
+                    'prefix' => 'cm'
                 ),
                 array(
                     'type' => 'text',
@@ -144,6 +147,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'required' => true,
                     'col' => '2',
                     'hint' => $this->module->l('Enter default category item height'),
+                    'prefix' => 'cm'
                 ),
                 array(
                     'type' => 'switch',

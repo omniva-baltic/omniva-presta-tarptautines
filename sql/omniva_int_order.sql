@@ -3,6 +3,8 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
     `id_shop` int(10) NOT NULL,
     `id_manifest` int(10),
     `service_code` varchar(20) NOT NULL,
+    `shipment_id` varchar(100) DEFAULT NULL,
+    `cart_id` varchar(100) DEFAULT NULL,
     `cod` tinyint(1),
     `insurance` tinyint(1),
     `carry_service` tinyint(1),

@@ -5,7 +5,7 @@ use OmnivaApi\Sender;
 use OmnivaApi\Receiver;
 use OmnivaApi\Parcel;
 
-require_once __DIR__ . "/../models/OmnivaIntCountry.php";
+require_once 'OmnivaIntEntityBuilder.php';
 
 class OmnivaIntOffersProvider
 {
@@ -16,77 +16,12 @@ class OmnivaIntOffersProvider
     private $carrier;
 
     private $module;
-    
-    private function getSender($type)
+
+    private $entityBuilder;
+
+    public function __construct()
     {
-        $sender = new Sender();
-        $sender
-            ->setShippingType($type)
-            ->setCompanyName(Configuration::get($this->module->getConfigKey('sender_name', 'SHOP')))
-            ->setContactName(Configuration::get($this->module->getConfigKey('shop_contact', 'SHOP')))
-            ->setStreetName(Configuration::get($this->module->getConfigKey('shop_address', 'SHOP')))
-            ->setZipcode(Configuration::get($this->module->getConfigKey('shop_postcode', 'SHOP')))
-            ->setCity(Configuration::get($this->module->getConfigKey('shop_city', 'SHOP')))
-            ->setPhoneNumber(Configuration::get($this->module->getConfigKey('shop_phone', 'SHOP')))
-            ->setCountryId(Configuration::get($this->module->getConfigKey('shop_country_code', 'SHOP')));
-        return $sender;
-    }
-
-    private function getReceiver($address)
-    {
-        $country = new Country();
-        $country_code = OmnivaIntCountry::getCountryIdByIso($country->getIsoById($address->id_country));
-
-        $receiver = new Receiver('courier');
-        $receiver
-            ->setShippingType('courier')
-            ->setContactName($address->firstname . ' ' . $address->lastname)
-            ->setStreetName($address->address1)
-            ->setZipcode($address->postcode)
-            ->setCity($address->city)
-            ->setPhoneNumber($address->phone)
-            ->setCountryId($country_code);
-
-        $customer = new Customer($address->id_customer);
-        if($customer->company && $address->company)
-        {
-            $receiver->setCompanyName($address->company);
-        }
-
-        return $receiver;
-    }
-
-    public function getParcels($cart)
-    {
-        $cart_products = $cart->getProducts();
-        $parcels = [];
-        foreach ($cart_products as $product)
-        {
-            $id_category = $product['id_category_default'];
-            $parcel = new Parcel();
-            $amount = (int) $product['cart_quantity'];
-            $parcel->setAmount($amount);
-            $omnivaCategory = new OmnivaIntCategory($id_category);
-            
-            if($omnivaCategory->active)
-            {
-                $parcel
-                ->setUnitWeight($this->unZero($omnivaCategory->weight) * $amount)
-                ->setWidth($this->unZero($omnivaCategory->width) * $amount)
-                ->setLength($this->unZero($omnivaCategory->length) * $amount)
-                ->setHeight($this->unZero($omnivaCategory->height) * $amount);
-            }
-            else
-            {
-                $parcel
-                ->setUnitWeight($this->unZero($product['weight']) * $amount)
-                ->setWidth($this->unZero($product['width'] / 100) * $amount)
-                ->setLength($this->unZero($product['depth'] / 100) * $amount)
-                ->setHeight($this->unZero($product['height'] / 100) * $amount);
-            }
-            $parcels[] = $parcel->generateParcel(); 
-        }
-        return $parcels;
+        $this->entityBuilder = new OmnivaIntEntityBuilder();
     }
 
     private function cartIsSuitableForCarriers($cart)
@@ -148,9 +83,9 @@ class OmnivaIntOffersProvider
         if(!Validate::isLoadedObject($address))
             return false;
 
-        $sender = $this->getSender('courier');
-        $receiver = $this->getReceiver($address);
-        $parcels = $this->getParcels($cart);
+        $sender = $this->entityBuilder->buildSender('courier');
+        $receiver = $this->entityBuilder->buildReceiver($address);
+        $parcels = $this->entityBuilder->buildParcels($cart);
 
         $offers = $this->module->api->getOffers($sender, $receiver, $parcels);
         
@@ -219,12 +154,6 @@ class OmnivaIntOffersProvider
     public function filterOffersByCategories($offers)
     {
         return $offers;
-    }
-
-    // Hacky way to avoid API exception as it does not allow any zero values (weight, length, width, height) for items
-    public function unZero($value)
-    {
-        return $value == 0 ? 0.001 : $value;
     }
 
     /**

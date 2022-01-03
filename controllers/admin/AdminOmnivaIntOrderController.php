@@ -2,6 +2,7 @@
 
 require_once "AdminOmnivaIntBaseController.php";
 require_once __DIR__ . "/../../classes/models/OmnivaIntOrder.php";
+require_once __DIR__ . "/../../classes/proxy/OmnivaIntEntityBuilder.php";
 
 class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 {
@@ -39,6 +40,43 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 $omnivaOrder->fragile = $doc_return;
                 die($omnivaOrder->update() ? json_encode(['success' => $this->module->l('Omniva order info updated successfully.')]) : 
                                              json_encode(['error' => $this->module->l('Couldn\'t update Omniva order info.')]));
+            }
+            die(json_encode(['error' => $this->module->l('Couldn\'t load Omniva order info.')]));
+        }
+    }
+
+    public function ajaxProcessSendShipment()
+    {
+        if ($this->access('edit') != '1') {
+            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
+        }
+
+        if (Tools::isSubmit('submitSendShipment')) {
+            $id_order = Tools::getValue('id_order');
+
+            $omnivaOrder = $this->loadObject();
+            $order = new Order($id_order);
+            $cart = new Cart($order->id_cart);
+            if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
+            {
+                $entityBuilder = new OmnivaIntEntityBuilder();
+                $order = $entityBuilder->buildOrder($order);
+                $response = $this->module->api->generateOrder($order);
+                $omnivaOrder->setFieldsToUpdate([
+                    'shipment_id' => true,
+                    'cart_id' => true,
+                ]);
+                if($response && isset($response->shipment_id, $response->cart_id))
+                {
+                    $omnivaOrder->shipment_id = $response->shipment_id;
+                    $omnivaOrder->cart_id = $response->cart_id;
+                    die($omnivaOrder->update() ? json_encode(['success' => $this->module->l('Omniva successfully generated shipment.')]) : 
+                    json_encode(['error' => $this->module->l('Couldn\'t update Omniva order.')]));
+                }
+                else
+                {
+                    die(json_encode(['error' => $this->module->l('Failed to receive a response from API.')]));
+                }
             }
             die(json_encode(['error' => $this->module->l('Couldn\'t load Omniva order info.')]));
         }

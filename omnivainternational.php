@@ -672,7 +672,7 @@ class OmnivaInternational extends CarrierModule
                 foreach($parcels as $parcel)
                 {
                     $omnivaParcel = new OmnivaIntParcel();
-                    $omnivaParcel->id_shipment = $omnivaOrder->id;
+                    $omnivaParcel->id_order = $omnivaOrder->id;
                     $omnivaParcel->amount = $parcel['amount'];
                     $omnivaParcel->weight = $parcel['weight'];
                     $omnivaParcel->length = $parcel['x'];

@@ -39,4 +39,35 @@ $(document).ready(function() {
             }
          });
     });
+
+    $('#send-shipment').on('click', () => {
+
+      let id_order = $('#id_order').val();
+      
+      $.ajax({
+          url: omniva_admin_order_link,
+          cache: false,
+          data : {
+             id_order: id_order,
+             submitSendShipment: '1',
+             action: 'sendShipment',
+             ajax: '1',
+          },
+          dataType: "json",
+          success : function(res,textStatus,jqXHR)
+          {
+             try
+             {
+                if (res.success)
+                   showSuccessMessage(res.success);
+                else
+                   showErrorMessage(res.error);
+             }
+             catch(e)
+             {
+                jAlert('Technical error');
+             }
+          }
+       });
+  });
 });
