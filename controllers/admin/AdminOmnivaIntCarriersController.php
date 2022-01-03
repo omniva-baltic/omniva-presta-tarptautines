@@ -199,30 +199,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'col' => '2',
                     'prefix' => '€'
                 ),
-                // array(
-                //     'type' => 'switch',
-                //     'label' => $this->l('Insurance'),
-                //     'name' => 'insurance',
-                //     'values' => $switcher_values
-                // ),
-                // array(
-                //     'type' => 'switch',
-                //     'label' => $this->l('Return'),
-                //     'name' => 'return',
-                //     'values' => $switcher_values
-                // ),
-                // array(
-                //     'type' => 'switch',
-                //     'label' => $this->l('Carry service'),
-                //     'name' => 'carry',
-                //     'values' => $switcher_values
-                // ),
-                // array(
-                //     'type' => 'switch',
-                //     'label' => $this->l('Document Return'),
-                //     'name' => 'insurance',
-                //     'values' => $switcher_values
-                // ),
                 array(
                     'type' => 'swap',
                     'label' => $this->module->l('Services'),
@@ -235,24 +211,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                         'name' => 'name',
                     ],
                     'desc' => $this->module->l('Select all services which will be used by this carrier'),
-                ),
-                array(
-                    'type' => 'switch',
-                    'label' => $this->l('My login'),
-                    'name' => 'my_login',
-                    'values' => $switcher_values
-                ),
-                array(
-                    'type' => 'text',
-                    'label' => $this->module->l('User'),
-                    'name' => 'user',
-                    'col' => '3',
-                ),
-                array(
-                    'type' => 'text',
-                    'label' => $this->module->l('Password'),
-                    'name' => 'password',
-                    'col' => '3',
                 ),
                 array(
                     'type' => 'switch',
@@ -353,7 +311,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
     public function createOmnivaCarrier($carrier)
     {
-        // First - the actual OmnivaIntCarrier, which will be linked to international services and carrier logins, should they be used.
+        // First - the actual OmnivaIntCarrier, which will be linked to international services.
         /* Validation is pretty simple.
         // 1. Proper carrier name.
         // 2. At least one EXISTING service (otherwise, there is no point to this module..)
@@ -365,9 +323,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $price_type = Tools::getValue('price_type', false);
         $price = (float) Tools::getValue('price', 0.0);
         $free_shipping = (float) Tools::getValue('free_shipping', 0.0);
-        $my_login = (bool) Tools::getValue('my_login', 0);
-        $user = Tools::getValue('user', '');
-        $password = Tools::getValue('password', '');
         $cheapest = (bool) Tools::getValue('cheapest', false);
         $radius = (int) Tools::getValue('radius', 100);
 
@@ -407,9 +362,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->price_type = $price_type;
         $omnivaCarrier->price = $price;
         $omnivaCarrier->free_shipping = $free_shipping;
-        $omnivaCarrier->my_login = $my_login;
-        $omnivaCarrier->user = $user;
-        $omnivaCarrier->password = $password;
         $omnivaCarrier->cheapest = $cheapest;
         $omnivaCarrier->radius = $radius;
 

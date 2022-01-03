@@ -12,12 +12,6 @@ class OmnivaIntCarrier extends ObjectModel
 
     public $free_shipping;
 
-    public $my_login;
-
-    public $user;
-
-    public $password;
-
     public $cheapest;
 
     public $radius;
@@ -39,9 +33,6 @@ class OmnivaIntCarrier extends ObjectModel
                 'price_type' =>       ['type' => self::TYPE_STRING, 'required' => true, 'size' => 30],
                 'price' =>            ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
                 'free_shipping' =>    ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
-                'my_login' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
-                'user' =>             ['type' => self::TYPE_STRING, 'size' => 50],
-                'password' =>         ['type' => self::TYPE_STRING, 'size' => 50],
                 'cheapest' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
                 'radius' =>           ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
                 'date_add' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],

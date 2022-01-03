@@ -22,10 +22,11 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         $this->className = 'OmnivaIntService';
         $this->table = 'omniva_int_service';
         $this->identifier = 'id';
-        $this->override_folder = _PS_MODULE_DIR_ . $this->module->name . '/views/admin/';
+        $this->tpl_folder = 'override/';
 
         $this->_error = [
             1 => $this->trans('You cannot assign categories to this service. Please enable the category mangment first.', [],'Admin.Catalog.Error'),
+            2 => $this->trans('This service cannot be assigned own logins.', [],'Admin.Catalog.Error'),
         ];
     }
 
@@ -96,7 +97,7 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             ),
         );
 
-        $this->actions = array('manageCategories');
+        $this->actions = array('manageCategories', 'manageLogins');
     }
 
         /**
@@ -117,6 +118,23 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         ));
 
         return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_category_action.tpl');
+    }
+
+    public function displayManageLoginsLink($token, $id, $name = null)
+    {
+        $omnivaService = new OmnivaIntService($id);
+        if(!$omnivaService->own_login)
+            return false;
+        if (!array_key_exists('Manage Logins', self::$cache_lang)) {
+            self::$cache_lang['Manage Logins'] = Context::getContext()->getTranslator()->trans('Manage Categories', [], 'Admin.Actions');
+        }
+        $this->context->smarty->assign(array(
+            'href' => self::$currentIndex . '&action=logins&token=' . $this->token . '&id=' . $id,
+            'action' => Context::getContext()->getTranslator()->trans('Manage Logins', array(), 'Admin.Actions'),
+            'id' => $id,
+        ));
+
+        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_logins_action.tpl');
     }
 
     // Added fictive button to so that counter would be displayed in list header (check list-header.tpl #144-145)
@@ -163,7 +181,6 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
 
     public function processCategories()
     {
-        // $this->processConfirmations();
         $this->display = 'edit';
         $this->loadObject();
 
@@ -256,6 +273,60 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                 }
             }
             $this->redirect_after = self::$currentIndex . '&conf=4&action=categories&token=' . $this->token . '&id=' . $this->object->id;
+        }
+    }
+
+    public function processLogins()
+    {
+        $this->display = 'edit';
+        $this->submit_action = 'submitLogins';
+        $this->loadObject();
+
+        if(!$this->object->own_login)
+        {
+            Tools::redirectAdmin(self::$currentIndex . '&error=2&token=' . $this->token);
+        }
+
+        $this->fields_form = array(
+            'legend' => array(
+                'title' => $this->module->l('Edit login credentials for service ') . $this->object->name,
+                'icon' => 'icon-berry',
+            ),
+            'input' => array(
+                array(
+                    'type' => 'text',
+                    'label' => $this->module->l('User'),
+                    'name' => 'user',
+                ),
+                array(
+                    'type' => 'text',
+                    'label' => $this->module->l('Password'),
+                    'name' => 'password',
+                ),
+                array(
+                    'type' => 'hidden',
+                    'name' => 'action',
+                    'value' => 'logins'
+                ),
+            ),
+        );
+
+        if (Shop::isFeatureActive()) {
+            $this->fields_form['input'][] = array(
+                'type' => 'shop',
+                'label' => $this->module->l('Shop association'),
+                'name' => 'checkBoxShopAsso',
+            );
+        }
+
+        $this->fields_form['submit'] = array(
+            'name' => 'serviceLogin',
+            'title' => $this->module->l('Save'),
+        );
+
+        if(Tools::getValue('submitLogins'))
+        {
+            parent::processUpdate();
         }
     }
 

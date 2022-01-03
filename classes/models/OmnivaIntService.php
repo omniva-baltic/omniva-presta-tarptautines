@@ -43,6 +43,8 @@ class OmnivaIntService extends ObjectModel
                 'carry_service' =>              ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'doc_return' =>                 ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'own_login' =>                  ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'user' =>                       ['type' => self::TYPE_STRING, 'size' => 50],
+                'password' =>                   ['type' => self::TYPE_STRING, 'size' => 50],
                 'fragile' =>                    ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'manage_categories' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'date_add' =>                   ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
