@@ -8,6 +8,12 @@ class OmnivaIntOrder extends ObjectModel
 
     public $id_manifest;
 
+    public $service_code;
+
+    public $shipment_id;
+
+    public $cart_id;
+
     public $cod;
 
     public $insurance;

@@ -38,4 +38,39 @@ class OmnivaIntParcel extends ObjectModel
         ],
     ];
 
+    public static function getParcelsByOrderId($id_order)
+    {
+        $query = (new DbQuery())
+            ->select("id")
+            ->from(self::$definition['table'])
+            ->where('id_order = ' . $id_order);
+
+        return array_map(function($parcel) {
+                return $parcel['id'];
+        }, Db::getInstance()->executeS($query));
+    }
+
+    public static function getCountUntrackedParcelsByOrderId($id_order)
+    {
+        $query = (new DbQuery())
+            ->select("COUNT(id)")
+            ->from(self::$definition['table'])
+            ->where('id_order = ' . $id_order . ' AND tracking_number IS NULL OR tracking_number = ""');
+
+        return (int) Db::getInstance()->getValue($query);
+    }
+
+
+    public static function getTrackingNumbersByOrderId($id_order)
+    {
+        $query = (new DbQuery())
+            ->select("tracking_number")
+            ->from(self::$definition['table'])
+            ->where('id_order = ' . $id_order);
+
+        return array_map(function($parcel) {
+                return $parcel['tracking_number'];
+        }, Db::getInstance()->executeS($query));
+    }
+
 }

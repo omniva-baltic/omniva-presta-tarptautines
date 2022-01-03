@@ -496,7 +496,6 @@ class OmnivaInternational extends CarrierModule
         $id_order = Tools::getValue('id_order');
         $order = new Order($id_order);
 
-
         $switcher_values = array(
             array(
                 'id' => 'active_on',
@@ -573,9 +572,28 @@ class OmnivaInternational extends CarrierModule
                     ]
                 );
         
-                $helper = new HelperForm();
-
                 $omnivaOrder = new OmnivaIntOrder($id_order);
+                $omnivaOrderParcels = OmnivaIntParcel::getParcelsByOrderId($id_order);
+                $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id_order);
+                if($omnivaOrder->shipment_id && $untrackedParcelsCount > 0)
+                {
+                    // Just catch the exception, because it is thrown, if order is not yet ready, i.e gives error "Your order is being generated, please try again later"
+                    try {
+                        $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+                        if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
+                        {
+                            foreach($omnivaOrderParcels as $key => $id_parcel)
+                            {
+                                $omnivaParcel = new OmnivaIntParcel($id_parcel);
+                                $omnivaParcel->setFieldsToUpdate(['tracking_number' => true]);
+                                $omnivaParcel->tracking_number = $orderTrackingInfo->tracking_numbers[$key];
+                                $omnivaParcel->update();
+                            }
+                        }
+                    } catch (Exception $e){}
+                }
+
+                $helper = new HelperForm();
                 $helper->fields_value = [
                     'id_order' => $id_order,
                     'cod' => $omnivaOrder->cod,
@@ -597,7 +615,23 @@ class OmnivaInternational extends CarrierModule
                 $helper->toolbar_scroll = true;      // yes - > Toolbar is always visible on the top of the screen.
                 $helper->submit_action = 'submit' . $this->name . 'shipment';
 
-                return $helper->generateForm($fieldsForm);
+                $this->context->smarty->assign([
+                    'form' => $helper->generateForm($fieldsForm),
+                ]);
+                $tracking_numbers = OmnivaIntParcel::getTrackingNumbersByOrderId($id_order);
+                if(!empty($tracking_numbers))
+                {
+                    // Assign this one separatly, otherwise tracking_codes.tpl is does not see it.
+                    $this->context->smarty->assign([
+                        'tracking_numbers' => $tracking_numbers,
+                    ]);
+                    $this->context->smarty->assign([
+
+                        'list' => $this->context->smarty->fetch('module:' . $this->name .'/views/templates/admin/tracking_codes.tpl')
+                    ]);
+                }
+
+                return $this->context->smarty->fetch('module:' . $this->name .'/views/templates/admin/displayAdminOrder.tpl');
             }
         }
     }
@@ -666,19 +700,41 @@ class OmnivaInternational extends CarrierModule
             $omnivaOrder->add();
             if(Validate::isLoadedObject($omnivaOrder))
             {
-                $offersProvider = new OmnivaIntOffersProvider();
-                $offersProvider->setModule($this);
-                $parcels = $offersProvider->getParcels($cart);
-                foreach($parcels as $parcel)
+                $cart_products = $cart->getProducts();
+                foreach ($cart_products as $product)
                 {
-                    $omnivaParcel = new OmnivaIntParcel();
-                    $omnivaParcel->id_order = $omnivaOrder->id;
-                    $omnivaParcel->amount = $parcel['amount'];
-                    $omnivaParcel->weight = $parcel['weight'];
-                    $omnivaParcel->length = $parcel['x'];
-                    $omnivaParcel->width = $parcel['y'];
-                    $omnivaParcel->height = $parcel['z'];
-                    $omnivaParcel->add();
+                    $id_category = $product['id_category_default'];
+                    $amount = (int) $product['cart_quantity'];
+                    $omnivaCategory = new OmnivaIntCategory($id_category);
+                    
+                    if($omnivaCategory->active)
+                    { 
+                        for($i = 0; $i < $amount; $i++)
+                        {
+                            $omnivaParcel = new OmnivaIntParcel();
+                            $omnivaParcel->id_order = $omnivaOrder->id;
+                            $omnivaParcel->amount = 1;
+                            $omnivaParcel->weight = $omnivaCategory->weight ? $omnivaCategory->weight : 1;
+                            $omnivaParcel->length = $omnivaCategory->length ? $omnivaCategory->length : 1;
+                            $omnivaParcel->width = $omnivaCategory->width ? $omnivaCategory->width : 1;
+                            $omnivaParcel->height = $omnivaCategory->height ? $omnivaCategory->height : 1;
+                            $omnivaParcel->add();
+                        }
+                    }
+                    else
+                    {
+                        for($i = 0; $i < $amount; $i++)
+                        {
+                            $omnivaParcel = new OmnivaIntParcel();
+                            $omnivaParcel->id_order = $omnivaOrder->id;
+                            $omnivaParcel->amount = 1;
+                            $omnivaParcel->weight = $product['weight'] ? $product['weight'] : 1;
+                            $omnivaParcel->length = $product['depth'] ? $product['depth'] : 1;
+                            $omnivaParcel->width = $product['width'] ? $product['width'] : 1;
+                            $omnivaParcel->height = $product['height'] ? $product['height'] : 1;
+                            $omnivaParcel->add();
+                        }
+                    }
                 }
             }
         }
