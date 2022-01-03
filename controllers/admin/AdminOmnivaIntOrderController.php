@@ -52,10 +52,8 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
 
         if (Tools::isSubmit('submitSendShipment')) {
-            $id_order = Tools::getValue('id_order');
-
             $omnivaOrder = $this->loadObject();
-            $order = new Order($id_order);
+            $order = new Order($omnivaOrder->id);
             $cart = new Cart($order->id_cart);
             if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
             {
@@ -79,6 +77,48 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 }
             }
             die(json_encode(['error' => $this->module->l('Couldn\'t load Omniva order info.')]));
+        }
+    }
+
+    public function processPrintLabels()
+    {
+        if ($this->access('edit') != '1') {
+            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
+        }
+
+        if (Tools::isSubmit('submitPrintLabels')) {
+            $omnivaOrder = $this->loadObject();
+            $orderTrackingInfo = $this->module->api->getLabel($omnivaOrder->shipment_id);
+
+            if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
+            {
+                $pdf = base64_decode($orderTrackingInfo->base64pdf);
+
+                $pdfFile = tempnam(sys_get_temp_dir(), 'data');
+                $file = fopen($pdfFile, 'w');
+                fwrite($file, $pdf);
+                fclose($file);
+
+                header("Content-Type: application/pdf;");
+                header('Content-Transfer-Encoding: binary');
+                if(Tools::getValue('downloadLabels'))
+                    header('Content-Disposition: attachment; filename=labels_' . $omnivaOrder->shipment_id . '.pdf');
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate');
+                header('Pragma: public');
+                header('Content-Length: ' . filesize($pdfFile));
+
+                ob_clean();
+                flush();
+                readfile($pdfFile);
+
+                unlink($pdfFile);
+                die(['success' => $this->module->l('Labels printed successfully.')]);
+            }
+            else
+            {
+                die(json_encode(['error' => $this->module->l('Failed to get labels from API. Please try again later.')]));
+            }
         }
     }
 }

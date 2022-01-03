@@ -624,6 +624,7 @@ class OmnivaInternational extends CarrierModule
                     // Assign this one separatly, otherwise tracking_codes.tpl is does not see it.
                     $this->context->smarty->assign([
                         'tracking_numbers' => $tracking_numbers,
+                        'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitPrintLabels=1&action=printLabels&id_order=' . $id_order
                     ]);
                     $this->context->smarty->assign([
 
