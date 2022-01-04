@@ -115,9 +115,10 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             'href' => self::$currentIndex . '&action=categories&token=' . $this->token . '&id=' . $id,
             'action' => Context::getContext()->getTranslator()->trans('Manage Categories', array(), 'Admin.Actions'),
             'id' => $id,
+            'icon' => 'sun'
         ));
 
-        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_category_action.tpl');
+        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
     public function displayManageLoginsLink($token, $id, $name = null)
@@ -132,9 +133,10 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             'href' => self::$currentIndex . '&action=logins&token=' . $this->token . '&id=' . $id,
             'action' => Context::getContext()->getTranslator()->trans('Manage Logins', array(), 'Admin.Actions'),
             'id' => $id,
+            'icon' => 'cube'
         ));
 
-        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_logins_action.tpl');
+        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
     // Added fictive button to so that counter would be displayed in list header (check list-header.tpl #144-145)

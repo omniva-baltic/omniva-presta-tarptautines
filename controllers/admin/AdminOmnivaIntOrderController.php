@@ -17,6 +17,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $this->_orderBy = 'id_shipment';
         $this->table = 'omniva_int_order';
         $this->identifier = 'id_order';
+        $this->tpl_folder = 'override/';
 
         $this->_select = ' CONCAT(c.firstname, " ", c.lastname) as customer_name,
                             osl.`name` AS `order_state`,
@@ -115,6 +116,8 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 'filter_key' => 'om!date_add',
             ),
         );
+        $this->identifier = 'id_shipment';
+        $this->actions = array('printManifest', 'printLabels');
     }
 
     public function ajaxProcessSaveShipment()
@@ -180,13 +183,22 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
     }
 
+    public function initToolbar()
+    {
+        $this->toolbar_btn['bogus'] = [
+            'href' => '#',
+            'desc' => $this->trans('Back to list'),
+        ];
+    }
+
     public function processPrintLabels()
     {
+        $this->identifier = 'id_order';
         if ($this->access('edit') != '1') {
             throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
         }
 
-        if (Tools::isSubmit('submitPrintLabels')) {
+        if (Tools::isSubmit('submitPrintLabels') || $this->action == 'printLabels') {
             $omnivaOrder = $this->loadObject();
             $orderTrackingInfo = $this->module->api->getLabel($omnivaOrder->shipment_id);
 
@@ -297,5 +309,80 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             }
         }
         $this->redirect_after = self::$currentIndex . '&error=1&token=' . $this->token;
+    }
+
+    public function displayPrintManifestLink($token, $id, $name = null)
+    {
+        $omnivaOrder = new OmnivaIntOrder($id); 
+        $manifestExists = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
+        if(!$manifestExists)
+            return false;
+        if (!array_key_exists('Print Manifest', self::$cache_lang)) {
+            self::$cache_lang['Print Manifest'] = Context::getContext()->getTranslator()->trans('Print Manifest', [], 'Admin.Actions');
+        }
+        $this->context->smarty->assign(array(
+            'href' => self::$currentIndex . '&action=printManifest&token=' . $this->token . '&id_order=' . $id,
+            'action' => Context::getContext()->getTranslator()->trans('Print Manifest', array(), 'Admin.Actions'),
+            'id' => $id,
+            'blank' => 'true',
+            'icon' => 'print'
+        ));
+
+        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
+    }
+
+    public function displayPrintLabelsLink($token, $id, $name = null)
+    {
+        $omnivaOrder = new OmnivaIntOrder($id); 
+        $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id);
+
+        if($untrackedParcelsCount > 0)
+            return false;
+        if (!array_key_exists('Print Labels', self::$cache_lang)) {
+            self::$cache_lang['Print Labels'] = Context::getContext()->getTranslator()->trans('Print Labels', [], 'Admin.Actions');
+        }
+        $this->context->smarty->assign(array(
+            'href' => self::$currentIndex . '&action=printLabels&token=' . $this->token . '&id_order=' . $id,
+            'action' => Context::getContext()->getTranslator()->trans('Print Labels', array(), 'Admin.Actions'),
+            'id' => $id,
+            'blank' => 'true',
+            'icon' => 'print'
+        ));
+
+        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
+    }
+
+    public function processPrintManifest()
+    {
+        $this->identifier = 'id_order';
+        $this->loadObject();
+        $manifestExists = OmnivaIntManifest::checkManifestExists($this->object->cart_id);
+        if(!$manifestExists)
+            Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
+
+        $manifestInfo = $this->module->api->generateManifest($this->object->cart_id);
+        if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
+        {
+            $pdf = base64_decode($manifestInfo->manifest);
+
+            $pdfFile = tempnam(sys_get_temp_dir(), 'data');
+            $file = fopen($pdfFile, 'w');
+            fwrite($file, $pdf);
+            fclose($file);
+
+            header("Content-Type: application/pdf; name=manifest_" . $this->object->cart_id . ".pdf");
+            header("Content-Type: application/pdf;");
+            header('Content-Transfer-Encoding: binary');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($pdfFile));
+
+            ob_clean();
+            flush();
+            readfile($pdfFile);
+            unlink($pdfFile);
+
+        }
     }
 }

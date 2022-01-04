@@ -55,7 +55,7 @@ class OmnivaIntParcel extends ObjectModel
         $query = (new DbQuery())
             ->select("COUNT(id)")
             ->from(self::$definition['table'])
-            ->where('id_order = ' . $id_order . ' AND tracking_number IS NULL OR tracking_number = ""');
+            ->where('id_order = ' . $id_order . ' AND (tracking_number IS NULL OR tracking_number = "")');
 
         return (int) Db::getInstance()->getValue($query);
     }
