@@ -222,6 +222,40 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
     }
 
+    public function ajaxProcessCancelOrder()
+    {
+        if ($this->access('edit') != '1') {
+            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
+        }
+
+        if (Tools::isSubmit('submitCancelOrder')) {
+            $omnivaOrder = $this->loadObject();
+            $cancelResponse = $this->module->api->cancelOrder($omnivaOrder->shipment_id);
+
+            if($cancelResponse && $cancelResponse->status == 'deleted')
+            {
+                $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+                $result = true;
+                foreach($parcels as $id_parcel)
+                {
+                    $parcelObj = new OmnivaIntParcel($id_parcel);
+                    $parcelObj->tracking_number = '';
+                    $parcelObj->setFieldsToUpdate(['tracking_number' => true]);
+                    $result &= $parcelObj->update();
+
+                    $omnivaOrder->shipment_id = '';
+                    $omnivaOrder->cart_id = '';
+                    $result &= $omnivaOrder->update();
+
+                }
+                if($result)
+                    die(json_encode(['success' => $this->module->l('Shipment cancelled succesfully.')]));
+                
+            }
+            die(json_encode(['error' => $this->module->l('Failed to cancel shipment.')]));
+        }
+    }
+
     public function initPageHeaderToolbar()
     {
         $this->page_header_toolbar_btn['latest_manifest'] = [

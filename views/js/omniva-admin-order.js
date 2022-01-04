@@ -70,4 +70,38 @@ $(document).ready(function() {
           }
        });
   });
+
+  $('#cancel-order').on('click', () => {
+
+   let id_order = $('#id_order').val();
+   
+   $.ajax({
+       url: omniva_admin_order_link,
+       cache: false,
+       data : {
+          id_order: id_order,
+          submitCancelOrder: '1',
+          action: 'cancelOrder',
+          ajax: '1',
+       },
+       dataType: "json",
+       success : function(res,textStatus,jqXHR)
+       {
+          try
+          {
+             if (res.success)
+             {
+               showSuccessMessage(res.success);
+               document.location.reload();
+             }
+             else
+                showErrorMessage(res.error);
+          }
+          catch(e)
+          {
+             jAlert('Technical error');
+          }
+       }
+    });
+});
 });
