@@ -14,11 +14,14 @@
             {/foreach}
         </div>
         <div id='print-label-heading' class="panel-heading additional">
-            {l s='Print shiping label' mod='omnivainternational'}
+            {l s='Shipment Actions' mod='omnivainternational'}
         </div>
         <div class="panel-footer">
 			<a href="{$omniva_admin_order_link}" target="_blank" id="print-labels" class="btn btn-default btn btn-primary">{l s='Print labels' mod='omnivainternational'}</a>
             <a href="{$omniva_admin_order_link}&downloadLabels=1" target="_blank" class="btn btn-default btn btn-success">{l s='Download labels' mod='omnivainternational'}</a>
+            {if isset($orderHasManifest) && !$orderHasManifest}
+                <a href="{$omniva_admin_order_link}&cancelOrder=1" target="_blank" class="btn btn-default btn btn-danger">{l s='Cancel Order' mod='omnivainternational'}</a>
+            {/if}
 		</div>
     </div>
 </div>

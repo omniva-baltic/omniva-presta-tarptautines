@@ -41,7 +41,7 @@ class OmnivaIntCarrier extends ObjectModel
         ];
 
 
-            /**
+    /**
      * Get carrier using the reference id.
      */
     public static function getCarrierByReference($id_reference)

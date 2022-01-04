@@ -624,6 +624,10 @@ class OmnivaInternational extends CarrierModule
                 $tracking_numbers = OmnivaIntParcel::getTrackingNumbersByOrderId($id_order);
                 if(!empty($tracking_numbers))
                 {
+                    // Check if order has manifest. If it does not - give option to cancel order.
+                    $orderHasManifest = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
+                    $this->context->smarty->assign('orderHasManifest', $orderHasManifest);
+
                     // Assign this one separatly, otherwise tracking_codes.tpl is does not see it.
                     $this->context->smarty->assign([
                         'tracking_numbers' => $tracking_numbers,

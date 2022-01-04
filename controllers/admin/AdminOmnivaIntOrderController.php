@@ -3,6 +3,7 @@
 require_once "AdminOmnivaIntBaseController.php";
 require_once __DIR__ . "/../../classes/models/OmnivaIntOrder.php";
 require_once __DIR__ . "/../../classes/proxy/OmnivaIntEntityBuilder.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntManifest.php";
 
 class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 {
@@ -19,13 +20,30 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
         $this->_select = ' CONCAT(c.firstname, " ", c.lastname) as customer_name,
                             osl.`name` AS `order_state`,
-                            (SELECT GROUP_CONCAT(op.tracking_number SEPARATOR ", ") FROM `' . _DB_PREFIX_ .'omniva_int_parcel` op WHERE op.`id_order` = a.`id_shipment` AND op.`tracking_number` != "") as tracking_numbers';
+                            (SELECT GROUP_CONCAT(op.tracking_number SEPARATOR ", ") FROM `' . _DB_PREFIX_ .'omniva_int_parcel` op WHERE op.`id_order` = a.`id_shipment` AND op.`tracking_number` != "") as tracking_numbers,
+                            om.manifest_number AS manifest_number,
+                            om.date_add as manifest_date';
 
         $this->_join = '
             LEFT JOIN ' . _DB_PREFIX_ . 'orders o ON (o.id_order = a.id_shipment)
             LEFT JOIN ' . _DB_PREFIX_ . 'customer c ON (c.id_customer = o.id_customer)
+            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_manifest om ON (om.manifest_number = a.cart_id)
             LEFT JOIN ' . _DB_PREFIX_ . 'order_state os ON (o.current_state = os.id_order_state)
             LEFT JOIN `' . _DB_PREFIX_ . 'order_state_lang` osl ON (os.`id_order_state` = osl.`id_order_state` AND osl.`id_lang` = ' . (int) $this->context->language->id . ')';
+
+        $this->_error = [
+            1 => $this->trans('Could not get manifest data.', [],'Admin.Catalog.Error'),
+        ];
+        if(Tools::getValue('manifest_error'))
+        {
+            $this->getErrorWithManifestNumber(Tools::getValue('manifest_error'));
+        }
+    }
+
+    public function getErrorWithManifestNumber($cart_id)
+    {
+        $this->_error[2] = $this->trans('Manifest with number %s already exists', [$cart_id],'Admin.Catalog.Error');
+
     }
 
     public function init()
@@ -84,15 +102,17 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 'align' => 'center',
                 'havingFilter' => true,
             ),
-            'barcode' => array(
+            'manifest_number' => array(
                 'type' => 'text',
                 'title' => $this->module->l('Manifest ID'),
                 'align' => 'center',
+                'filter_key' => 'om!manifest_number'
             ),
             'manifest_date' => array(
-                'type' => 'text',
+                'type' => 'datetime',
                 'title' => $this->module->l('Manifest date'),
                 'align' => 'center',
+                'filter_key' => 'om!date_add',
             ),
         );
     }
@@ -223,11 +243,25 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function generateManifest()
     {
-        $manifestInfo = $this->module->api->generateManifest('INCC0103105184');
-        $manifestInfo = $this->module->api->generateManifestLatest();
-        if($manifestInfo)
+        $manifest_number = 'INCC0103105184';
+        $manifestInfo = $this->module->api->generateManifest($manifest_number);
+        // $manifestInfo = $this->module->api->generateManifestLatest();
+        if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
-
+            if(OmnivaIntManifest::getManifestByNumber($manifestInfo->cart_id))
+            {
+                $this->redirect_after = self::$currentIndex . '&error=2&token=' . $this->token . '&manifest_error=' . $manifestInfo->cart_id;
+                return;
+            }
+            $omnivaManifest = new OmnivaIntManifest();
+            $omnivaManifest->id_shop = $this->context->shop->id;
+            $omnivaManifest->manifest_number = $manifestInfo->cart_id;
+            if($omnivaManifest->add())
+            {
+                $this->redirect_after = self::$currentIndex . '&conf=4&token=' . $this->token;
+                return;
+            }
         }
+        $this->redirect_after = self::$currentIndex . '&error=1&token=' . $this->token;
     }
 }
