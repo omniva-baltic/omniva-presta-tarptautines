@@ -13,8 +13,88 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
         $this->list_no_link = true;
         $this->className = 'OmnivaIntOrder';
+        $this->_orderBy = 'id_shipment';
         $this->table = 'omniva_int_order';
         $this->identifier = 'id_order';
+
+        $this->_select = ' CONCAT(c.firstname, " ", c.lastname) as customer_name,
+                            osl.`name` AS `order_state`,
+                            (SELECT GROUP_CONCAT(op.tracking_number SEPARATOR ", ") FROM `' . _DB_PREFIX_ .'omniva_int_parcel` op WHERE op.`id_order` = a.`id_shipment` AND op.`tracking_number` != "") as tracking_numbers';
+
+        $this->_join = '
+            LEFT JOIN ' . _DB_PREFIX_ . 'orders o ON (o.id_order = a.id_shipment)
+            LEFT JOIN ' . _DB_PREFIX_ . 'customer c ON (c.id_customer = o.id_customer)
+            LEFT JOIN ' . _DB_PREFIX_ . 'order_state os ON (o.current_state = os.id_order_state)
+            LEFT JOIN `' . _DB_PREFIX_ . 'order_state_lang` osl ON (os.`id_order_state` = osl.`id_order_state` AND osl.`id_lang` = ' . (int) $this->context->language->id . ')';
+    }
+
+    public function init()
+    {
+        if (Shop::isFeatureActive() && Shop::getContext() !== Shop::CONTEXT_SHOP) {
+            $this->errors[] = $this->module->l('Select shop');
+        } else {
+            $this->orderList();
+        }
+        parent::init();
+    }
+
+    protected function orderList()
+    {
+        $statuses = OrderState::getOrderStates((int) $this->context->language->id);
+        $order_states = [];
+        foreach ($statuses as $status) {
+            $order_states[$status['id_order_state']] = $status['name'];
+        }
+
+        $this->fields_list = array(
+            'id_shipment' => array(
+                'title' => $this->module->l('ID'),
+                'align' => 'text-center',
+                'filter_key' => 'id_shipment'
+            ),
+            'customer_name' => array(
+                'type' => 'text',
+                'title' => $this->module->l('Customer'),
+                'align' => 'center',
+                'havingFilter' => true,
+            ),
+            'order_state' => array(
+                'title' => $this->module->l('Order Status'),
+                'type' => 'select',
+                'color' => 'color',
+                'list' => $order_states,
+                'filter_key' => 'os!id_order_state',
+                'filter_type' => 'int',
+                'order_key' => 'osname',
+            ),
+            'date_add' => array(
+                'type' => 'datetime',
+                'title' => $this->module->l('Order Date'),
+                'align' => 'center',
+                'filter_key' => 'a!date_add',
+            ),
+            'service_code' => array(
+                'type' => 'text',
+                'title' => $this->module->l('Service'),
+                'align' => 'center',
+            ),
+            'tracking_numbers' => array(
+                'type' => 'text',
+                'title' => $this->module->l('Tracking numbers'),
+                'align' => 'center',
+                'havingFilter' => true,
+            ),
+            'barcode' => array(
+                'type' => 'text',
+                'title' => $this->module->l('Manifest ID'),
+                'align' => 'center',
+            ),
+            'manifest_date' => array(
+                'type' => 'text',
+                'title' => $this->module->l('Manifest date'),
+                'align' => 'center',
+            ),
+        );
     }
 
     public function ajaxProcessSaveShipment()
@@ -119,6 +199,35 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             {
                 die(json_encode(['error' => $this->module->l('Failed to get labels from API. Please try again later.')]));
             }
+        }
+    }
+
+    public function initPageHeaderToolbar()
+    {
+        $this->page_header_toolbar_btn['latest_manifest'] = [
+            'href' => self::$currentIndex . '&latest_manifest=1&token=' . $this->token,
+            'desc' => $this->trans('Generate Latest Manifest'),
+            'imgclass' => 'export',
+        ];
+        parent::initPageHeaderToolbar();
+    }
+
+    public function postProcess()
+    {
+        parent::postProcess();
+        if(Tools::getValue('latest_manifest'))
+        {
+            $this->generateManifest();
+        }
+    }
+
+    public function generateManifest()
+    {
+        $manifestInfo = $this->module->api->generateManifest('INCC0103105184');
+        $manifestInfo = $this->module->api->generateManifestLatest();
+        if($manifestInfo)
+        {
+
         }
     }
 }

@@ -18,6 +18,10 @@ class OmnivaIntService extends ObjectModel
 
     public $own_login;
 
+    public $user;
+
+    public $password;
+
     public $fragile;
 
     public $manage_categories;

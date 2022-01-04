@@ -66,7 +66,7 @@ class OmnivaIntParcel extends ObjectModel
         $query = (new DbQuery())
             ->select("tracking_number")
             ->from(self::$definition['table'])
-            ->where('id_order = ' . $id_order);
+            ->where('id_order = ' . $id_order . ' AND tracking_number IS NOT NULL AND tracking_number != ""');
 
         return array_map(function($parcel) {
                 return $parcel['tracking_number'];

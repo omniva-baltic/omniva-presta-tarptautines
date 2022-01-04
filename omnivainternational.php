@@ -244,7 +244,7 @@ class OmnivaInternational extends CarrierModule
             ),
             self::CONTROLLER_OMNIVA_ORDER => array(
                 'title' => $this->l('Omniva Order'),
-                'parent_tab' => -1,
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
         );
     }
@@ -561,12 +561,12 @@ class OmnivaInternational extends CarrierModule
                     'buttons' => [
                         array(
                             'title' => $this->l('Save'),
-                            'class' => 'btn btn-dark',
+                            'class' => 'btn btn-primary',
                             'id' => 'save-shipment'
                         ),
                         array(
                             'title' => $this->l('Send Shipment'),
-                            'class' => 'btn btn-primary',
+                            'class' => 'btn btn-success',
                             'id' => 'send-shipment'
                         ),
                     ]
@@ -590,7 +590,10 @@ class OmnivaInternational extends CarrierModule
                                 $omnivaParcel->update();
                             }
                         }
-                    } catch (Exception $e){}
+                        // for debugging
+                    } catch (Exception $e) {
+                        sleep(0);
+                    }
                 }
 
                 $helper = new HelperForm();
