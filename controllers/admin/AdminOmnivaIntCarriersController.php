@@ -64,7 +64,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             LEFT JOIN ' . _DB_PREFIX_ . 'carrier c ON (c.id_reference = a.id_reference)
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = ocs.id_service)';
 
-            $this->_group = 'GROUP BY id_reference';
+        $this->_group = 'GROUP BY id_reference';
+        $this->warnings[] = $this->module->l('Note: if seleceted service supports pickup terminals, then two carriers will be created in Prestashop: 1. "Carrier Name" and 2. "Carrier Name Terminals"');
     }
 
     public function init()

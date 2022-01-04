@@ -29,6 +29,8 @@ class OmnivaIntUpdater {
                 return $this->updateServices();
             case 'countries':
                 return $this->updateCountries();
+            case 'all':
+                return $this->updateTerminals() && $this->updateServices() && $this->updateCountries();
             default:
                 return false;
         }
@@ -113,6 +115,9 @@ class OmnivaIntUpdater {
         $prestaService->name = $apiService->name;
         $prestaService->service_code = $apiService->service_code;
         $prestaService->image = $apiService->image;
+        $prestaService->pickup_from_address = $apiService->pickup_from_address;
+        $prestaService->delivery_to_address = $apiService->delivery_to_address;
+        $prestaService->parcel_terminal_type = $apiService->parcel_terminal_type;
 
         if(isset($apiService->additional_services))
         {

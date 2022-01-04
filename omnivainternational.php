@@ -1,17 +1,18 @@
 <?php
 
-require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
-require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
 require_once __DIR__ . "/classes/OmnivaIntDb.php";
 require_once __DIR__ . "/classes/OmnivaIntHelper.php";
+require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
+require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
 require_once __DIR__ . "/classes/models/OmnivaIntManifest.php";
 require_once __DIR__ . "/classes/models/OmnivaIntService.php";
 require_once __DIR__ . "/classes/models/OmnivaIntOrder.php";
 require_once __DIR__ . "/classes/models/OmnivaIntTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCountry.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
-require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
 require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
+require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
+require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
 require_once __DIR__ . "/vendor/autoload.php";
 
 if (!defined('_PS_VERSION_')) {

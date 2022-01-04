@@ -8,6 +8,14 @@ class OmnivaIntService extends ObjectModel
 
     public $service_code;
 
+    public $image;
+
+    public $pickup_from_address;
+
+    public $delivery_to_address;
+
+    public $parcel_terminal_type;
+
     public $cod;
 
     public $insurance;
@@ -42,6 +50,9 @@ class OmnivaIntService extends ObjectModel
                 'name' =>                       ['type' => self::TYPE_STRING, 'size' => 100],
                 'service_code' =>               ['type' => self::TYPE_STRING, 'size' => 20],
                 'image' =>                      ['type' => self::TYPE_STRING, 'size' => 255],
+                'pickup_from_address' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'delivery_to_address' =>        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'parcel_terminal_type' =>       ['type' => self::TYPE_STRING, 'size' => 50],
                 'cod' =>                        ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'insurance' =>                  ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'carry_service' =>              ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
