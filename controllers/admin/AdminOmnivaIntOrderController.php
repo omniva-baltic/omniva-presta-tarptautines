@@ -150,6 +150,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessSendShipment()
     {
+        $this->identifier = 'id_order';
         if ($this->access('edit') != '1') {
             throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
         }
@@ -289,9 +290,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function generateManifest()
     {
-        $manifest_number = 'INCC0103105184';
-        $manifestInfo = $this->module->api->generateManifest($manifest_number);
-        // $manifestInfo = $this->module->api->generateManifestLatest();
+        $manifestInfo = $this->module->api->generateManifestLatest();
         if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
             if(OmnivaIntManifest::getManifestByNumber($manifestInfo->cart_id))

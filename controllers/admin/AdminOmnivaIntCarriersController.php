@@ -11,6 +11,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
     public $price_types;
 
+    public $adding_terminal_carrier = false;
+
     /**
      * AdminOmnivaIntCategories class constructor
      *
@@ -266,7 +268,10 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         if(Tools::getValue('submitAddomniva_int_carrier'))
         {
             $carrier = new Carrier();
-            $carrier->name = Tools::getValue('carrier_name', '');
+            if($this->adding_terminal_carrier)
+                $carrier->name = Tools::getValue('carrier_name', '') . ' Terminal';
+            else
+                $carrier->name = Tools::getValue('carrier_name', '');
             $carrier->delay[Configuration::get('PS_LANG_DEFAULT')] = '1-2 business days';
             $carrier->is_module = true;
             $carrier->external_module_name = $this->module->name;
@@ -306,6 +311,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
                 // If ship didn't sink at this point, we created all Omniva Inernational relevant entries.
                 $this->createOmnivaCarrier($carrier);
+
+                // If found any terminal service, repeat the adding process to add terminal carrier.
+                if($this->adding_terminal_carrier)
+                {
+                    $this->processAdd();
+                }
             }
         }
     }
@@ -336,12 +347,32 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $final_services = [];
         if(is_array($services) && !empty($services))
         {
+            $pickup_services = 0;
             foreach($services as $id_service)
             {
-                if(OmnivaIntService::checkServiceExists($id_service))
+                $service = new OmnivaIntService($id_service);
+                if(Validate::isLoadedObject($service))
                 {
-                    $final_services[] = $id_service;
+                    // Additionally, if adding pickup carrier, check if "delivery_to_address" is false and "parcel_terminal_type" is set.
+                    if($this->adding_terminal_carrier && !$service->delivery_to_address && $service->parcel_terminal_type)
+                        $final_services[] = $id_service;
+                    else if(!$this->adding_terminal_carrier)
+                        $final_services[] = $id_service;
+
+                    // If this is not pickup carrier creation process, we need to determine, if we'll do it later.
+                    if(!$service->delivery_to_address && $service->parcel_terminal_type)
+                    {
+                        $pickup_services++;
+                    }
                 }
+            }
+            if($pickup_services > 0 && !$this->adding_terminal_carrier)
+            {
+                $this->adding_terminal_carrier = true;
+            }
+            else
+            {
+                $this->adding_terminal_carrier = false;
             }
         }
 
@@ -365,6 +396,11 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->free_shipping = $free_shipping;
         $omnivaCarrier->cheapest = $cheapest;
         $omnivaCarrier->radius = $radius;
+
+        if($this->adding_terminal_carrier)
+            $omnivaCarrier->type = 'pickup';
+        else
+            $omnivaCarrier->type = 'carrier';
 
         $result = $omnivaCarrier->add();
         if(!$result)
