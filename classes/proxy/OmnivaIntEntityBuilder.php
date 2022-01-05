@@ -8,6 +8,7 @@ use OmnivaApi\Item;
 
 require_once __DIR__ . "/../models/OmnivaIntCountry.php";
 require_once __DIR__ . "/../models/OmnivaIntOrder.php";
+require_once __DIR__ . "/../models/OmnivaIntCarrier.php";
 
 class OmnivaIntEntityBuilder
 {
@@ -26,13 +27,13 @@ class OmnivaIntEntityBuilder
         return $sender;
     }
 
-    public function buildReceiver($address)
+    public function buildReceiver($address, $type)
     {
         $country_code = OmnivaIntCountry::getCountryIdByIso(Country::getIsoById($address->id_country));
 
-        $receiver = new Receiver('courier');
+        $receiver = new Receiver($type);
         $receiver
-            ->setShippingType('courier')
+            ->setShippingType($type)
             ->setContactName($address->firstname . ' ' . $address->lastname)
             ->setStreetName($address->address1)
             ->setZipcode($address->postcode)
@@ -107,15 +108,23 @@ class OmnivaIntEntityBuilder
 
     public function buildOrder($order)
     {
-        $sender = $this->buildSender('courier');
+        
+        $carrier = new Carrier($order->id_carrier);
+        $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier->id_reference);
+        $type = $omnivaCarrier->type;
+
         $address = new Address($order->id_address_delivery);
+        $receiver = $this->buildReceiver($address, $type);
+        $sender = $this->buildSender($type);
+
         $cart = new Cart($order->id_cart);
-        $receiver = $this->buildReceiver($address);
         $parcels = $this->buildParcels($cart);
         $items = $this->buildItems($cart);
+        
         $omnivaOrder = new OmnivaIntOrder($order->id);
         $reference = $order->reference;
         $order = new Order();
+        
         $order
             ->setServiceCode($omnivaOrder->service_code)
             ->setSender($sender)

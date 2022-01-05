@@ -33,7 +33,7 @@ class OmnivaIntCarrierService extends ObjectModel
         }, Db::getInstance()->executeS($query));
     }
 
-    public static function getCarrierServiced($id_carrier, $id_service)
+    public static function getCarrierService($id_carrier, $id_service)
     {
         $query = (new DbQuery())
             ->select("id")

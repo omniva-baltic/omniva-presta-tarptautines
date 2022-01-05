@@ -398,9 +398,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->radius = $radius;
 
         if($this->adding_terminal_carrier)
-            $omnivaCarrier->type = 'pickup';
+            $omnivaCarrier->type = 'terminal';
         else
-            $omnivaCarrier->type = 'carrier';
+            $omnivaCarrier->type = 'courier';
 
         $result = $omnivaCarrier->add();
         if(!$result)
@@ -496,7 +496,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
         foreach($deleted_services as $service)
         {
-            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierServiced($this->object->id, $service);
+            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierService($this->object->id, $service);
             if((int)$omnivaCarrierServiceId > 0)
             {
                 $omnivaCarrierService = new OmnivaIntCarrierService($omnivaCarrierServiceId);
@@ -521,7 +521,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $carrier_services = OmnivaIntCarrierService::getCarrierServices($this->object->id);
         foreach($carrier_services as $service)
         {
-            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierServiced($this->object->id, $service);
+            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierService($this->object->id, $service);
             if((int)$omnivaCarrierServiceId > 0)
             {
                 $omnivaCarrierService = new OmnivaIntCarrierService($omnivaCarrierServiceId);

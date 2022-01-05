@@ -56,6 +56,11 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
         $terminal_identifiers = array_combine($identifiers, $identifiers_trans);
 
         $this->fields_list = array(
+            'id' => array(
+                'title' => $this->module->l('ID'),
+                'align' => 'text-center',
+                'filter_key' => 'a!id'
+            ),
             'name' => array(
                 'title' => $this->module->l('Name'),
                 'align' => 'text-center',

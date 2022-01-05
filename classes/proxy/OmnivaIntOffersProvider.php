@@ -19,6 +19,8 @@ class OmnivaIntOffersProvider
 
     private $entityBuilder;
 
+    private $type;
+
     public function __construct()
     {
         $this->entityBuilder = new OmnivaIntEntityBuilder();
@@ -83,8 +85,8 @@ class OmnivaIntOffersProvider
         if(!Validate::isLoadedObject($address))
             return false;
 
-        $sender = $this->entityBuilder->buildSender('courier');
-        $receiver = $this->entityBuilder->buildReceiver($address);
+        $sender = $this->entityBuilder->buildSender($this->type);
+        $receiver = $this->entityBuilder->buildReceiver($address, $this->type);
         $parcels = $this->entityBuilder->buildParcels($cart);
 
         $offers = $this->module->api->getOffers($sender, $receiver, $parcels);
@@ -200,6 +202,26 @@ class OmnivaIntOffersProvider
     public function setModule($module)
     {
         $this->module = $module;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of type
+     */ 
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */ 
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }

@@ -37,4 +37,13 @@ class OmnivaIntTerminal extends ObjectModel
                 'identifier' =>     ['type' => self::TYPE_STRING, 'size' => 50],
             ],
         ];
+
+    public static function getTerminalsByIsoAndIndentifier($iso, $identifier)
+    {
+        $query = (new DbQuery())
+            ->select("*")
+            ->from(self::$definition['table'])
+            ->where("country_code = '$iso' AND identifier = '$identifier'");
+        return Db::getInstance()->executeS($query);
+    }
 }

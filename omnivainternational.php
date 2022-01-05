@@ -371,16 +371,6 @@ class OmnivaInternational extends CarrierModule
     }
 
     /**
-     * Get terminals for all countries
-     */
-    private function updateTerminals()
-    {
-        $cFiles = new MjvpFiles();
-        $cFiles->updateCountriesList();
-        $cFiles->updateTerminalsList();
-    }
-
-    /**
      * Create module database tables
      */
     public function createDbTables()
@@ -405,6 +395,7 @@ class OmnivaInternational extends CarrierModule
 
         $offersProvider = new OmnivaIntOffersProvider();
         $offersProvider
+            ->setType($omnivaCarrier->type)
             ->setCart($cart)
             ->setCarrier($omnivaCarrier)
             ->setModule($this);
@@ -441,51 +432,51 @@ class OmnivaInternational extends CarrierModule
         Tools::redirectAdmin($this->context->link->getAdminLink(self::CONTROLLER_OMNIVA_SETTINGS));
     }
 
-    /**
-     * Hook for js/css files and other elements in header
-     */
     public function hookHeader($params)
     {
-        $address = new Address($params['cart']->id_address_delivery);
-        $filtered_terminals = $this->getFilteredTerminals();
+      if (in_array(Context::getContext()->controller->php_self, array('order-opc', 'order'))) {
 
-        $address_query = $address->address1 . ' ' . $address->postcode . ', ' . $address->city;
-        Media::addJsDef(array(
-                'mjvp_front_controller_url' => $this->context->link->getModuleLink($this->name, 'front'),
-                'mjvp_carriers_controller_url' => $this->context->link->getModuleLink($this->name, 'carriers'),
-                'address_query' => $address_query,
-                'mjvp_translates' => array(
-                    'loading' => $this->l('Loading'),
-                ),
-                'images_url' => $this->_path . 'views/images/',
-                'mjvp_terminal_select_translates' => array(
-                'modal_header' => $this->l('Pickup points map'),
-                'terminal_list_header' => $this->l('Pickup points list'),
-                'seach_header' => $this->l('Search around'),
-                'search_btn' => $this->l('Find'),
-                'modal_open_btn' => $this->l('Select a pickup point'),
-                'geolocation_btn' => $this->l('Use my location'),
-                'your_position' => $this->l('Distance calculated from this point'),
-                'nothing_found' => $this->l('Nothing found'),
-                'no_cities_found' => $this->l('There were no cities found for your search term'),
-                'geolocation_not_supported' => $this->l('Geolocation is not supported'),
-                'select_pickup_point' => $this->l('Select a pickup point'),
-                'search_placeholder' => $this->l('Enter postcode/address'),
-                'workhours_header' => $this->l('Workhours'),
-                'contacts_header' => $this->l('Contacts'),
-                'no_pickup_points' => $this->l('No points to select'),
-                'select_btn' => $this->l('select'),
-                'back_to_list_btn' => $this->l('reset search'),
-                'no_information' => $this->l('No information'),
-                ),
-                'mjvp_terminals' => $filtered_terminals
-            )
+        Media::addJsDef([
+            'omniva_front_controller_url' => $this->context->link->getModuleLink($this->name, 'front')
+        ]);
+        $this->context->controller->registerJavascript(
+          'int-leaflet',
+          'modules/' . $this->name . '/views/js/leaflet.js',
+          ['priority' => 190]
         );
-    }
-
-    public function getFilteredTerminals() 
-    {
-        return [];
+  
+        $this->context->controller->registerStylesheet(
+          'int-leaflet-style',
+          'modules/' . $this->name . '/views/css/leaflet.css',
+          [
+            'media' => 'all',
+            'priority' => 200,
+          ]
+        );
+        $this->context->controller->registerStylesheet(
+          'omniva-int-modulename-style',
+          'modules/' . $this->name . '/views/css/omniva.css',
+          [
+            'media' => 'all',
+            'priority' => 200,
+          ]
+        );
+  
+        $this->context->controller->registerJavascript(
+          'omnivalt-int',
+          'modules/' . $this->name . '/views/js/omniva.js',
+          [
+            'priority' => 200,
+          ]
+        );
+  
+        $this->smarty->assign(array(
+          'omnivalt_parcel_terminal_carrier_id' => 72,
+          'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+        ));
+  
+        return $this->display(__FILE__, 'header.tpl');
+      }
     }
 
 
@@ -677,13 +668,46 @@ class OmnivaInternational extends CarrierModule
      */
     public function hookDisplayCarrierExtraContent($params)
     {
-    }
+        $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($params['carrier']['id_reference']);
+        if ($omnivaCarrier->type == 'terminal')
+        {
 
-    /**
-     * Mass label printing
-     */
-    public function bulkActionPrintLabels($orders_ids)
-    {
+            // If it is terminal, it should have only one service, which we need to filter out terminals by identifier.
+            $carrierServices = OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id);
+            if(isset($carrierServices[0]))
+            {
+                $service = new OmnivaIntService($carrierServices[0]);
+            }
+            else
+            {
+                return '';
+            }
+
+            $address = new Address($params['cart']->id_address_delivery);
+            $country_code = Country::getIsoById($address->id_country);
+
+            if (empty($country_code)) {
+                return '';
+            }
+
+            $terminals = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type);
+            if (!$terminals || empty($terminals)) {
+                return '';
+            }
+            $this->context->smarty->assign('terminals', $terminals);
+            $this->context->smarty->assign(array(
+
+                'omnivalt_parcel_terminal_carrier_id' => $params['carrier']['id'],
+                'parcel_terminals' => $this->context->smarty->fetch('module:' . $this->name .'/views/templates/front/terminal_options.tpl'),
+                'terminals_list' => $terminals,
+                'omniva_current_country' => $country_code,
+                'omniva_postcode' => $address->postcode,
+                'omniva_map' => 1,
+                'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+              ));
+
+            return $this->display(__FILE__, 'displayCarrierExtraContent.tpl');
+        }
     }
 
     private function showErrors($errors)
