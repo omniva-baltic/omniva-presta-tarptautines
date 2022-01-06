@@ -86,7 +86,7 @@ class OmnivaIntOffersProvider
             return false;
 
         $sender = $this->entityBuilder->buildSender($this->type);
-        $receiver = $this->entityBuilder->buildReceiver($address, $this->type);
+        $receiver = $this->entityBuilder->buildReceiver($cart, $this->type);
         $parcels = $this->entityBuilder->buildParcels($cart);
 
         $offers = $this->module->api->getOffers($sender, $receiver, $parcels);

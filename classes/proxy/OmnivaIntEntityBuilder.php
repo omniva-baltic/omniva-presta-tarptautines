@@ -9,6 +9,9 @@ use OmnivaApi\Item;
 require_once __DIR__ . "/../models/OmnivaIntCountry.php";
 require_once __DIR__ . "/../models/OmnivaIntOrder.php";
 require_once __DIR__ . "/../models/OmnivaIntCarrier.php";
+require_once __DIR__ . "/../models/OmnivaIntCartTerminal.php";
+require_once __DIR__ . "/../models/OmnivaIntTerminal.php";
+
 
 class OmnivaIntEntityBuilder
 {
@@ -27,19 +30,34 @@ class OmnivaIntEntityBuilder
         return $sender;
     }
 
-    public function buildReceiver($address, $type)
+    public function buildReceiver($cart, $type)
     {
+        $address = new Address($cart->id_address_delivery);
         $country_code = OmnivaIntCountry::getCountryIdByIso(Country::getIsoById($address->id_country));
-
         $receiver = new Receiver($type);
+
         $receiver
-            ->setShippingType($type)
-            ->setContactName($address->firstname . ' ' . $address->lastname)
+        ->setShippingType($type)
+        ->setContactName($address->firstname . ' ' . $address->lastname)       
+        ->setPhoneNumber($address->phone)
+        ->setCountryId($country_code);
+        if($type == 'courier')
+        {
+            $receiver
             ->setStreetName($address->address1)
             ->setZipcode($address->postcode)
-            ->setCity($address->city)
-            ->setPhoneNumber($address->phone)
-            ->setCountryId($country_code);
+            ->setCity($address->city);
+
+        }
+        elseif($type == 'terminal')
+        {
+            $cartTerminal = new OmnivaIntCartTerminal($cart->id);
+            $terminal = new OmnivaIntTerminal($cartTerminal->id_terminal);
+            $receiver
+            ->setStreetName($terminal->address)
+            ->setZipcode($terminal->id)
+            ->setCity($address->city);
+        }
 
         $customer = new Customer($address->id_customer);
         if($customer->company && $address->company)
@@ -114,10 +132,10 @@ class OmnivaIntEntityBuilder
         $type = $omnivaCarrier->type;
 
         $address = new Address($order->id_address_delivery);
-        $receiver = $this->buildReceiver($address, $type);
+        $cart = new Cart($order->id_cart);
+        $receiver = $this->buildReceiver($cart, $type);
         $sender = $this->buildSender($type);
 
-        $cart = new Cart($order->id_cart);
         $parcels = $this->buildParcels($cart);
         $items = $this->buildItems($cart);
         
