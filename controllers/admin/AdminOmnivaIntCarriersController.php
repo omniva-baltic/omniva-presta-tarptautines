@@ -58,8 +58,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->_select = ' c.name as name, 
                             (SELECT GROUP_CONCAT(os.service_code SEPARATOR ", ") 
                             FROM `' . _DB_PREFIX_ .'omniva_int_service` os 
-                            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
-                            WHERE os.`id` = ocs.`id_service`) as services';
+                            LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (os.`id` = ocs.`id_service`)
+                            WHERE a.id = ocs.id_carrier) as services';
 
         $this->_join = '
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
