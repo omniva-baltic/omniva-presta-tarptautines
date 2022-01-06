@@ -20,9 +20,9 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
                 }
             }
             if($res)
-                $this->confirmations[] = $this->trans('Update Sucessful', array(), 'Admin.Notifications.Error');
+                $this->confirmations[] = $this->module->l('Update Sucessful', array(), 'Admin.Notifications.Error');
             else
-                $this->errors[] = $this->trans('Updating Settings failed.', array(), 'Admin.Notifications.Error');
+                $this->errors[] = $this->module->l('Updating Settings failed.', array(), 'Admin.Notifications.Error');
         }
         // Single form
         elseif(isset($this->section_id) && isset($this->module->_configKeys[$this->section_id]))
@@ -30,9 +30,9 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
             $config_keys = $this->module->_configKeys[$this->section_id];
             $res = $this->saveConfig($config_keys);
             if($res)
-                $this->confirmations[] = $this->trans('Update Sucessful', array(), 'Admin.Notifications.Error');
+                $this->confirmations[] = $this->module->l('Update Sucessful', array(), 'Admin.Notifications.Error');
             else
-                $this->errors[] = $this->trans('Updating Settings failed.', array(), 'Admin.Notifications.Error');
+                $this->errors[] = $this->module->l('Updating Settings failed.', array(), 'Admin.Notifications.Error');
         }
         else
             parent::processSave();
@@ -66,19 +66,19 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
         parent::initPageHeaderToolbar();
         $this->page_header_toolbar_btn['back_to_modules'] = [
             'href' => $this->context->link->getAdminLink("AdminModules"),
-            'desc' => $this->trans('Back to list'),
+            'desc' => $this->module->l('Back to list'),
             'imgclass' => 'back'
         ];
         $hook_link = 'index.php?tab=AdminModulesPositions&token=' . Tools::getAdminTokenLite('AdminModulesPositions') . '&show_modules=' . (int) $this->module->id;
         $this->page_header_toolbar_btn['hook'] = [
             'href' => $hook_link,
-            'desc' => $this->trans('Manage hooks'),
+            'desc' => $this->module->l('Manage hooks'),
             'imgclass' => 'anchor'
         ];
         $this->page_header_toolbar_btn['trans'] = [
             'modal_target' => '#moduleTradLangSelect',
             'href' => '#',
-            'desc' => $this->trans('Translate'),
+            'desc' => $this->module->l('Translate'),
             'imgclass' => 'flag'
         ];
     }
@@ -87,6 +87,8 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
     {
         parent::initModal();
 
+        if(version_compare(_PS_VERSION_, '1.7', '<'))
+            return;
         $languages = Language::getLanguages(false);
         $translateLinks = [];
 
@@ -126,7 +128,7 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
         $this->modals[] = [
             'modal_id' => 'moduleTradLangSelect',
             'modal_class' => 'modal-sm',
-            'modal_title' => $this->trans('Translate this module'),
+            'modal_title' => $this->module->l('Translate this module'),
             'modal_content' => $modal_content,
         ];
 
@@ -134,7 +136,7 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
         $this->modals[] = [
             'modal_id' => 'moduleNotTrusted',
             'modal_class' => 'modal-lg',
-            'modal_title' => ($this->context->mode == Context::MODE_HOST) ? $this->trans('This module cannot be installed') : $this->trans('Important Notice'),
+            'modal_title' => ($this->context->mode == Context::MODE_HOST) ? $this->module->l('This module cannot be installed') : $this->module->l('Important Notice'),
             'modal_content' => $modal_content,
         ];
 
@@ -142,7 +144,7 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
         $this->modals[] = [
             'modal_id' => 'moduleNotTrustedCountry',
             'modal_class' => 'modal-lg',
-            'modal_title' => $this->trans('This module is Untrusted for your country', [], 'Admin.Modules.Feature'),
+            'modal_title' => $this->module->l('This module is Untrusted for your country', [], 'Admin.Modules.Feature'),
             'modal_content' => $modal_content,
         ];
     }

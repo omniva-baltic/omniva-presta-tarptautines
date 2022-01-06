@@ -58,7 +58,7 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
     {
         $this->toolbar_btn['bogus'] = [
             'href' => '#',
-            'desc' => $this->trans('Back to list'),
+            'desc' => $this->module->l('Back to list'),
         ];
     }
 
@@ -66,7 +66,7 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
     {
         $this->page_header_toolbar_btn['sync_countries'] = [
             'href' => self::$currentIndex . '&sync_countries=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
-            'desc' => $this->trans('Update Countries'),
+            'desc' => $this->module->l('Update Countries'),
             'imgclass' => 'refresh',
         ];
         parent::initPageHeaderToolbar();
@@ -85,9 +85,9 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
     {
         $updater = new OmnivaIntUpdater('countries');
         if($updater->run())
-            $this->confirmations[] = $this->trans('Successfully updated countries', array(), 'Admin.Notifications.Error');
+            $this->confirmations[] = $this->module->l('Successfully updated countries', array(), 'Admin.Notifications.Error');
         else
-            $this->errors[] = $this->trans("Failed updating countries", array(), 'Admin.Notifications.Error');
+            $this->errors[] = $this->module->l("Failed updating countries", array(), 'Admin.Notifications.Error');
     }
     
 }

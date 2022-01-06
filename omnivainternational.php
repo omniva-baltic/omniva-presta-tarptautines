@@ -63,7 +63,8 @@ class OmnivaInternational extends CarrierModule
         'actionCarrierProcess',
         'displayAdminOmnivaIntServicesListBefore',
         'displayAdminOmnivaIntTerminalsListBefore',
-        'displayAdminOmnivaIntCountriesListBefore'
+        'displayAdminOmnivaIntCountriesListBefore',
+        'displayBeforeCarrier'
     );
 
     /**
@@ -443,36 +444,29 @@ class OmnivaInternational extends CarrierModule
         Media::addJsDef([
             'omniva_front_controller_url' => $this->context->link->getModuleLink($this->name, 'front')
         ]);
-        $this->context->controller->registerJavascript(
-          'int-leaflet',
-          'modules/' . $this->name . '/views/js/leaflet.js',
-          ['priority' => 190]
-        );
-  
-        $this->context->controller->registerStylesheet(
-          'int-leaflet-style',
-          'modules/' . $this->name . '/views/css/leaflet.css',
-          [
-            'media' => 'all',
-            'priority' => 200,
-          ]
-        );
-        $this->context->controller->registerStylesheet(
-          'omniva-int-modulename-style',
-          'modules/' . $this->name . '/views/css/omniva.css',
-          [
-            'media' => 'all',
-            'priority' => 200,
-          ]
-        );
-  
-        $this->context->controller->registerJavascript(
-          'omnivalt-int',
-          'modules/' . $this->name . '/views/js/omniva.js',
-          [
-            'priority' => 200,
-          ]
-        );
+        if(version_compare(_PS_VERSION_, '1.7', '>='))
+        {
+            $this->context->controller->registerJavascript(
+                'int-leaflet',
+                'modules/' . $this->name . '/views/js/leaflet.js',
+                ['priority' => 190]
+              );
+              $this->context->controller->registerJavascript(
+                'omnivalt-int',
+                'modules/' . $this->name . '/views/js/omniva.js',
+                [
+                  'priority' => 200,
+                ]
+              );
+        
+        }
+        else
+        {
+            $this->context->controller->addJS('modules/' . $this->name . '/views/js/leaflet.js');
+            $this->context->controller->addJS('modules/' . $this->name . '/views/js/omniva.js');
+        }
+        $this->context->controller->addCSS('modules/' . $this->name . '/views/css/leaflet.css');
+        $this->context->controller->addCSS('modules/' . $this->name . '/views/css/omniva.css');
   
         $this->smarty->assign(array(
           'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
@@ -683,11 +677,11 @@ class OmnivaInternational extends CarrierModule
                     ]);
                     $this->context->smarty->assign([
 
-                        'list' => $this->context->smarty->fetch('module:' . $this->name .'/views/templates/admin/tracking_codes.tpl')
+                        'list' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/tracking_codes.tpl')
                     ]);
                 }
 
-                return $this->context->smarty->fetch('module:' . $this->name .'/views/templates/admin/displayAdminOrder.tpl');
+                return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/displayAdminOrder.tpl');
             }
         }
     }
@@ -724,8 +718,24 @@ class OmnivaInternational extends CarrierModule
      */
     public function hookDisplayCarrierExtraContent($params)
     {
-        $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($params['carrier']['id_reference']);
-        if ($omnivaCarrier->type == 'terminal')
+        if(version_compare(_PS_VERSION_, '1.7', '<'))
+        {
+            $omniva_terminal_carrier_exists = false;
+            foreach(reset($params['delivery_option_list']) as $key => $carrier)
+            {
+                $carrierObj = new Carrier(trim($key, ','));
+                $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrierObj->id_reference);
+                if(Validate::isLoadedObject($omnivaCarrier) && $omnivaCarrier->type == 'terminal')
+                {
+                    $omniva_terminal_carrier_exists = true;
+                    break;
+                }
+            }
+        }
+        else
+            $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($params['carrier']['id_reference']);
+
+        if ((version_compare(_PS_VERSION_, '1.7', '>=') && $omnivaCarrier->type == 'terminal') || (version_compare(_PS_VERSION_, '1.7', '<') && $omniva_terminal_carrier_exists))
         {
             // If it is terminal, it should have only one service, which we need to filter out terminals by identifier.
             $carrierServices = OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id);
@@ -751,8 +761,8 @@ class OmnivaInternational extends CarrierModule
             }
             $this->context->smarty->assign('terminals', $terminals);
             $this->context->smarty->assign(array(
-                'id_carrier' => $params['carrier']['id'],
-                'parcel_terminals' => $this->context->smarty->fetch('module:' . $this->name .'/views/templates/front/terminal_options.tpl'),
+                'id_carrier' => version_compare(_PS_VERSION_, '1.7', '>=') ? $params['carrier']['id'] : $carrierObj->id,
+                'parcel_terminals' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/front/terminal_options.tpl'),
                 'terminals_list' => $terminals,
                 'omniva_current_country' => $country_code,
                 'omniva_postcode' => $address->postcode,
@@ -915,5 +925,13 @@ class OmnivaInternational extends CarrierModule
         $sugar = "<b><i>$link</i></b>";
 
         return $this->helper->displayAlert($content, $sugar);
+    }
+
+    public function hookDisplayBeforeCarrier($params)
+    {
+        if(version_compare(_PS_VERSION_, '1.7', '<'))
+        {
+            return $this->hookDisplayCarrierExtraContent($params);
+        }
     }
 }

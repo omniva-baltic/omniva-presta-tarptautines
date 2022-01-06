@@ -127,10 +127,10 @@ class OmnivaIntOffersProvider
                         return (float) $offer->price;
                     }, $carrier_offers);
                     asort($prices);
-                    $cheapest_key = array_key_first($prices);
+                    $cheapest_key = key($prices);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$cheapest_key]->service_code;
                     $cookie->write();
-                    return $this->addSurcharge($prices[$cheapest_key], $omnivaCarrier->price, $omnivaCarrier->price_type);
+                    return $this->addSurcharge(reset($prices), $omnivaCarrier->price, $omnivaCarrier->price_type);
                 }
                 // Fastest
                 else
@@ -142,7 +142,7 @@ class OmnivaIntOffersProvider
                     asort($lower_bound_days);
 
                     // Get first key, which will correspond to fastest offer (parallel arrays)
-                    $fastest_key = array_key_first($lower_bound_days);
+                    $fastest_key = key($lower_bound_days);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$fastest_key]->service_code;
                     $cookie->write();
                     return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrier->price, $omnivaCarrier->price_type);

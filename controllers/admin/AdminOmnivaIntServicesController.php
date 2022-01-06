@@ -25,8 +25,8 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         $this->tpl_folder = 'override/';
 
         $this->_error = [
-            1 => $this->trans('You cannot assign categories to this service. Please enable the category mangment first.', [],'Admin.Catalog.Error'),
-            2 => $this->trans('This service cannot be assigned own logins.', [],'Admin.Catalog.Error'),
+            1 => $this->module->l('You cannot assign categories to this service. Please enable the category mangment first.', [],'Admin.Catalog.Error'),
+            2 => $this->module->l('This service cannot be assigned own logins.', [],'Admin.Catalog.Error'),
         ];
     }
 
@@ -109,16 +109,16 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         if(!$omnivaService->manage_categories)
             return false;
         if (!array_key_exists('Manage Categories', self::$cache_lang)) {
-            self::$cache_lang['Manage Categories'] = Context::getContext()->getTranslator()->trans('Manage Categories', [], 'Admin.Actions');
+            self::$cache_lang['Manage Categories'] = $this->module->l('Manage Categories');
         }
         $this->context->smarty->assign(array(
             'href' => self::$currentIndex . '&action=categories&token=' . $this->token . '&id=' . $id,
-            'action' => Context::getContext()->getTranslator()->trans('Manage Categories', array(), 'Admin.Actions'),
+            'action' => $this->module->l('Manage Categories'),
             'id' => $id,
             'icon' => 'sun'
         ));
 
-        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
     public function displayManageLoginsLink($token, $id, $name = null)
@@ -127,16 +127,16 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         if(!$omnivaService->own_login)
             return false;
         if (!array_key_exists('Manage Logins', self::$cache_lang)) {
-            self::$cache_lang['Manage Logins'] = Context::getContext()->getTranslator()->trans('Manage Categories', [], 'Admin.Actions');
+            self::$cache_lang['Manage Logins'] = $this->module->l('Manage Categories');
         }
         $this->context->smarty->assign(array(
             'href' => self::$currentIndex . '&action=logins&token=' . $this->token . '&id=' . $id,
-            'action' => Context::getContext()->getTranslator()->trans('Manage Logins', array(), 'Admin.Actions'),
+            'action' => $this->module->l('Manage Logins'),
             'id' => $id,
             'icon' => 'cube'
         ));
 
-        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
     // Added fictive button to so that counter would be displayed in list header (check list-header.tpl #144-145)
@@ -144,7 +144,7 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
     {
         $this->toolbar_btn['bogus'] = [
             'href' => '#',
-            'desc' => $this->trans('Back to list'),
+            'desc' => $this->module->l('Back to list'),
         ];
     }
 
@@ -157,7 +157,7 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
     {
         $this->page_header_toolbar_btn['sync_services'] = [
             'href' => self::$currentIndex . '&sync_services=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
-            'desc' => $this->trans('Update Services'),
+            'desc' => $this->module->l('Update Services'),
             'imgclass' => 'refresh',
         ];
         parent::initPageHeaderToolbar();
@@ -176,9 +176,9 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
     {
         $updater = new OmnivaIntUpdater('services');
         if($updater->run())
-            $this->confirmations[] = $this->trans('Successfully updated services', array(), 'Admin.Notifications.Error');
+            $this->confirmations[] = $this->module->l('Successfully updated services', array(), 'Admin.Notifications.Error');
         else
-            $this->errors[] = $this->trans("Failed updating services", array(), 'Admin.Notifications.Error');
+            $this->errors[] = $this->module->l("Failed updating services", array(), 'Admin.Notifications.Error');
     }
 
     public function processCategories()
@@ -337,7 +337,7 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         parent::initProcess();
         if(Tools::getValue('submitAddomniva_int_service'))
         {
-            $this->setAction('categories');
+            $this->action = 'categories';
             $this->display = 'edit';
         }
 

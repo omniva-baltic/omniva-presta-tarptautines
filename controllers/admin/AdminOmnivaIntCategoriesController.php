@@ -178,7 +178,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
     {
         $this->toolbar_btn['bogus'] = [
             'href' => '#',
-            'desc' => $this->trans('Back to list'),
+            'desc' => $this->module->l('Back to list'),
         ];
     }
 
@@ -186,7 +186,7 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
     {
         $this->page_header_toolbar_btn['sync_categories'] = [
             'href' => self::$currentIndex . '&sync_categories=1&token=' . $this->token,
-            'desc' => $this->trans('Sync Categories'),
+            'desc' => $this->module->l('Sync Categories'),
             'imgclass' => 'refresh',
             'color' => 'green'
         ];

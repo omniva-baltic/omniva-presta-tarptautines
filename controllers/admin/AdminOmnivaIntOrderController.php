@@ -35,7 +35,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             LEFT JOIN `' . _DB_PREFIX_ . 'order_state_lang` osl ON (os.`id_order_state` = osl.`id_order_state` AND osl.`id_lang` = ' . (int) $this->context->language->id . ')';
 
         $this->_error = [
-            1 => $this->trans('Could not get manifest data.', [],'Admin.Catalog.Error'),
+            1 => $this->module->l('Could not get manifest data.', [],'Admin.Catalog.Error'),
         ];
         if(Tools::getValue('manifest_error'))
         {
@@ -45,7 +45,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function getErrorWithManifestNumber($cart_id)
     {
-        $this->_error[2] = $this->trans('Manifest with number %s already exists', [$cart_id],'Admin.Catalog.Error');
+        $this->_error[2] = $this->module->l('Manifest with number %s already exists', [$cart_id],'Admin.Catalog.Error');
 
     }
 
@@ -124,10 +124,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessSaveShipment()
     {
-        if ($this->access('edit') != '1') {
-            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
-        }
-
         if (Tools::isSubmit('submitSaveShipment')) {
             $cod = (int) Tools::getValue('cod');
             $cod_amount = (float) Tools::getValue('cod_amount');
@@ -167,10 +163,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     public function ajaxProcessSendShipment()
     {
         $this->identifier = 'id_order';
-        if ($this->access('edit') != '1') {
-            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
-        }
-
         if (Tools::isSubmit('submitSendShipment')) {
             $omnivaOrder = $this->loadObject();
             $order = new Order($omnivaOrder->id);
@@ -204,17 +196,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     {
         $this->toolbar_btn['bogus'] = [
             'href' => '#',
-            'desc' => $this->trans('Back to list'),
+            'desc' => $this->module->l('Back to list'),
         ];
     }
 
     public function processPrintLabels()
     {
         $this->identifier = 'id_order';
-        if ($this->access('edit') != '1') {
-            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
-        }
-
         if (Tools::isSubmit('submitPrintLabels') || $this->action == 'printLabels') {
             $omnivaOrder = $this->loadObject();
             $orderTrackingInfo = $this->module->api->getLabel($omnivaOrder->shipment_id);
@@ -253,10 +241,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessCancelOrder()
     {
-        if ($this->access('edit') != '1') {
-            throw new PrestaShopException($this->trans('You do not have permission to edit this.', [], 'Admin.Notifications.Error'));
-        }
-
+        $this->identifier = 'id_order';
         if (Tools::isSubmit('submitCancelOrder')) {
             $omnivaOrder = $this->loadObject();
             $cancelResponse = $this->module->api->cancelOrder($omnivaOrder->shipment_id);
@@ -289,7 +274,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     {
         $this->page_header_toolbar_btn['latest_manifest'] = [
             'href' => self::$currentIndex . '&latest_manifest=1&token=' . $this->token,
-            'desc' => $this->trans('Generate Latest Manifest'),
+            'desc' => $this->module->l('Generate Latest Manifest'),
             'imgclass' => 'export',
         ];
         parent::initPageHeaderToolbar();
@@ -333,17 +318,17 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if(!$manifestExists)
             return false;
         if (!array_key_exists('Print Manifest', self::$cache_lang)) {
-            self::$cache_lang['Print Manifest'] = Context::getContext()->getTranslator()->trans('Print Manifest', [], 'Admin.Actions');
+            self::$cache_lang['Print Manifest'] = $this->module->l('Print Manifest');
         }
         $this->context->smarty->assign(array(
             'href' => self::$currentIndex . '&action=printManifest&token=' . $this->token . '&id_order=' . $id,
-            'action' => Context::getContext()->getTranslator()->trans('Print Manifest', array(), 'Admin.Actions'),
+            'action' => $this->module->l('Print Manifest'),
             'id' => $id,
             'blank' => 'true',
             'icon' => 'print'
         ));
 
-        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
     public function displayPrintLabelsLink($token, $id, $name = null)
@@ -354,17 +339,17 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if($untrackedParcelsCount > 0)
             return false;
         if (!array_key_exists('Print Labels', self::$cache_lang)) {
-            self::$cache_lang['Print Labels'] = Context::getContext()->getTranslator()->trans('Print Labels', [], 'Admin.Actions');
+            self::$cache_lang['Print Labels'] = $this->module->l('Print Labels');
         }
         $this->context->smarty->assign(array(
             'href' => self::$currentIndex . '&action=printLabels&token=' . $this->token . '&id_order=' . $id,
-            'action' => Context::getContext()->getTranslator()->trans('Print Labels', array(), 'Admin.Actions'),
+            'action' => $this->module->l('Print Labels'),
             'id' => $id,
             'blank' => 'true',
             'icon' => 'print'
         ));
 
-        return $this->module->fetch('module:' . $this->module->name . '/views/templates/admin/list_action.tpl');
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
     public function processPrintManifest()

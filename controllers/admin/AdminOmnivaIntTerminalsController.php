@@ -106,7 +106,7 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
     {
         $this->toolbar_btn['bogus'] = [
             'href' => '#',
-            'desc' => $this->trans('Back to list'),
+            'desc' => $this->module->l('Back to list'),
         ];
     }
 
@@ -114,7 +114,7 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
     {
         $this->page_header_toolbar_btn['sync_terminals'] = [
             'href' => self::$currentIndex . '&sync_terminals=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
-            'desc' => $this->trans('Update Terminals'),
+            'desc' => $this->module->l('Update Terminals'),
             'imgclass' => 'refresh',
         ];
         parent::initPageHeaderToolbar();
@@ -133,9 +133,9 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
     {
         $updater = new OmnivaIntUpdater('terminals');
         if($updater->run())
-            $this->confirmations[] = $this->trans('Successfully updated terminals', array(), 'Admin.Notifications.Error');
+            $this->confirmations[] = $this->module->l('Successfully updated terminals', array(), 'Admin.Notifications.Error');
         else
-            $this->errors[] = $this->trans("Failed updating terminals", array(), 'Admin.Notifications.Error');
+            $this->errors[] = $this->module->l("Failed updating terminals", array(), 'Admin.Notifications.Error');
     }
     
 }

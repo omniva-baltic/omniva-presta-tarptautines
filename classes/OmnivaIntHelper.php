@@ -49,6 +49,6 @@ class OmnivaIntHelper
                 'type' => $type,
             ]
         );
-        return $context->smarty->fetch("module:omnivainternational/views/templates/admin/alert.tpl");
+        return $context->smarty->fetch(_PS_MODULE_DIR_ . "omnivainternational/views/templates/admin/alert.tpl");
     }
 }
