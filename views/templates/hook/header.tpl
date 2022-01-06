@@ -1,5 +1,4 @@
 <script type="text/javascript">
-    var omnivalt_parcel_terminal_carrier_id = {$omnivalt_parcel_terminal_carrier_id};
     var omnivadata = [];
     omnivadata.text_select_terminal = '{l s='Select terminal' mod='omnivaltshipping'}';
     omnivadata.text_search_placeholder = '{l s='Enter postcode' mod='omnivaltshipping'}';

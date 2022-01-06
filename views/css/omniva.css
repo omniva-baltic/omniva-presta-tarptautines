@@ -610,3 +610,7 @@
     background-size: contain;
     position: absolute;
 }
+
+body#checkout .delivery-option #omnivalt_parcel_terminal_carrier_details img {
+  width: 20px; 
+}

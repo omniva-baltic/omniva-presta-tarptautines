@@ -1,11 +1,14 @@
 var omniva_addrese_change = false;
+var omnivalt_parcel_terminal_carrier_id = 0;
+$(document).on('ready', () => {
+    omnivalt_parcel_terminal_carrier_id = $('#omnivalt_parcel_terminal_carrier_details').data('id-carrier');
+});
 (function ( $ ) {
     $.fn.omniva = function(options) {
         var settings = $.extend({
             maxShow: 8,
             showMap: true,
         }, options );
-        //console.log('called');
         var timeoutID = null;
         var currentLocationIcon = false;
         var autoSelectTerminal = false;
@@ -16,8 +19,6 @@ var omniva_addrese_change = false;
         var terminalIcon = null;
         var homeIcon = null;
         var map = null;
-        //var terminals = [];
-        //var terminals = JSON.parse(omnivaTerminals);
         var terminals = omnivaTerminals;
         var selected = false;
         var previous_list = [];
@@ -28,16 +29,7 @@ var omniva_addrese_change = false;
         if (select.val()){
             selected = {'id':select.val(),'text':select.find('option:selected').text(),'distance':false};
         }
-        /*
-        select.find('option').each(function(i,val){
-           if (val.value != "")
-            terminals.push({'id':val.value,'text':val.text,'distance':false}); 
-           if (val.selected == true){
-               selected = {'id':val.value,'text':val.text,'distance':false};
-           }
-               
-        });
-        */
+
         var container = $(document.createElement('div'));
         container.addClass("omniva-terminals-list");
         var dropdown = $('<div class = "dropdown">'+omnivadata.text_select_terminal+'</div>');
@@ -550,28 +542,28 @@ var omniva_addrese_change = false;
                 return false;
               }
               if ($.isArray(id)){
-                if ( $.inArray( location[3], id) == -1){
+                if ( $.inArray( location['id'], id) == -1){
                     return true;
                 }
               }
-              else if (id !=0 && id != location[3]){
+              else if (id !=0 && id != location['id']){
                 return true;
               }
               if (autoSelectTerminal && counter == 1){
-                terminalSelected(location[3],false);
+                terminalSelected(location['id'],false);
               }
-              var destination = [location[1], location[2]]
+              var destination = [location['y_cord'], location['x_cord']]
               var distance = 0;
               if (location['distance'] != undefined){
                 distance = location['distance'];
               }
-              html += '<li data-pos="['+destination+']" data-id="'+location[3]+'" ><div><a class="omniva-li">'+counter+'. <b>'+location[0]+'</b></a>';
+              html += '<li data-pos="['+destination+']" data-id="'+location['id']+'" ><div><a class="omniva-li">'+counter+'. <b>'+location['name']+'</b></a>';
               if (distance != 0) {
               html += ' <b>'+distance+' km.</b>';
               }
-               html += '<div align="left" id="omn-'+location[3]+'" class="omniva-details" style="display:none;"><small>\
-                                          '+location[5]+' <br/>'+location[6]+'</small><br/>\
-                                          <button type="button" class="btn-marker" style="font-size:14px; padding:0px 5px;margin-bottom:10px; margin-top:5px;height:25px;" data-id="'+location[3]+'">'+select_terminal+'</button>\
+               html += '<div align="left" id="omn-'+location['id']+'" class="omniva-details" style="display:none;"><small>\
+                                          '+location['city']+'\
+                                          <button type="button" class="btn-marker" style="font-size:14px; padding:0px 5px;margin-bottom:10px; margin-top:5px;height:25px;" data-id="'+location['id']+'">'+select_terminal+'</button>\
                                           </div>\
                                           </div></li>';
                                               
@@ -643,13 +635,10 @@ var omnivaltDelivery = {
             if (value != omnivalt_parcel_terminal_carrier_id + ',') {
                 return;
             }
-            
-            var $omnivaltItem = $this.closest('.delivery-option');
-            var omnivaltLocation = $omnivaltItem.find('label');
-            
-            //$(".delivery_option #omnivalt_parcel_terminal_carrier_details").remove();
+            var omnivaltLocation = $this.closest('.delivery-option').next();
+            var moveTo = $this.closest('.delivery-option').find('label');
             $("#hook-display-before-carrier #omnivalt_parcel_terminal_carrier_details").appendTo(omnivaltLocation);
-            //$("#HOOK_BEFORECARRIER #omnivalt_parcel_terminal_carrier_details").remove();
+            omnivaltLocation.find('#omnivalt_parcel_terminal_carrier_details').appendTo(moveTo);
         });
 
         if ($('.delivery-options .delivery-option input[type="radio"]:checked').val() == omnivalt_parcel_terminal_carrier_id + ',') {

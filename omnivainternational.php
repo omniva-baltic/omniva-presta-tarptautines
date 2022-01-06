@@ -471,7 +471,6 @@ class OmnivaInternational extends CarrierModule
         );
   
         $this->smarty->assign(array(
-          'omnivalt_parcel_terminal_carrier_id' => 72,
           'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
         ));
   
@@ -671,7 +670,6 @@ class OmnivaInternational extends CarrierModule
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($params['carrier']['id_reference']);
         if ($omnivaCarrier->type == 'terminal')
         {
-
             // If it is terminal, it should have only one service, which we need to filter out terminals by identifier.
             $carrierServices = OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id);
             if(isset($carrierServices[0]))
@@ -696,8 +694,7 @@ class OmnivaInternational extends CarrierModule
             }
             $this->context->smarty->assign('terminals', $terminals);
             $this->context->smarty->assign(array(
-
-                'omnivalt_parcel_terminal_carrier_id' => $params['carrier']['id'],
+                'id_carrier' => $params['carrier']['id'],
                 'parcel_terminals' => $this->context->smarty->fetch('module:' . $this->name .'/views/templates/front/terminal_options.tpl'),
                 'terminals_list' => $terminals,
                 'omniva_current_country' => $country_code,
