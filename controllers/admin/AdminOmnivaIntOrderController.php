@@ -4,6 +4,7 @@ require_once "AdminOmnivaIntBaseController.php";
 require_once __DIR__ . "/../../classes/models/OmnivaIntOrder.php";
 require_once __DIR__ . "/../../classes/proxy/OmnivaIntEntityBuilder.php";
 require_once __DIR__ . "/../../classes/models/OmnivaIntManifest.php";
+require_once __DIR__ . "/../../classes/models/OmnivaIntCartTerminal.php";
 
 class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 {
@@ -133,9 +134,21 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             $doc_return = (int) Tools::getValue('doc_return');
             $fragile = (int) Tools::getValue('fragile');
 
+            $this->identifier = 'id_order';
             $omnivaOrder = $this->loadObject();
-            if($omnivaOrder && Validate::isLoadedObject($omnivaOrder))
+            $order = new Order($omnivaOrder->id);
+            if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order))
             {
+                if(Tools::getValue('terminal'))
+                {
+                    $id_terminal = (int) Tools::getValue('terminal');
+                    $cartTerminal = new OmnivaIntCartTerminal($order->id_cart);
+                    if(Validate::isLoadedObject($cartTerminal))
+                    {
+                        $cartTerminal->id_terminal = $id_terminal;
+                        $cartTerminal->update();
+                    }
+                }
                 $omnivaOrder->cod = $cod;
                 $omnivaOrder->insurance = $insurance;
                 $omnivaOrder->carry_service = $carry_service;

@@ -38,12 +38,20 @@ class OmnivaIntTerminal extends ObjectModel
             ],
         ];
 
-    public static function getTerminalsByIsoAndIndentifier($iso, $identifier)
+    public static function getTerminalsByIsoAndIndentifier($iso, $identifier, $city = false, $groupBy = false)
     {
+        $where = "country_code = '$iso' AND identifier = '$identifier'";
+        if($city)
+        {
+            $where .= " AND city = '$city'";
+        }
         $query = (new DbQuery())
             ->select("*")
             ->from(self::$definition['table'])
-            ->where("country_code = '$iso' AND identifier = '$identifier'");
+            ->where($where);
+
+        if($groupBy)
+            $query->groupBy($groupBy);
         return Db::getInstance()->executeS($query);
     }
 }

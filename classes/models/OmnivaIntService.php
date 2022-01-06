@@ -93,4 +93,20 @@ class OmnivaIntService extends ObjectModel
         $this->manage_categories = !(int) $this->manage_categories;
         return $this->update(false);
     }
+
+    public static function getServiceByCode($code)
+    {
+
+        $query = (new DbQuery())
+            ->select("id")
+            ->from(self::$definition['table'])
+            ->where("service_code = '$code'");
+
+        $id_service = Db::getInstance()->getValue($query);
+        if (!$id_service) {
+            return false;
+        }
+
+        return new OmnivaIntService($id_service);
+    }
 }

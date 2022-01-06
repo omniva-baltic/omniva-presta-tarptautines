@@ -11,6 +11,7 @@ require_once __DIR__ . "/classes/models/OmnivaIntTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCountry.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
 require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
+require_once __DIR__ . "/classes/models/OmnivaIntCartTerminal.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
 require_once __DIR__ . "/vendor/autoload.php";
@@ -500,50 +501,96 @@ class OmnivaInternational extends CarrierModule
             )
         );
 
-        $form_fields = array(
-            array(
-                'type' => 'switch',
-                'label' => $this->l('C.O.D'),
-                'name' => 'cod',
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Insurance'),
-                'name' => 'insurance',
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Carry service'),
-                'name' => 'carry_service',
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Document Return'),
-                'name' => 'doc_return',
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'switch',
-                'label' => $this->l('Fragile'),
-                'name' => 'fragile',
-                'values' => $switcher_values
-            ),
-            array(
-                'type' => 'hidden',
-                'name' => 'id_order',
-                'value' => $id_order,
-            ),
-        );
-
         if(Validate::isLoadedObject($order))
         {
-            $order_carrier = new Carrier($order->id_carrier);
-            if($order_carrier->external_module_name == $this->name)
+            $orderCarrier = new Carrier($order->id_carrier);
+
+            if($orderCarrier->external_module_name == $this->name)
             {
+                $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($orderCarrier->id_reference);
+                $omnivaOrder = new OmnivaIntOrder($id_order);
                 $this->context->smarty->assign('admin_default_tpl_path', _PS_BO_ALL_THEMES_DIR_ . 'default/template/');
+
+                $form_fields = [];
+                if($omnivaCarrier->type == 'terminal')
+                {
+                    $address = new Address($order->id_address_delivery);
+                    $country_code = Country::getIsoById($address->id_country);
+                    $service = OmnivaIntService::getServiceByCode($omnivaOrder->service_code);
+                    $cities = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, false, 'city');
+                    $terminalsByCities = [];
+                    foreach($cities as $key => $city)
+                    {
+                        $terminalsByCities[$key]['city'] = $city['city'];
+                        $terminalsByCities[$key]['terminals'] = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, $city['city']);
+                    }
+                    array_walk($countries, function(&$item, $key) {
+                        if($k = OmnivaIntCountry::getCountryIdByIso($item['iso_code']))
+                        {
+                            $item['id_country'] = $k;
+                        }
+                    });
+                    $form_fields[] = [
+                        'type' => 'select',
+                        'label' => $this->l('Terminal'),
+                        'name' => 'terminal',
+                        'options' => [
+                            'optiongroup' => [
+                                'query' => $terminalsByCities,
+                                'label' => 'city',
+                            ],
+                            'options' => [
+                                'query' => 'terminals',
+                                'name' => 'name',
+                                'id' => 'id'
+                            ]
+                        ],
+                        'required' => true
+                    ];
+
+                    $cartTerminal = new OmnivaIntCartTerminal($order->id_cart);
+                    $id_terminal = $cartTerminal->id_terminal;
+                }
+
+                $form_fields_services = array(
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('C.O.D'),
+                        'name' => 'cod',
+                        'values' => $switcher_values
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Insurance'),
+                        'name' => 'insurance',
+                        'values' => $switcher_values
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Carry service'),
+                        'name' => 'carry_service',
+                        'values' => $switcher_values
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Document Return'),
+                        'name' => 'doc_return',
+                        'values' => $switcher_values
+                    ),
+                    array(
+                        'type' => 'switch',
+                        'label' => $this->l('Fragile'),
+                        'name' => 'fragile',
+                        'values' => $switcher_values
+                    ),
+                    array(
+                        'type' => 'hidden',
+                        'name' => 'id_order',
+                        'value' => $id_order,
+                    ),
+                );
+
+                $form_fields = array_merge($form_fields, $form_fields_services);
                 $fieldsForm[0]['form'] = array(
                     'legend' => array(
                         'title' => 'Omniva International Shipment',
@@ -562,8 +609,7 @@ class OmnivaInternational extends CarrierModule
                         ),
                     ]
                 );
-        
-                $omnivaOrder = new OmnivaIntOrder($id_order);
+
                 $omnivaOrderParcels = OmnivaIntParcel::getParcelsByOrderId($id_order);
                 $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id_order);
                 if($omnivaOrder->shipment_id && $untrackedParcelsCount > 0)
@@ -595,6 +641,7 @@ class OmnivaInternational extends CarrierModule
                     'carry_service' => $omnivaOrder->carry_service,
                     'doc_return' => $omnivaOrder->doc_return,
                     'fragile' => $omnivaOrder->fragile,
+                    'terminal' => isset($id_terminal) ? $id_terminal : null,
                 ];
         
                 // Module, token and currentIndex

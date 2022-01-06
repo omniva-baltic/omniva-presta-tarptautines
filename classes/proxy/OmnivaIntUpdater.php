@@ -46,6 +46,8 @@ class OmnivaIntUpdater {
             foreach($response->terminals as $terminal)
             {
                 $terminalObj = new OmnivaIntTerminal();
+                $terminalObj->id = $terminal->id;
+                $terminalObj->force_id = true;
                 $terminalObj->name = $terminal->name;
                 $terminalObj->city = $terminal->city;
                 $terminalObj->country_code = $terminal->country_code;
