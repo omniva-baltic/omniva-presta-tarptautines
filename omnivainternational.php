@@ -562,6 +562,13 @@ class OmnivaInternational extends CarrierModule
                         'values' => $switcher_values
                     ),
                     array(
+                        'form_group_class' => 'cod-amount-block',
+                        'type' => 'text',
+                        'label' => $this->l('C.O.D amount'),
+                        'name' => 'cod_amount',
+                        'prefix' => '€'
+                    ),
+                    array(
                         'type' => 'switch',
                         'label' => $this->l('Insurance'),
                         'name' => 'insurance',
@@ -639,6 +646,7 @@ class OmnivaInternational extends CarrierModule
                 $helper->fields_value = [
                     'id_order' => $id_order,
                     'cod' => $omnivaOrder->cod,
+                    'cod_amount' => $omnivaOrder->cod_amount ? $omnivaOrder->cod_amount : $order->total_paid_tax_incl,
                     'insurance' => $omnivaOrder->insurance,
                     'carry_service' => $omnivaOrder->carry_service,
                     'doc_return' => $omnivaOrder->doc_return,

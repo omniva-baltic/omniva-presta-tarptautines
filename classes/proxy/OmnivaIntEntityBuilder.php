@@ -140,6 +140,20 @@ class OmnivaIntEntityBuilder
         $items = $this->buildItems($cart);
         
         $omnivaOrder = new OmnivaIntOrder($order->id);
+
+        $additional_services = [
+            'cod' => $omnivaOrder->cod,
+            'insurance' => $omnivaOrder->insurance,
+            'carry_service' => $omnivaOrder->carry_service,
+            'doc_return' => $omnivaOrder->doc_return,
+            'fragile' => $omnivaOrder->fragile,
+        ];
+
+        $cod_amount = 0;
+        if($omnivaOrder->cod)
+            $cod_amount = $omnivaOrder->cod_amount;
+        
+
         $reference = $order->reference;
         $order = new Order();
         
@@ -149,7 +163,8 @@ class OmnivaIntEntityBuilder
             ->setReceiver($receiver)
             ->setParcels($parcels)
             ->setReference($reference)
-            ->setItems($items);
+            ->setItems($items)
+            ->setAdditionalServices($additional_services, $cod_amount);
         return $order;
     }
 

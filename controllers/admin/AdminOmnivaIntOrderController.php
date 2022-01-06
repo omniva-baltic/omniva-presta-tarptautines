@@ -130,6 +130,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
         if (Tools::isSubmit('submitSaveShipment')) {
             $cod = (int) Tools::getValue('cod');
+            $cod_amount = (float) Tools::getValue('cod_amount');
             $insurance = (int) Tools::getValue('insurance');
             $carry_service = (int) Tools::getValue('carry_service');
             $doc_return = (int) Tools::getValue('doc_return');
@@ -151,6 +152,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                     }
                 }
                 $omnivaOrder->cod = $cod;
+                $omnivaOrder->cod_amount = $cod_amount;
                 $omnivaOrder->insurance = $insurance;
                 $omnivaOrder->carry_service = $carry_service;
                 $omnivaOrder->doc_return = $doc_return;

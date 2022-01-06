@@ -1,8 +1,19 @@
 $(document).ready(function() {
 
+
+   if($('#cod_on').is(':checked'))
+      $('.cod-amount-block').show()
+   $('#cod_on, #cod_off').on('change', () =>{
+      if($('#cod_on').is(':checked'))
+         $('.cod-amount-block').show();
+      else
+         $('.cod-amount-block').hide();
+   });
+
     $('#save-shipment').on('click', () => {
         let id_order = $('#id_order').val();
         let cod = +$("#cod_on").is(':checked');
+        let cod_amount = $("#cod_amount").val();
         let insurance = +$("#insurance_on").is(':checked');
         let carry_service = +$("#carry_service_on").is(':checked');
         let doc_return = +$("#doc_return_on").is(':checked');
@@ -14,6 +25,7 @@ $(document).ready(function() {
             data : {
                id_order: id_order,
                cod: cod,
+               cod_amount: cod_amount,
                insurance: insurance,
                carry_service: carry_service,
                doc_return: doc_return,

@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
     `shipment_id` varchar(100) DEFAULT NULL,
     `cart_id` varchar(100) DEFAULT NULL,
     `cod` tinyint(1),
+    `cod_amount` float(10),
     `insurance` tinyint(1),
     `carry_service` tinyint(1),
     `doc_return` tinyint(1),

@@ -16,6 +16,8 @@ class OmnivaIntOrder extends ObjectModel
 
     public $cod;
 
+    public $cod_amount;
+
     public $insurance;
 
     public $carry_service;
@@ -45,6 +47,7 @@ class OmnivaIntOrder extends ObjectModel
             'shipment_id' =>         ['type' => self::TYPE_STRING, 'size' => 100],
             'cart_id' =>             ['type' => self::TYPE_STRING, 'size' => 100],
             'cod' =>                 ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+            'cod_amount' =>          ['type' => self::TYPE_FLOAT, 'size' => 10],
             'insurance' =>           ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'carry_service' =>       ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
             'doc_return' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
