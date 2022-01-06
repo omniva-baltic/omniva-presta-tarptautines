@@ -398,9 +398,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->radius = $radius;
 
         if($this->adding_terminal_carrier)
-            $omnivaCarrier->type = 'terminal';
-        else
             $omnivaCarrier->type = 'courier';
+        else
+            $omnivaCarrier->type = 'terminal';
 
         $result = $omnivaCarrier->add();
         if(!$result)

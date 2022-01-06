@@ -1,4 +1,8 @@
 <div class="omniva-wrapper">
-    {$form}
-    {$list}
+    {if isset($form)}
+        {$form}
+    {/if}
+    {if isset($list)}
+        {$list}
+    {/if}
 </div>

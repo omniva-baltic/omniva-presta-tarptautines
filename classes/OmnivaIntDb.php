@@ -12,7 +12,8 @@ class OmnivaIntDb
         'omniva_int_carrier_service',
         'omniva_int_service_category',
         'omniva_int_country',
-        'omniva_int_parcel'
+        'omniva_int_parcel',
+        'omniva_int_cart_terminal'
     ];
     /**
      * Create tables for module

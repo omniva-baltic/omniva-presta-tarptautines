@@ -146,7 +146,7 @@
     display: table;
 }
 
-:is(#omniva_shipment_form, .omniva_shipment_form) .form-group {
+body:not(.ps_back-office) :is(#omniva_shipment_form, .omniva_shipment_form) .form-group {
     margin-bottom: 3rem;
 }
 

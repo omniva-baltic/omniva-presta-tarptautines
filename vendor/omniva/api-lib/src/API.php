@@ -96,7 +96,9 @@ class API
         if ($httpCode == 200) {
           if (isset($respObj['messages']) && $respObj['messages']) {
               // istrinti sita eilute, kad vartotojui neisvestu
-              echo 'messages from ' . debug_backtrace()[2]['function'] . '():<br><br>';
+			  if ($this->debug_mode) {
+				echo 'messages from ' . debug_backtrace()[2]['function'] . '():<br><br>';
+			  }
               $this->throwErrors($respObj['messages']);
           }
             return json_decode($response)->result;
@@ -108,7 +110,9 @@ class API
         }
 
         if (isset($respObj['errors']) && $respObj['errors']) {
-            echo 'errors in ' . debug_backtrace()[2]['function'] . '():<br><br>';
+			if ($this->debug_mode) {
+				echo 'errors in ' . debug_backtrace()[2]['function'] . '():<br><br>';
+			}
             $this->throwErrors($respObj['errors']);
         }
 

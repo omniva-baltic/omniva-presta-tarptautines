@@ -18,6 +18,7 @@ $(document).ready(function() {
                carry_service: carry_service,
                doc_return: doc_return,
                fragile: fragile,
+               terminal: $('#terminal').val(),
                submitSaveShipment: '1',
                action: 'saveShipment',
                ajax: '1',

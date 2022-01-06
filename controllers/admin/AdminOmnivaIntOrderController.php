@@ -154,7 +154,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 $omnivaOrder->insurance = $insurance;
                 $omnivaOrder->carry_service = $carry_service;
                 $omnivaOrder->doc_return = $doc_return;
-                $omnivaOrder->fragile = $doc_return;
+                $omnivaOrder->fragile = $fragile;
                 die($omnivaOrder->update() ? json_encode(['success' => $this->module->l('Omniva order info updated successfully.')]) : 
                                              json_encode(['error' => $this->module->l('Couldn\'t update Omniva order info.')]));
             }

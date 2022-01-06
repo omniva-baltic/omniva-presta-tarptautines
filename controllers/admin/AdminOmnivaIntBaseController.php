@@ -56,7 +56,8 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
     public function setMedia($isNewTheme = false)
     {
         parent::setMedia();
-        $this->addCSS(_PS_MODULE_DIR_ . $this->module->name . '/views/css/admin.css');
+        if(version_compare(_PS_VERSION_, '1.7.7', '>'))
+            $this->addCSS(_PS_MODULE_DIR_ . $this->module->name . '/views/css/admin.css');
         $this->addJS('modules/' . $this->module->name . '/views/js/admin.js');
     }
 

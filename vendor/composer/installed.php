@@ -5,7 +5,7 @@
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => 'b6544bc8e8085d50d613bc1a611e597f66fa94b7',
+        'reference' => '85d0c6c5fa7bf59be987b3eb2d0478f072df95bd',
         'name' => '__root__',
         'dev' => true,
     ),
@@ -16,7 +16,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => 'b6544bc8e8085d50d613bc1a611e597f66fa94b7',
+            'reference' => '85d0c6c5fa7bf59be987b3eb2d0478f072df95bd',
             'dev_requirement' => false,
         ),
         'omniva/api-lib' => array(
@@ -27,7 +27,7 @@
             'aliases' => array(
                 0 => '9999999-dev',
             ),
-            'reference' => '12ae41a80cb6317e533965feb77886c476feab13',
+            'reference' => 'baa5aa2d7256dc3d46e7bae48a9f8fddf1c05499',
             'dev_requirement' => false,
         ),
     ),

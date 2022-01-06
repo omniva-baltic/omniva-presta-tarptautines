@@ -245,7 +245,7 @@ class OmnivaInternational extends CarrierModule
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
             self::CONTROLLER_OMNIVA_ORDER => array(
-                'title' => $this->l('Omniva Order'),
+                'title' => $this->l('Omniva Orders'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ),
         );
@@ -521,38 +521,37 @@ class OmnivaInternational extends CarrierModule
                     $country_code = Country::getIsoById($address->id_country);
                     $service = OmnivaIntService::getServiceByCode($omnivaOrder->service_code);
                     $cities = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, false, 'city');
+                    
                     $terminalsByCities = [];
                     foreach($cities as $key => $city)
                     {
                         $terminalsByCities[$key]['city'] = $city['city'];
                         $terminalsByCities[$key]['terminals'] = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, $city['city']);
                     }
-                    array_walk($countries, function(&$item, $key) {
-                        if($k = OmnivaIntCountry::getCountryIdByIso($item['iso_code']))
-                        {
-                            $item['id_country'] = $k;
-                        }
-                    });
-                    $form_fields[] = [
-                        'type' => 'select',
-                        'label' => $this->l('Terminal'),
-                        'name' => 'terminal',
-                        'options' => [
-                            'optiongroup' => [
-                                'query' => $terminalsByCities,
-                                'label' => 'city',
-                            ],
-                            'options' => [
-                                'query' => 'terminals',
-                                'name' => 'name',
-                                'id' => 'id'
-                            ]
-                        ],
-                        'required' => true
-                    ];
 
-                    $cartTerminal = new OmnivaIntCartTerminal($order->id_cart);
-                    $id_terminal = $cartTerminal->id_terminal;
+                    if(!empty($terminalsByCities))
+                    {
+                        $form_fields[] = [
+                            'type' => 'select',
+                            'label' => $this->l('Terminal'),
+                            'name' => 'terminal',
+                            'options' => [
+                                'optiongroup' => [
+                                    'query' => $terminalsByCities,
+                                    'label' => 'city',
+                                ],
+                                'options' => [
+                                    'query' => 'terminals',
+                                    'name' => 'name',
+                                    'id' => 'id'
+                                ]
+                            ],
+                            'required' => true
+                        ];
+    
+                        $cartTerminal = new OmnivaIntCartTerminal($order->id_cart);
+                        $id_terminal = $cartTerminal->id_terminal;
+                    }
                 }
 
                 $form_fields_services = array(

@@ -17,6 +17,8 @@ class Order
     private $items = array();
     private $reference;
     private $callback_urls;
+	private $additional_services = array();
+	private $cod_amount = 0;
 
 
     public function __construct()
@@ -50,6 +52,14 @@ class Order
     public function setServiceCode($service_code)
     {
         $this->service_code = $service_code;
+
+        return $this;
+    }
+	
+	public function setAdditionalServices($services, $cod_amount = 0)
+    {
+        $this->additional_services = $services;
+		$this->cod_amount = $cod_amount;
 
         return $this;
     }
@@ -104,8 +114,9 @@ class Order
         if (!$this->parcels) throw new OmnivaApiException('All the fields must be filled. parcels are missing.');
         if (!$this->items) throw new OmnivaApiException('All the fields must be filled. items are missing.');
         if (!$this->reference) throw new OmnivaApiException('All the fields must be filled. reference is missing.');
+        if (in_array('cod', $this->additional_services) && !$this->cod_amount) throw new OmnivaApiException('Selected COD, but cod amount is 0');
 
-        return array(
+        $order_data = array(
             'service_code' => $this->service_code,
             'sender' => $this->sender->generateSender(),
             'receiver' => $this->receiver->generateReceiver(),
@@ -114,6 +125,12 @@ class Order
             'export_items' => $this->items,
             'callback_urls' => $this->callback_urls
         );
+		
+		foreach ($this->additional_services as $service){
+			$order_data[$service] = $service === 'cod' ? $this->cod_amount : 'true';
+		}
+		
+		return $order_data;
     }
 
     public function returnJson()
