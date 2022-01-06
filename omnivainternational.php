@@ -393,15 +393,18 @@ class OmnivaInternational extends CarrierModule
         $carrier = new Carrier($this->id_carrier);
         $carrier_reference = $carrier->id_reference;
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
-
-        $offersProvider = new OmnivaIntOffersProvider();
-        $offersProvider
-            ->setType($omnivaCarrier->type)
-            ->setCart($cart)
-            ->setCarrier($omnivaCarrier)
-            ->setModule($this);
-
-        return $offersProvider->getPrice();
+        if(Validate::isLoadedObject($omnivaCarrier))
+        {
+            $offersProvider = new OmnivaIntOffersProvider();
+            $offersProvider
+                ->setType($omnivaCarrier->type)
+                ->setCart($cart)
+                ->setCarrier($omnivaCarrier)
+                ->setModule($this);
+    
+            return $offersProvider->getPrice();
+        }
+        return false;
     }
 
     public function getOrderShippingCostExternal($params) {

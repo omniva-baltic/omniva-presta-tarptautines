@@ -41,7 +41,8 @@ class OmnivaIntEntityBuilder
         ->setContactName($address->firstname . ' ' . $address->lastname)       
         ->setPhoneNumber($address->phone)
         ->setCountryId($country_code);
-        if($type == 'courier')
+        $cartTerminal = new OmnivaIntCartTerminal($cart->id);
+        if($type == 'courier' || ($type == 'terminal' && !Validate::isLoadedObject($cartTerminal)))
         {
             $receiver
             ->setStreetName($address->address1)
@@ -51,7 +52,6 @@ class OmnivaIntEntityBuilder
         }
         elseif($type == 'terminal')
         {
-            $cartTerminal = new OmnivaIntCartTerminal($cart->id);
             $terminal = new OmnivaIntTerminal($cartTerminal->id_terminal);
             $receiver
             ->setStreetName($terminal->address)
