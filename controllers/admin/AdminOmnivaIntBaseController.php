@@ -20,9 +20,9 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
                 }
             }
             if($res)
-                $this->confirmations[] = $this->module->l('Update Sucessful', array(), 'Admin.Notifications.Error');
+                $this->confirmations[] = $this->module->l('Update Sucessful');
             else
-                $this->errors[] = $this->module->l('Updating Settings failed.', array(), 'Admin.Notifications.Error');
+                $this->errors[] = $this->module->l('Updating Settings failed.');
         }
         // Single form
         elseif(isset($this->section_id) && isset($this->module->_configKeys[$this->section_id]))
@@ -30,9 +30,9 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
             $config_keys = $this->module->_configKeys[$this->section_id];
             $res = $this->saveConfig($config_keys);
             if($res)
-                $this->confirmations[] = $this->module->l('Update Sucessful', array(), 'Admin.Notifications.Error');
+                $this->confirmations[] = $this->module->l('Update Sucessful');
             else
-                $this->errors[] = $this->module->l('Updating Settings failed.', array(), 'Admin.Notifications.Error');
+                $this->errors[] = $this->module->l('Updating Settings failed.');
         }
         else
             parent::processSave();
@@ -144,7 +144,7 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
         $this->modals[] = [
             'modal_id' => 'moduleNotTrustedCountry',
             'modal_class' => 'modal-lg',
-            'modal_title' => $this->module->l('This module is Untrusted for your country', [], 'Admin.Modules.Feature'),
+            'modal_title' => $this->module->l('This module is Untrusted for your country'),
             'modal_content' => $modal_content,
         ];
     }

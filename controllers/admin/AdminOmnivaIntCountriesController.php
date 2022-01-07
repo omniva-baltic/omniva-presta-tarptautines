@@ -85,9 +85,9 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
     {
         $updater = new OmnivaIntUpdater('countries');
         if($updater->run())
-            $this->confirmations[] = $this->module->l('Successfully updated countries', array(), 'Admin.Notifications.Error');
+            $this->confirmations[] = $this->module->l('Successfully updated countries');
         else
-            $this->errors[] = $this->module->l("Failed updating countries", array(), 'Admin.Notifications.Error');
+            $this->errors[] = $this->module->l("Failed updating countries");
     }
     
 }

@@ -35,7 +35,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             LEFT JOIN `' . _DB_PREFIX_ . 'order_state_lang` osl ON (os.`id_order_state` = osl.`id_order_state` AND osl.`id_lang` = ' . (int) $this->context->language->id . ')';
 
         $this->_error = [
-            1 => $this->module->l('Could not get manifest data.', [],'Admin.Catalog.Error'),
+            1 => $this->module->l('Could not get manifest data.'),
         ];
         if(Tools::getValue('manifest_error'))
         {
@@ -45,7 +45,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function getErrorWithManifestNumber($cart_id)
     {
-        $this->_error[2] = $this->module->l('Manifest with number %s already exists', [$cart_id],'Admin.Catalog.Error');
+        $this->_error[2] = $this->module->l(sprintf('Manifest with number %s already exists', $cart_id));
 
     }
 

@@ -25,8 +25,8 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         $this->tpl_folder = 'override/';
 
         $this->_error = [
-            1 => $this->module->l('You cannot assign categories to this service. Please enable the category mangment first.', [],'Admin.Catalog.Error'),
-            2 => $this->module->l('This service cannot be assigned own logins.', [],'Admin.Catalog.Error'),
+            1 => $this->module->l('You cannot assign categories to this service. Please enable the category mangment first.'),
+            2 => $this->module->l('This service cannot be assigned own logins.'),
         ];
     }
 
@@ -176,9 +176,9 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
     {
         $updater = new OmnivaIntUpdater('services');
         if($updater->run())
-            $this->confirmations[] = $this->module->l('Successfully updated services', array(), 'Admin.Notifications.Error');
+            $this->confirmations[] = $this->module->l('Successfully updated services');
         else
-            $this->errors[] = $this->module->l("Failed updating services", array(), 'Admin.Notifications.Error');
+            $this->errors[] = $this->module->l("Failed updating services");
     }
 
     public function processCategories()
