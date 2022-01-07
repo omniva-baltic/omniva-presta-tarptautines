@@ -7,6 +7,6 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_parcel` (
     `width` float(10) NOT NULL,
     `height` float(10) NOT NULL,
     `tracking_number` varchar(100) DEFAULT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    KEY `id_shipment` (`id_shipment`)
 ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-ALTER TABLE `_DB_PREFIX_omniva_int_parcel` ADD KEY `id_shipment` (`id_shipment`);

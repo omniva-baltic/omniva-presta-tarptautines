@@ -12,6 +12,7 @@ require_once __DIR__ . "/classes/models/OmnivaIntCountry.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
 require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCartTerminal.php";
+require_once __DIR__ . "/classes/models/OmnivaIntRateCache.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
 require_once __DIR__ . "/vendor/autoload.php";
@@ -33,19 +34,12 @@ use OmnivaApi\Parcel;
 class OmnivaInternational extends CarrierModule
 {
     const CONTROLLER_OMNIVA_MAIN = 'AdminOmnivaIntMain';
-
     const CONTROLLER_OMNIVA_SETTINGS = 'AdminOmnivaIntSettings';
-
     const CONTROLLER_OMNIVA_CARRIERS = 'AdminOmnivaIntCarriers';
-
     const CONTROLLER_CATEGORIES = 'AdminOmnivaIntCategories';
-
     const CONTROLLER_TERMINALS = 'AdminOmnivaIntTerminals';
-
     const CONTROLLER_OMNIVA_SERVICES = 'AdminOmnivaIntServices';
-
     const CONTROLLER_OMNIVA_COUNTRIES = 'AdminOmnivaIntCountries';
-
     const CONTROLLER_OMNIVA_ORDER = 'AdminOmnivaIntOrder';
 
     /**
@@ -122,16 +116,6 @@ class OmnivaInternational extends CarrierModule
         ),
     );
 
-    public static $_classes = [
-        'OmnivaIntOrder',
-        'OmnivaIntTerminal',
-        'OmnivaIntManifest',
-        'OmnivaIntService',
-        'OmnivaIntCarrier',
-        'OmnivaIntCategory',
-        'OmnivaIntRateCache'
-    ];
-
     public $id_carrier;
 
     public $api;
@@ -143,10 +127,10 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '0.0.1';
+        $this->version = '0.8.0';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = array('min' => '1.6.0', 'max' => '1.7.8');
+        $this->ps_versions_compliancy = array('min' => '1.6.0', 'max' => '1.7.9');
         $this->bootstrap = true;
         $this->helper = new OmnivaIntHelper();
         if(Configuration::get('OMNIVA_TOKEN'))
@@ -156,20 +140,7 @@ class OmnivaInternational extends CarrierModule
 
         $this->displayName = $this->l('Omniva International Shipping');
         $this->description = $this->l('Shipping module for Omniva international delivery method');
-        $this->available_countries = array('LT', 'LV', 'EE', 'PL');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
-    }
-
-    public function getModuleService($service_name, $id = null)
-    {
-        $reflection = new \ReflectionClass($service_name);
-        if(class_exists($service_name) && in_array($service_name, self::$_classes))
-            return $id ? $reflection->newInstanceArgs([$id]) : $reflection->newInstance() ;
-        elseif (!class_exists($service_name) && in_array($service_name, self::$_classes))
-        {
-            require_once __DIR__ . 'classes/' . $service_name . '.php';
-            return $id ? $reflection->newInstanceArgs([$id]) : $reflection->newInstance() ;
-        }
     }
 
     /**
@@ -387,6 +358,7 @@ class OmnivaInternational extends CarrierModule
         return $result;
     }
 
+    // It's important to cache returned prices, because API may timeout on repeated requests.
     public function getOrderShippingCost($params, $shipping_cost) {
         if($this->context->controller instanceof AdminController)
             return false;
@@ -396,16 +368,55 @@ class OmnivaInternational extends CarrierModule
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
         if(Validate::isLoadedObject($omnivaCarrier))
         {
+            // Check if rate is already cached. Use id_cart also to reduce possibility of hash collision.
+            $cache_key_hash = $this->getCacheKey($cart, $carrier);
+            $rate = OmnivaIntRateCache::getCachedRate($cart->id, $cache_key_hash);
+
+            // Check against false, as 0 is a valid value.
+            if($rate !== false)
+                return $rate;
+
             $offersProvider = new OmnivaIntOffersProvider();
             $offersProvider
                 ->setType($omnivaCarrier->type)
                 ->setCart($cart)
                 ->setCarrier($omnivaCarrier)
                 ->setModule($this);
-    
-            return $offersProvider->getPrice();
+
+            $rate = $offersProvider->getPrice(); 
+            $rateCache = new OmnivaIntRateCache();
+            $rateCache->id_cart = $cart->id;
+            $rateCache->hash = $cache_key_hash;
+            $rateCache->rate = $rate;
+            $rateCache->add();
+
+            return $rate;
         }
         return false;
+    }
+
+    // Cache key structure - hash of: {id_customer}-{id_cart}-{id_carrier}-{id_address}-{id_country}-{postcode}-({cart_product_id}-{quantity})
+    public function getCacheKey($cart, $carrier)
+    {
+        $cache_key = '';
+        $customer = new Customer($cart->id_customer);
+        $address = new Address($cart->id_address_delivery);
+
+        $id_customer = $customer->id;
+        $id_cart = $cart->id;
+        $id_carrier = $carrier->id;
+        $id_address = $address->id;
+        $id_country = $address->id_country;
+        $postcode = $address->postcode;
+
+        $cache_key = "$id_customer-$id_cart-$id_carrier-$id_address-$id_country-$postcode";
+        $cart_products = $cart->getProducts();
+        foreach ($cart_products as $product)
+        {
+            $cache_key .= $product['id_product'] . '-' . $product['cart_quantity'];
+        }
+
+        return md5($cache_key);
     }
 
     public function getOrderShippingCostExternal($params) {

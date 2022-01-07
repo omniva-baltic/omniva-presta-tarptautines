@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
     `fragile` tinyint(1),
     `date_add` datetime NOT NULL,
     `date_upd` datetime NOT NULL,
-    PRIMARY KEY (`id_shipment`)
+    PRIMARY KEY (`id_shipment`),
+    KEY `id_shop` (`id_shop`),
+    KEY `id_manifest` (`id_manifest`),
+    KEY `service_code` (`service_code`)
 ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-ALTER TABLE `_DB_PREFIX_omniva_int_shipment` ADD KEY `id_shop` (`id_shop`), ADD KEY `id_manifest` (`id_manifest`), ADD KEY `service_code` (`service_code`);
