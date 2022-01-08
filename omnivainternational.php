@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/classes/OmnivaIntDb.php";
 require_once __DIR__ . "/classes/OmnivaIntHelper.php";
+
 require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
 require_once __DIR__ . "/classes/models/OmnivaIntManifest.php";
@@ -13,6 +14,7 @@ require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
 require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCartTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntRateCache.php";
+
 require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
 require_once __DIR__ . "/vendor/autoload.php";
@@ -373,7 +375,9 @@ class OmnivaInternational extends CarrierModule
             $rate = OmnivaIntRateCache::getCachedRate($cart->id, $cache_key_hash);
 
             // Check against false, as 0 is a valid value.
-            if($rate !== false)
+            if($rate == -1)
+                return false;
+            elseif($rate !== false)
                 return $rate;
 
             $offersProvider = new OmnivaIntOffersProvider();
@@ -383,11 +387,16 @@ class OmnivaInternational extends CarrierModule
                 ->setCarrier($omnivaCarrier)
                 ->setModule($this);
 
-            $rate = $offersProvider->getPrice(); 
+            $rate = $offersProvider->getPrice();
+
             $rateCache = new OmnivaIntRateCache();
             $rateCache->id_cart = $cart->id;
             $rateCache->hash = $cache_key_hash;
-            $rateCache->rate = $rate;
+
+            // We want to cache the unavailability of carrier too. In such case, the "false" is converted to -1, because otherwise false will be
+            // cast to 0 in DB, but 0 does not suggest that carrier is unavailable, but rather that it is free.
+            $rateCache->rate = $rate !== false ? $rate : -1;
+            
             $rateCache->add();
 
             return $rate;

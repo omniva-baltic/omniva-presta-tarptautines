@@ -1,7 +1,6 @@
 <?php
 
 use OmnivaApi\API;
-require_once __DIR__ . "/../../classes/proxy/OmnivaIntUpdater.php";
 
 class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
 {

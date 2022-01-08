@@ -1,7 +1,6 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/proxy/OmnivaIntUpdater.php";
 
 use OmnivaApi\API;
 

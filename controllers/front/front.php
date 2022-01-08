@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . "/../../classes/models/OmnivaIntCartTerminal.php";
-
 class OmnivaInternationalFrontModuleFrontController extends ModuleFrontController
 {
     public function init()

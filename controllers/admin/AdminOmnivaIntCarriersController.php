@@ -1,9 +1,6 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntCarrier.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntService.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntCarrierService.php";
 
 class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 {
@@ -67,7 +64,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_service os ON (os.id = ocs.id_service)';
 
         $this->_group = 'GROUP BY id_reference';
-        $this->warnings[] = $this->module->l('Note: if seleceted service supports pickup terminals, then two carriers will be created in Prestashop: 1. "Carrier Name" and 2. "Carrier Name Terminals"');
     }
 
     public function init()
@@ -128,6 +124,30 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ),
         );
         $this->actions = array('edit', 'delete');
+    }
+
+    public function initPageHeaderToolbar()
+    {
+        $this->page_header_toolbar_btn['rate_cache'] = [
+            'href' => self::$currentIndex . '&rate_cache=1&token=' . $this->token,
+            'desc' => $this->module->l('Clear Rate Cache'),
+            'imgclass' => 'delete',
+        ];
+        parent::initPageHeaderToolbar();
+    }
+
+
+    public function postProcess()
+    {
+        parent::postProcess();
+        if(Tools::getValue('rate_cache'))
+        {
+            $result = Db::getInstance()->execute('TRUNCATE TABLE '._DB_PREFIX_. OmnivaIntRateCache::$definition['table']);
+            if($result)
+                $this->confirmations[] = $this->module->l('Successfully deleted rate cache.');
+            else
+                $this->errors[] = $this->module->l('Failed to clear the rate cache.');
+        }
     }
 
     public function fastestOrCheapest($cheapest)
@@ -254,6 +274,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
         else
         {
+            $this->warnings[] = $this->module->l('Note: if seleceted service supports pickup terminals, then two carriers will be created in Prestashop: 1. "Carrier Name" and 2. "Carrier Name Terminals"');
             $this->fields_value = 
             [
                 'services' => []

@@ -6,13 +6,6 @@ use OmnivaApi\Parcel;
 use OmnivaApi\Order;
 use OmnivaApi\Item;
 
-require_once __DIR__ . "/../models/OmnivaIntCountry.php";
-require_once __DIR__ . "/../models/OmnivaIntOrder.php";
-require_once __DIR__ . "/../models/OmnivaIntCarrier.php";
-require_once __DIR__ . "/../models/OmnivaIntCartTerminal.php";
-require_once __DIR__ . "/../models/OmnivaIntTerminal.php";
-
-
 class OmnivaIntEntityBuilder
 {
     public function buildSender($type)

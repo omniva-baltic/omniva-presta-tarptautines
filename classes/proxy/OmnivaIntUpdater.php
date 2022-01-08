@@ -1,9 +1,6 @@
 <?php
 
 use OmnivaApi\API;
-require_once __DIR__ . "/../models/OmnivaIntTerminal.php";
-require_once __DIR__ . "/../models/OmnivaIntService.php";
-require_once __DIR__ . "/../models/OmnivaIntCountry.php";
 
 class OmnivaIntUpdater {
 
@@ -42,7 +39,7 @@ class OmnivaIntUpdater {
         $result = true;
         if($response && isset($response->terminals))
         {
-            $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_terminal`');
+            $result &= Db::getInstance()->execute('TRUNCATE TABLE ' . _DB_PREFIX_ . OmnivaIntTerminal::$definition['table']);
             foreach($response->terminals as $terminal)
             {
                 $terminalObj = new OmnivaIntTerminal();
@@ -96,7 +93,7 @@ class OmnivaIntUpdater {
         $result = true;
         if($response && !empty($response))
         {
-            $result &= Db::getInstance()->execute('TRUNCATE TABLE `'._DB_PREFIX_.'omniva_int_country`');
+            $result &= Db::getInstance()->execute('TRUNCATE TABLE ' . _DB_PREFIX_ . OmnivaIntCountry::$definition['table']);
             foreach($response as $country)
             {
                 $countryObj = new OmnivaIntCountry();

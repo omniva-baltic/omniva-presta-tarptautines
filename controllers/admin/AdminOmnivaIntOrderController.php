@@ -1,11 +1,6 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntOrder.php";
-require_once __DIR__ . "/../../classes/proxy/OmnivaIntEntityBuilder.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntManifest.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntCartTerminal.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntCarrier.php";
 
 class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 {

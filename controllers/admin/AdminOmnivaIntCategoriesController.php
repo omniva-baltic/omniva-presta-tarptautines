@@ -1,7 +1,6 @@
 <?php
 
 require_once "AdminOmnivaIntBaseController.php";
-require_once __DIR__ . "/../../classes/models/OmnivaIntCategory.php";
 
 class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
 {
