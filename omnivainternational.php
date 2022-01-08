@@ -648,6 +648,7 @@ class OmnivaInternational extends CarrierModule
                         $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
                         if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
                         {
+                            $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_ready']['key']));
                             foreach($omnivaOrderParcels as $key => $id_parcel)
                             {
                                 $omnivaParcel = new OmnivaIntParcel($id_parcel);
@@ -655,6 +656,10 @@ class OmnivaInternational extends CarrierModule
                                 $omnivaParcel->tracking_number = $orderTrackingInfo->tracking_numbers[$key];
                                 $omnivaParcel->update();
                             }
+                        }
+                        else
+                        {
+                            $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_error']['key']));
                         }
                         // for debugging
                     } catch (Exception $e) {
@@ -689,24 +694,23 @@ class OmnivaInternational extends CarrierModule
                 $this->context->smarty->assign([
                     'form' => $helper->generateForm($fieldsForm),
                 ]);
+
                 $tracking_numbers = OmnivaIntParcel::getTrackingNumbersByOrderId($id_order);
-                if(!empty($tracking_numbers))
-                {
-                    // Check if order has manifest. If it does not - give option to cancel order.
-                    $orderHasManifest = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
-                    $this->context->smarty->assign('orderHasManifest', $orderHasManifest);
+                // Check if order has manifest. If it does not - give option to cancel order.
+                $orderHasManifest = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
+                $this->context->smarty->assign('orderHasManifest', $orderHasManifest);
 
-                    // Assign this one separatly, otherwise tracking_codes.tpl is does not see it.
-                    $this->context->smarty->assign([
-                        'tracking_numbers' => $tracking_numbers,
-                        'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitPrintLabels=1&action=printLabels&id_order=' . $id_order
-                    ]);
-                    $this->context->smarty->assign([
+                // Assign this one separatly, otherwise tracking_codes.tpl is does not see it.
+                $this->context->smarty->assign([
+                    'shipment_id' => $omnivaOrder->shipment_id,
+                    'tracking_numbers' => $tracking_numbers,
+                    'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitPrintLabels=1&action=printLabels&id_order=' . $id_order
+                ]);
+                $this->context->smarty->assign([
 
-                        'list' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/tracking_codes.tpl')
-                    ]);
-                }
-
+                    'list' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/tracking_codes.tpl')
+                ]);
+                
                 return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/displayAdminOrder.tpl');
             }
         }

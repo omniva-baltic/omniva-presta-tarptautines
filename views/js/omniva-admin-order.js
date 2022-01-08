@@ -25,7 +25,7 @@ $(document).ready(function() {
             url: omniva_admin_order_link,
             cache: false,
             data : {
-               id_order: id_order,
+               id: id_order,
                cod: cod,
                cod_amount: cod_amount,
                insurance: insurance,
@@ -66,7 +66,7 @@ $(document).ready(function() {
           url: omniva_admin_order_link,
           cache: false,
           data : {
-             id_order: id_order,
+             id: id_order,
              submitSendShipment: '1',
              action: 'sendShipment',
              ajax: '1',
@@ -77,7 +77,10 @@ $(document).ready(function() {
              try
              {
                 if (res.success)
-                   showSuccessMessage(res.success);
+                {
+                  showSuccessMessage(res.success);
+                  document.location.reload();
+                }
                 else
                    showErrorMessage(res.error);
              }
@@ -97,7 +100,7 @@ $(document).ready(function() {
        url: omniva_admin_order_link,
        cache: false,
        data : {
-          id_order: id_order,
+          id: id_order,
           submitCancelOrder: '1',
           action: 'cancelOrder',
           ajax: '1',

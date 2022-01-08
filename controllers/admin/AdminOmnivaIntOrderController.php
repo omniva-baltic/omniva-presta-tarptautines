@@ -12,21 +12,21 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $this->list_no_link = true;
         $this->title_icon = 'icon-items';
         $this->className = 'OmnivaIntOrder';
-        $this->_orderBy = 'id_shipment';
+        $this->_orderBy = 'id';
         $this->table = 'omniva_int_order';
-        $this->identifier = 'id_order';
+        $this->identifier = 'id';
         $this->tpl_folder = 'override/';
 
         $this->_select = ' CONCAT(c.firstname, " ", c.lastname) as customer_name,
                             osl.`name` AS `order_state`,
                             (SELECT GROUP_CONCAT(op.tracking_number SEPARATOR ", ") 
                                 FROM `' . _DB_PREFIX_ .'omniva_int_parcel` op 
-                                WHERE op.`id_order` = a.`id_shipment` AND op.`tracking_number` != "") as tracking_numbers,
+                                WHERE op.`id_order` = a.`id` AND op.`tracking_number` != "") as tracking_numbers,
                             om.manifest_number AS manifest_number,
                             om.date_add as manifest_date';
 
         $this->_join = '
-            LEFT JOIN ' . _DB_PREFIX_ . 'orders o ON (o.id_order = a.id_shipment)
+            LEFT JOIN ' . _DB_PREFIX_ . 'orders o ON (o.id_order = a.id)
             LEFT JOIN ' . _DB_PREFIX_ . 'customer c ON (c.id_customer = o.id_customer)
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_manifest om ON (om.manifest_number = a.cart_id)
             LEFT JOIN ' . _DB_PREFIX_ . 'order_state os ON (o.current_state = os.id_order_state)
@@ -64,10 +64,10 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
 
         $this->fields_list = [
-            'id_shipment' => [
+            'id' => [
                 'title' => $this->module->l('ID'),
                 'align' => 'text-center',
-                'filter_key' => 'id_shipment'
+                'filter_key' => 'id'
             ],
             'customer_name' => [
                 'type' => 'text',
@@ -114,7 +114,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 'filter_key' => 'om!date_add',
             ],
         ];
-        $this->identifier = 'id_shipment';
         $this->actions = ['printManifest', 'printLabels'];
     }
 
@@ -128,7 +127,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             $doc_return = (int) Tools::getValue('doc_return');
             $fragile = (int) Tools::getValue('fragile');
 
-            $this->identifier = 'id_order';
             $omnivaOrder = $this->loadObject();
             $order = new Order($omnivaOrder->id);
             if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order))
@@ -158,7 +156,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessSendShipment()
     {
-        $this->identifier = 'id_order';
         if (Tools::isSubmit('submitSendShipment')) {
             $omnivaOrder = $this->loadObject();
             $order = new Order($omnivaOrder->id);
@@ -198,7 +195,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function processPrintLabels()
     {
-        $this->identifier = 'id_order';
         if (Tools::isSubmit('submitPrintLabels') || $this->action == 'printLabels') {
             $omnivaOrder = $this->loadObject();
             $orderTrackingInfo = $this->module->api->getLabel($omnivaOrder->shipment_id);
@@ -237,7 +233,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessCancelOrder()
     {
-        $this->identifier = 'id_order';
         if (Tools::isSubmit('submitCancelOrder')) {
             $omnivaOrder = $this->loadObject();
             $cancelResponse = $this->module->api->cancelOrder($omnivaOrder->shipment_id);
@@ -317,7 +312,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             self::$cache_lang['Print Manifest'] = $this->module->l('Print Manifest');
         }
         $this->context->smarty->assign([
-            'href' => self::$currentIndex . '&action=printManifest&token=' . $this->token . '&id_order=' . $id,
+            'href' => self::$currentIndex . '&action=printManifest&token=' . $this->token . '&id=' . $id,
             'action' => $this->module->l('Print Manifest'),
             'id' => $id,
             'blank' => 'true',
@@ -338,7 +333,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             self::$cache_lang['Print Labels'] = $this->module->l('Print Labels');
         }
         $this->context->smarty->assign([
-            'href' => self::$currentIndex . '&action=printLabels&token=' . $this->token . '&id_order=' . $id,
+            'href' => self::$currentIndex . '&action=printLabels&token=' . $this->token . '&id=' . $id,
             'action' => $this->module->l('Print Labels'),
             'id' => $id,
             'blank' => 'true',
@@ -350,7 +345,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function processPrintManifest()
     {
-        $this->identifier = 'id_order';
         $this->loadObject();
         $manifestExists = OmnivaIntManifest::checkManifestExists($this->object->cart_id);
         if(!$manifestExists)

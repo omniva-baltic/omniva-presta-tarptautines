@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_parcel` (
     `height` float(10) NOT NULL,
     `tracking_number` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    KEY `id_shipment` (`id_shipment`)
+    KEY `id_order` (`id_order`)
 ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

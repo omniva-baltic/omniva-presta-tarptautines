@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
-    `id_shipment` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `id_shop` int(10) NOT NULL,
     `id_manifest` int(10),
     `service_code` varchar(20) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
     `fragile` tinyint(1),
     `date_add` datetime NOT NULL,
     `date_upd` datetime NOT NULL,
-    PRIMARY KEY (`id_shipment`),
+    PRIMARY KEY (`id`),
     KEY `id_shop` (`id_shop`),
     KEY `id_manifest` (`id_manifest`),
     KEY `service_code` (`service_code`)

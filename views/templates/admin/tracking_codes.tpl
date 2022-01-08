@@ -7,21 +7,29 @@
             {l s='Omniva Tracking numbers' mod='omnivainternational'}
         </div>
         <div class="panel-body">
-            {assign var='tracking_numbers_count' value=count($tracking_numbers)}
-            <p>{l s='Order has %d parcels with following tracking numbers:' mod='omnivainternational' sprintf=[$tracking_numbers_count]}</p>
-            {foreach from=$tracking_numbers item=tracking_number key=key}
-                <li>{$tracking_number}</li>
-            {/foreach}
-        </div>
-        <div id='print-label-heading' class="panel-heading additional">
-            {l s='Shipment Actions' mod='omnivainternational'}
-        </div>
-        <div class="panel-footer">
-			<a href="{$omniva_admin_order_link}" target="_blank" id="print-labels" class="btn btn-default btn btn-primary">{l s='Print labels' mod='omnivainternational'}</a>
-            <a href="{$omniva_admin_order_link}&downloadLabels=1" target="_blank" class="btn btn-default btn btn-success">{l s='Download labels' mod='omnivainternational'}</a>
-            {if isset($orderHasManifest) && !$orderHasManifest}
-                <button type='button' id='cancel-order' class="btn btn-default btn btn-danger">{l s='Cancel Order' mod='omnivainternational'}</button>
+            {if isset($shipment_id) && !$shipment_id}
+                    {l s='Shipment is not yet created. Please check information in Omniva International Shipment panel and register the shipment.' mod='omnivainternational'}
+            {elseif isset($shipment_id) && $shipment_id && empty($tracking_numbers)}
+                {l s="Your shipment is being processed, but labels are currently unavailable. Please check back again later." mod='omnivainternational'}
+            {elseif isset($shipment_id) && $shipment_id && !empty($tracking_numbers)}
+                {assign var='tracking_numbers_count' value=count($tracking_numbers)}
+                <p>{l s='Order has %d parcels with following tracking numbers:' mod='omnivainternational' sprintf=[$tracking_numbers_count]}</p>
+                {foreach from=$tracking_numbers item=tracking_number key=key}
+                    <li>{$tracking_number}</li>
+                {/foreach}
+                <div id='print-label-heading' class="panel-heading additional">
+                    {l s='Shipment Actions' mod='omnivainternational'}
+                </div>
             {/if}
-		</div>
+        </div>
+        {if isset($shipment_id) && $shipment_id && !empty($tracking_numbers)}
+            <div class="panel-footer">
+                <a href="{$omniva_admin_order_link}" target="_blank" id="print-labels" class="btn btn-default btn btn-primary">{l s='Print labels' mod='omnivainternational'}</a>
+                <a href="{$omniva_admin_order_link}&downloadLabels=1" target="_blank" class="btn btn-default btn btn-success">{l s='Download labels' mod='omnivainternational'}</a>
+                {if isset($orderHasManifest) && !$orderHasManifest}
+                    <button type='button' id='cancel-order' class="btn btn-default btn btn-danger">{l s='Cancel Order' mod='omnivainternational'}</button>
+                {/if}
+            </div>
+        {/if}
     </div>
 </div>

@@ -39,7 +39,7 @@ class OmnivaIntOrder extends ObjectModel
      */
     public static $definition = [
         'table' => 'omniva_int_order',
-        'primary' => 'id_shipment',
+        'primary' => 'id',
         'fields' => [
             'id_shop' =>             ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
             'id_manifest' =>         ['type' => self::TYPE_INT, 'size' => 10],
