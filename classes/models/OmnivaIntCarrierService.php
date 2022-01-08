@@ -26,7 +26,8 @@ class OmnivaIntCarrierService extends ObjectModel
         $query = (new DbQuery())
             ->select("id_service")
             ->from(self::$definition['table'])
-            ->where('id_carrier = ' . $id_carrier);
+            ->where('id_carrier = ' . $id_carrier)
+            ->orderBy('id_service ASC');
 
         return array_map(function($service) {
                 return $service['id_service'];

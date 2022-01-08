@@ -371,7 +371,7 @@ class OmnivaInternational extends CarrierModule
         if(Validate::isLoadedObject($omnivaCarrier))
         {
             // Check if rate is already cached. Use id_cart also to reduce possibility of hash collision.
-            $cache_key_hash = $this->getCacheKey($cart, $carrier);
+            $cache_key_hash = $this->getCacheKey($cart, $omnivaCarrier);
             $rate = OmnivaIntRateCache::getCachedRate($cart->id, $cache_key_hash);
 
             // Check against false, as 0 is a valid value.
@@ -405,7 +405,8 @@ class OmnivaInternational extends CarrierModule
     }
 
     // Cache key structure - hash of: {id_customer}-{id_cart}-{id_carrier}-{id_address}-{id_country}-{postcode}-({cart_product_id}-{quantity})
-    public function getCacheKey($cart, $carrier)
+    // + all OmnivaIntCarrier fields, following the same pattern,  if old cart is used, but carrier was changed in the abandonment period.
+    public function getCacheKey($cart, $omnivaCarrier)
     {
         $cache_key = '';
         $customer = new Customer($cart->id_customer);
@@ -413,7 +414,7 @@ class OmnivaInternational extends CarrierModule
 
         $id_customer = $customer->id;
         $id_cart = $cart->id;
-        $id_carrier = $carrier->id;
+        $id_carrier = $omnivaCarrier->id;
         $id_address = $address->id;
         $id_country = $address->id_country;
         $postcode = $address->postcode;
@@ -424,6 +425,12 @@ class OmnivaInternational extends CarrierModule
         {
             $cache_key .= $product['id_product'] . '-' . $product['cart_quantity'];
         }
+
+        // OmnivaIntCarrier fields..
+        $cache_key .= $omnivaCarrier->price_type . "-" . $omnivaCarrier->price . "-" . 
+                      $omnivaCarrier->free_shipping . "-" . $omnivaCarrier->cheapest . "-" . $omnivaCarrier->type;
+        // ..and all it's services 
+        $cache_key .= implode('-', OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id));
 
         return md5($cache_key);
     }
