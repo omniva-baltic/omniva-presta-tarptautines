@@ -122,7 +122,22 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 ],
                 'callback' => 'fastestOrCheapest'
             ),
+            'active' => array(
+                'type' => 'bool',
+                'title' => $this->module->l('Active'),
+                'active' => 'status',
+                'align' => 'center',
+            ),
         );
+
+        $this->bulk_actions = array(
+            'delete' => array(
+                'text' => $this->module->l('Delete selected'),
+                'icon' => 'icon-trash',
+                'confirm' => $this->module->l('Delete selected items?'),
+            ),
+        );
+
         $this->actions = array('edit', 'delete');
     }
 
@@ -535,14 +550,38 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         parent::processDelete();
 
         // Delete the associated core carrier and carrier services.
-        $carrier = Carrier::getCarrierByReference($this->object->id_reference);
-        if(!$carrier->delete())
-            $this->errors[] = $this->module->l('Couldn\'t delete Prestashop carrier.');
+        $this->deleteCarrierAndServices($this->object);
+    }
 
-        $carrier_services = OmnivaIntCarrierService::getCarrierServices($this->object->id);
+    protected function processBulkDelete()
+    {
+        foreach ($this->boxes as $id)
+        {
+            $omnivaCarrier = new OmnivaIntCarrier($id);
+
+            if(Validate::isLoadedObject($omnivaCarrier))
+            {
+                $this->deleteCarrierAndServices($omnivaCarrier);
+            }
+            else
+            {
+                $this->errors[] = $this->module->l('Couldn\'t load Omniva carrier.') . " id " . $omnivaCarrier->id;
+            }
+        }
+
+        parent::processBulkDelete();
+    }
+
+    public function deleteCarrierAndServices($omnivaCarrier)
+    {
+        $carrier = Carrier::getCarrierByReference($omnivaCarrier->id_reference);
+        if(!$carrier->delete())
+            $this->errors[] = $this->module->l('Couldn\'t delete Prestashop carrier.') . " id_reference " . $omnivaCarrier->id_reference;
+
+        $carrier_services = OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id);
         foreach($carrier_services as $service)
         {
-            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierService($this->object->id, $service);
+            $omnivaCarrierServiceId = OmnivaIntCarrierService::getCarrierService($omnivaCarrier->id, $service);
             if((int)$omnivaCarrierServiceId > 0)
             {
                 $omnivaCarrierService = new OmnivaIntCarrierService($omnivaCarrierServiceId);

@@ -369,7 +369,7 @@ class OmnivaInternational extends CarrierModule
         $carrier = new Carrier($this->id_carrier);
         $carrier_reference = $carrier->id_reference;
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
-        if(Validate::isLoadedObject($omnivaCarrier) && Validate::isLoadedObject($cart))
+        if(Validate::isLoadedObject($omnivaCarrier) && $omnivaCarrier->active && Validate::isLoadedObject($cart))
         {
             // Check if rate is already cached. Use id_cart also to reduce possibility of hash collision.
             $cache_key_hash = $this->getCacheKey($cart, $omnivaCarrier);

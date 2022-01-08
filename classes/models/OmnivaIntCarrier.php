@@ -18,6 +18,8 @@ class OmnivaIntCarrier extends ObjectModel
 
     public $radius;
 
+    public $active = 1;
+
     /** @var string Object creation date */
     public $date_add;
 
@@ -31,13 +33,14 @@ class OmnivaIntCarrier extends ObjectModel
         'table' => 'omniva_int_carrier',
         'primary' => 'id',
         'fields' => [
-                'id_reference' =>       ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
+                'id_reference' =>     ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
                 'price_type' =>       ['type' => self::TYPE_STRING, 'required' => true, 'size' => 30],
                 'price' =>            ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
                 'free_shipping' =>    ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
                 'cheapest' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
                 'type' =>             ['type' => self::TYPE_STRING, 'required' => true, 'size' => 30],
                 'radius' =>           ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
+                'active' =>           ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
                 'date_add' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
                 'date_upd' =>         ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             ],
