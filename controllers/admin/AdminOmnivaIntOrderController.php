@@ -114,7 +114,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 'filter_key' => 'om!date_add',
             ],
         ];
-        $this->actions = ['printManifest', 'printLabels'];
+        $this->actions = ['printManifest', 'printLabels', 'generateManifest'];
     }
 
     public function ajaxProcessSaveShipment()
@@ -274,7 +274,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     public function postProcess()
     {
         parent::postProcess();
-        if(Tools::getValue('latest_manifest'))
+        if(Tools::getValue('latest_manifest') || Tools::getValue('id_manifest'))
         {
             $this->generateManifest();
         }
@@ -282,7 +282,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function generateManifest()
     {
-        $manifestInfo = $this->module->api->generateManifestLatest();
+        $id_manifest = Tools::getValue('id_manifest');
+        if($id_manifest)
+            $manifestInfo = $this->module->api->generateManifest($id_manifest);
+        else
+            $manifestInfo = $this->module->api->generateManifestLatest();
         if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
             if(OmnivaIntManifest::getManifestByNumber($manifestInfo->cart_id))
@@ -336,8 +340,29 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             'href' => self::$currentIndex . '&action=printLabels&token=' . $this->token . '&id=' . $id,
             'action' => $this->module->l('Print Labels'),
             'id' => $id,
-            'blank' => 'true',
+            'blank' => true,
             'icon' => 'print'
+        ]);
+
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
+    }
+
+    public function displayGenerateManifestLink($token, $id, $name = null)
+    {
+        $omnivaOrder = new OmnivaIntOrder($id);
+
+        $manifestExists = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
+        if($manifestExists || !$omnivaOrder->cart_id)
+            return false;
+        if (!array_key_exists('Generate Manifest', self::$cache_lang)) {
+            self::$cache_lang['Generate Manifest'] = $this->module->l('Generate Manifest');
+        }
+        $this->context->smarty->assign([
+            'href' => self::$currentIndex . '&action=generateManifest&token=' . $this->token . '&id_manifest=' . $omnivaOrder->cart_id,
+            'action' => $this->module->l('Generate Manifest'),
+            'id' => $id,
+            'blank' => false,
+            'icon' => 'list'
         ]);
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');

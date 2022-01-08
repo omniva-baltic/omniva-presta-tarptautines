@@ -6,8 +6,6 @@ class OmnivaIntOrder extends ObjectModel
 
     public $id_shop;
 
-    public $id_manifest;
-
     public $service_code;
 
     public $shipment_id;
@@ -42,7 +40,6 @@ class OmnivaIntOrder extends ObjectModel
         'primary' => 'id',
         'fields' => [
             'id_shop' =>             ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
-            'id_manifest' =>         ['type' => self::TYPE_INT, 'size' => 10],
             'service_code' =>        ['type' => self::TYPE_STRING, 'size' => 20],
             'shipment_id' =>         ['type' => self::TYPE_STRING, 'size' => 100],
             'cart_id' =>             ['type' => self::TYPE_STRING, 'size' => 100],

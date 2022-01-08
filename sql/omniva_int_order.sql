@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
     `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
     `id_shop` int(10) NOT NULL,
-    `id_manifest` int(10),
     `service_code` varchar(20) NOT NULL,
     `shipment_id` varchar(100) DEFAULT NULL,
     `cart_id` varchar(100) DEFAULT NULL,
@@ -16,6 +15,5 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_order` (
     `date_upd` datetime NOT NULL,
     PRIMARY KEY (`id`),
     KEY `id_shop` (`id_shop`),
-    KEY `id_manifest` (`id_manifest`),
     KEY `service_code` (`service_code`)
 ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
