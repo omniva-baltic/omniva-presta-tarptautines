@@ -54,44 +54,44 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 
         $terminal_identifiers = array_combine($identifiers, $identifiers_trans);
 
-        $this->fields_list = array(
-            'id' => array(
+        $this->fields_list = [
+            'id' => [
                 'title' => $this->module->l('ID'),
                 'align' => 'text-center',
                 'filter_key' => 'a!id'
-            ),
-            'name' => array(
+            ],
+            'name' => [
                 'title' => $this->module->l('Name'),
                 'align' => 'text-center',
                 'filter_key' => 'a!name'
-            ),
-            'city' => array(
+            ],
+            'city' => [
                 'type' => 'text',
                 'title' => $this->module->l('City'),
                 'align' => 'center',
-            ),
-            'country' => array(
+            ],
+            'country' => [
                 'title' => $this->module->l('Country'),
                 'type' => 'text',
                 'filter_key' => 'cl!name'
-            ),
-            'address' => array(
+            ],
+            'address' => [
                 'title' => $this->module->l('Address'),
                 'type' => 'text',
-            ),
-            'comment' => array(
+            ],
+            'comment' => [
                 'title' => $this->module->l('Comment'),
                 'type' => 'text',
-            ),
-            'identifier' => array(
+            ],
+            'identifier' => [
                 'title' => $this->module->l('Identifier'),
                 'align' => 'center',
                 'type' => 'select',
                 'filter_key' => 'a!identifier',
                 'list' => $terminal_identifiers,
                 'callback' => 'transTerminalIdentifier'
-            ),
-        );
+            ],
+        ];
 
         $this->bulk_actions = [];
     }

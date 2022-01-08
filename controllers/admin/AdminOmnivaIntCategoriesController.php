@@ -45,47 +45,47 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
 
     protected function categoryList()
     {
-        $this->fields_list = array(
-            'name' => array(
+        $this->fields_list = [
+            'name' => [
                 'title' => $this->module->l('Title'),
                 'align' => 'text-center',
                 'class' => 'fixed-width-xs',
                 'filter_key' => 'cl!name',
-            ),
-            'parent' => array(
+            ],
+            'parent' => [
                 'type' => 'text',
                 'title' => $this->module->l('Parent'),
                 'align' => 'center',
                 'filter_key' => 'cl2!name',
-            ),
-            'weight' => array(
+            ],
+            'weight' => [
                 'title' => $this->module->l('Weight'),
                 'type' => 'text',
                 'align' => 'center',
-            ),
-            'measures' => array(
+            ],
+            'measures' => [
                 'title' => $this->module->l('Measures'),
                 'type' => 'text',
                 'align' => 'center',
                 'havingFilter' => true,
-            ),
-            'active' => array(
+            ],
+            'active' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Active'),
                 'active' => 'status',
                 'align' => 'center',
-            ),
-        );
+            ],
+        ];
 
-        $this->bulk_actions = array(
-            'delete' => array(
+        $this->bulk_actions = [
+            'delete' => [
                 'text' => $this->module->l('Delete selected'),
                 'icon' => 'icon-trash',
                 'confirm' => $this->module->l('Delete selected items?'),
-            ),
-        );
+            ],
+        ];
 
-        $this->actions = array('edit', 'delete');
+        $this->actions = ['edit', 'delete'];
     }
 
     public function renderForm()
@@ -93,26 +93,26 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
         $this->table = 'omniva_int_category';
         $this->identifier = 'id_category';
 
-        $switcher_values = array(
-            array(
+        $switcher_values = [
+            [
                 'id' => 'active_on',
                 'value' => 1,
                 'label' => $this->l('Yes')
-            ),
-            array(
+            ],
+            [
                 'id' => 'active_off',
                 'value' => 0,
                 'label' => $this->l('No')
-            )
-        );
+            ]
+        ];
 
-        $this->fields_form = array(
-            'legend' => array(
+        $this->fields_form = [
+            'legend' => [
                 'title' => $this->module->l('Category Settings'),
                 'icon' => 'icon-info-sign',
-            ),
-            'input' => array(
-                array(
+            ],
+            'input' => [
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Weight'),
                     'name' => 'weight',
@@ -120,8 +120,8 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'col' => '3',
                     'hint' => $this->module->l('Enter default category item weight'),
                     'prefix' => 'kg'
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Length'),
                     'name' => 'length',
@@ -129,8 +129,8 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'col' => '2',
                     'hint' => $this->module->l('Enter default category item length'),
                     'prefix' => 'cm'
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Width'),
                     'name' => 'width',
@@ -138,8 +138,8 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'col' => '2',
                     'hint' => $this->module->l('Enter default category item width'),
                     'prefix' => 'cm'
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Height'),
                     'name' => 'height',
@@ -147,28 +147,28 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                     'col' => '2',
                     'hint' => $this->module->l('Enter default category item height'),
                     'prefix' => 'cm'
-                ),
-                array(
+                ],
+                [
                     'type' => 'switch',
                     'label' => $this->l('Active'),
                     'name' => 'active',
                     'desc' => $this->l('Activate/disable this category settings.'),
                     'values' => $switcher_values
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = array(
+            $this->fields_form['input'][] = [
                 'type' => 'shop',
                 'label' => $this->module->l('Shop association'),
                 'name' => 'checkBoxShopAsso',
-            );
+            ];
         }
 
-        $this->fields_form['submit'] = array(
+        $this->fields_form['submit'] = [
             'title' => $this->module->l('Save'),
-        );
+        ];
 
         return parent::renderForm();
     }

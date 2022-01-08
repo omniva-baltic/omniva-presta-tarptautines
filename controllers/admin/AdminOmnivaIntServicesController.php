@@ -40,62 +40,62 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
 
     protected function serviceList()
     {
-        $this->fields_list = array(
-            'name' => array(
+        $this->fields_list = [
+            'name' => [
                 'title' => $this->module->l('Name'),
                 'align' => 'text-center',
                 'filter_key' => 'name'
-            ),
-            'service_code' => array(
+            ],
+            'service_code' => [
                 'type' => 'text',
                 'title' => $this->module->l('Service Code'),
                 'align' => 'center',
-            ),
-            'image' => array(
+            ],
+            'image' => [
                 'title' => $this->module->l('Image'),
                 'callback' => 'formatImage',
                 'align' => 'center',
                 'search' => false
-            ),
-            'cod' => array(
+            ],
+            'cod' => [
                 'type' => 'bool',
                 'title' => $this->module->l('COD'),
                 'align' => 'center',
-            ),
-            'insurance' => array(
+            ],
+            'insurance' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Insurance'),
                 'align' => 'center',
-            ),
-            'carry_service' => array(
+            ],
+            'carry_service' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Carry Service'),
                 'align' => 'center',
-            ),
-            'doc_return' => array(
+            ],
+            'doc_return' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Document Return'),
                 'align' => 'center',
-            ),
-            'own_login' => array(
+            ],
+            'own_login' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Own Login'),
                 'align' => 'center',
-            ),
-            'fragile' => array(
+            ],
+            'fragile' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Fragile'),
                 'align' => 'center',
-            ),
-            'manage_categories' => array(
+            ],
+            'manage_categories' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Manage Categories'),
                 'active' => 'status',
                 'align' => 'center',
-            ),
-        );
+            ],
+        ];
 
-        $this->actions = array('manageCategories', 'manageLogins');
+        $this->actions = ['manageCategories', 'manageLogins'];
     }
 
         /**
@@ -109,12 +109,12 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         if (!array_key_exists('Manage Categories', self::$cache_lang)) {
             self::$cache_lang['Manage Categories'] = $this->module->l('Manage Categories');
         }
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'href' => self::$currentIndex . '&action=categories&token=' . $this->token . '&id=' . $id,
             'action' => $this->module->l('Manage Categories'),
             'id' => $id,
             'icon' => 'sun'
-        ));
+        ]);
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
@@ -127,12 +127,12 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         if (!array_key_exists('Manage Logins', self::$cache_lang)) {
             self::$cache_lang['Manage Logins'] = $this->module->l('Manage Categories');
         }
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'href' => self::$currentIndex . '&action=logins&token=' . $this->token . '&id=' . $id,
             'action' => $this->module->l('Manage Logins'),
             'id' => $id,
             'icon' => 'cube'
-        ));
+        ]);
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
@@ -190,13 +190,13 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
         }
 
-        $this->fields_form = array(
-            'legend' => array(
+        $this->fields_form = [
+            'legend' => [
                 'title' => $this->module->l('Edit Categories for Service ') . $this->object->name,
                 'icon' => 'icon-glass',
-            ),
-            'input' => array(
-                array(
+            ],
+            'input' => [
+                [
                     'type' => 'categories',
                     'label' => $this->module->l('Carrier Name'),
                     'name' => 'service_categories',
@@ -207,26 +207,26 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                         'use_search' => true,
                         'use_checkbox' => true,
                     ],
-                ),
-                array(
+                ],
+                [
                     'type' => 'hidden',
                     'name' => 'action',
                     'value' => 'categories'
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = array(
+            $this->fields_form['input'][] = [
                 'type' => 'shop',
                 'label' => $this->module->l('Shop association'),
                 'name' => 'checkBoxShopAsso',
-            );
+            ];
         }
 
-        $this->fields_form['submit'] = array(
+        $this->fields_form['submit'] = [
             'title' => $this->module->l('Save'),
-        );
+        ];
 
         if(Tools::getValue('submitAddomniva_int_service'))
         {
@@ -287,42 +287,42 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             Tools::redirectAdmin(self::$currentIndex . '&error=2&token=' . $this->token);
         }
 
-        $this->fields_form = array(
-            'legend' => array(
+        $this->fields_form = [
+            'legend' => [
                 'title' => $this->module->l('Edit login credentials for service ') . $this->object->name,
                 'icon' => 'icon-berry',
-            ),
-            'input' => array(
-                array(
+            ],
+            'input' => [
+                [
                     'type' => 'text',
                     'label' => $this->module->l('User'),
                     'name' => 'user',
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Password'),
                     'name' => 'password',
-                ),
-                array(
+                ],
+                [
                     'type' => 'hidden',
                     'name' => 'action',
                     'value' => 'logins'
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = array(
+            $this->fields_form['input'][] = [
                 'type' => 'shop',
                 'label' => $this->module->l('Shop association'),
                 'name' => 'checkBoxShopAsso',
-            );
+            ];
         }
 
-        $this->fields_form['submit'] = array(
+        $this->fields_form['submit'] = [
             'name' => 'serviceLogin',
             'title' => $this->module->l('Save'),
-        );
+        ];
 
         if(Tools::getValue('submitLogins'))
         {

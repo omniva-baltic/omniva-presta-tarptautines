@@ -10,6 +10,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         parent::__construct();
 
         $this->list_no_link = true;
+        $this->title_icon = 'icon-items';
         $this->className = 'OmnivaIntOrder';
         $this->_orderBy = 'id_shipment';
         $this->table = 'omniva_int_order';
@@ -18,7 +19,9 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
         $this->_select = ' CONCAT(c.firstname, " ", c.lastname) as customer_name,
                             osl.`name` AS `order_state`,
-                            (SELECT GROUP_CONCAT(op.tracking_number SEPARATOR ", ") FROM `' . _DB_PREFIX_ .'omniva_int_parcel` op WHERE op.`id_order` = a.`id_shipment` AND op.`tracking_number` != "") as tracking_numbers,
+                            (SELECT GROUP_CONCAT(op.tracking_number SEPARATOR ", ") 
+                                FROM `' . _DB_PREFIX_ .'omniva_int_parcel` op 
+                                WHERE op.`id_order` = a.`id_shipment` AND op.`tracking_number` != "") as tracking_numbers,
                             om.manifest_number AS manifest_number,
                             om.date_add as manifest_date';
 
@@ -29,9 +32,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             LEFT JOIN ' . _DB_PREFIX_ . 'order_state os ON (o.current_state = os.id_order_state)
             LEFT JOIN `' . _DB_PREFIX_ . 'order_state_lang` osl ON (os.`id_order_state` = osl.`id_order_state` AND osl.`id_lang` = ' . (int) $this->context->language->id . ')';
 
-        $this->_error = [
-            1 => $this->module->l('Could not get manifest data.'),
-        ];
         if(Tools::getValue('manifest_error'))
         {
             $this->getErrorWithManifestNumber(Tools::getValue('manifest_error'));
@@ -39,9 +39,10 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     }
 
     public function getErrorWithManifestNumber($cart_id)
-    {
-        $this->_error[2] = $this->module->l(sprintf('Manifest with number %s already exists', $cart_id));
-
+    {        
+        // Invoking getModuleTranslation directly here to get access to sprintf params.
+        $this->_error[1] = Translate::getModuleTranslation($this->module, 'Could not get manifest data for manifest %s. Please check that all your orders have tracking numbers and try again later.', $this->module->name, [$cart_id]);
+        $this->_error[2] = Translate::getModuleTranslation($this->module, 'Manifest with number %s already exists', $this->module->name, [$cart_id]);
     }
 
     public function init()
@@ -62,19 +63,19 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             $order_states[$status['id_order_state']] = $status['name'];
         }
 
-        $this->fields_list = array(
-            'id_shipment' => array(
+        $this->fields_list = [
+            'id_shipment' => [
                 'title' => $this->module->l('ID'),
                 'align' => 'text-center',
                 'filter_key' => 'id_shipment'
-            ),
-            'customer_name' => array(
+            ],
+            'customer_name' => [
                 'type' => 'text',
                 'title' => $this->module->l('Customer'),
                 'align' => 'center',
                 'havingFilter' => true,
-            ),
-            'order_state' => array(
+            ],
+            'order_state' => [
                 'title' => $this->module->l('Order Status'),
                 'type' => 'select',
                 'color' => 'color',
@@ -82,39 +83,39 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 'filter_key' => 'os!id_order_state',
                 'filter_type' => 'int',
                 'order_key' => 'osname',
-            ),
-            'date_add' => array(
+            ],
+            'date_add' => [
                 'type' => 'datetime',
                 'title' => $this->module->l('Order Date'),
                 'align' => 'center',
                 'filter_key' => 'a!date_add',
-            ),
-            'service_code' => array(
+            ],
+            'service_code' => [
                 'type' => 'text',
                 'title' => $this->module->l('Service'),
                 'align' => 'center',
-            ),
-            'tracking_numbers' => array(
+            ],
+            'tracking_numbers' => [
                 'type' => 'text',
                 'title' => $this->module->l('Tracking numbers'),
                 'align' => 'center',
                 'havingFilter' => true,
-            ),
-            'manifest_number' => array(
+            ],
+            'manifest_number' => [
                 'type' => 'text',
                 'title' => $this->module->l('Manifest ID'),
                 'align' => 'center',
                 'filter_key' => 'om!manifest_number'
-            ),
-            'manifest_date' => array(
+            ],
+            'manifest_date' => [
                 'type' => 'datetime',
                 'title' => $this->module->l('Manifest date'),
                 'align' => 'center',
                 'filter_key' => 'om!date_add',
-            ),
-        );
+            ],
+        ];
         $this->identifier = 'id_shipment';
-        $this->actions = array('printManifest', 'printLabels');
+        $this->actions = ['printManifest', 'printLabels'];
     }
 
     public function ajaxProcessSaveShipment()
@@ -303,7 +304,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 return;
             }
         }
-        $this->redirect_after = self::$currentIndex . '&error=1&token=' . $this->token;
+        $this->redirect_after = self::$currentIndex . '&error=1&token=' . $this->token . '&manifest_error=' . $manifestInfo->cart_id;
     }
 
     public function displayPrintManifestLink($token, $id, $name = null)
@@ -315,13 +316,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if (!array_key_exists('Print Manifest', self::$cache_lang)) {
             self::$cache_lang['Print Manifest'] = $this->module->l('Print Manifest');
         }
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'href' => self::$currentIndex . '&action=printManifest&token=' . $this->token . '&id_order=' . $id,
             'action' => $this->module->l('Print Manifest'),
             'id' => $id,
             'blank' => 'true',
             'icon' => 'print'
-        ));
+        ]);
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
@@ -336,13 +337,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if (!array_key_exists('Print Labels', self::$cache_lang)) {
             self::$cache_lang['Print Labels'] = $this->module->l('Print Labels');
         }
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'href' => self::$currentIndex . '&action=printLabels&token=' . $this->token . '&id_order=' . $id,
             'action' => $this->module->l('Print Labels'),
             'id' => $id,
             'blank' => 'true',
             'icon' => 'print'
-        ));
+        ]);
 
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }

@@ -78,39 +78,39 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
     protected function carrierList()
     {
-        $this->fields_list = array(
-            'name' => array(
+        $this->fields_list = [
+            'name' => [
                 'title' => $this->module->l('Name'),
                 'align' => 'text-center',
                 'filter_key' => 'c!name'
-            ),
-            'services' => array(
+            ],
+            'services' => [
                 'type' => 'text',
                 'title' => $this->module->l('Services'),
                 'align' => 'center',
                 'filter_key' => 'services',
                 'havingFilter' => true
-            ),
-            'price_type' => array(
+            ],
+            'price_type' => [
                 'title' => $this->module->l('Price Type'),
                 'align' => 'center',
                 'type' => 'select',
                 'filter_key' => 'a!price_type',
                 'list' => $this->price_type_trans,
                 'callback' => 'transPriceType'
-            ),
-            'price' => array(
+            ],
+            'price' => [
                 'title' => $this->module->l('Price'),
                 'align' => 'center',
                 'callback' => 'displayPriceType'
-            ),
-            'free_shipping' => array(
+            ],
+            'free_shipping' => [
                 'type' => 'number',
                 'title' => $this->module->l('Free Shipping'),
                 'align' => 'center',
                 'callback' => 'displayPrice'
-            ),
-            'cheapest' => array(
+            ],
+            'cheapest' => [
                 'type' => 'text',
                 'title' => $this->module->l('Price method'),
                 'align' => 'center',
@@ -121,24 +121,24 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     $this->module->l('Cheapest'),
                 ],
                 'callback' => 'fastestOrCheapest'
-            ),
-            'active' => array(
+            ],
+            'active' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Active'),
                 'active' => 'status',
                 'align' => 'center',
-            ),
-        );
+            ],
+        ];
 
-        $this->bulk_actions = array(
-            'delete' => array(
+        $this->bulk_actions = [
+            'delete' => [
                 'text' => $this->module->l('Delete selected'),
                 'icon' => 'icon-trash',
                 'confirm' => $this->module->l('Delete selected items?'),
-            ),
-        );
+            ],
+        ];
 
-        $this->actions = array('edit', 'delete');
+        $this->actions = ['edit', 'delete'];
     }
 
     public function initPageHeaderToolbar()
@@ -178,66 +178,66 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->table = 'omniva_int_carrier';
         $this->identifier = 'id';
 
-        $switcher_values = array(
-            array(
+        $switcher_values = [
+            [
                 'id' => 'active_on',
                 'value' => 1,
                 'label' => $this->l('Yes')
-            ),
-            array(
+            ],
+            [
                 'id' => 'active_off',
                 'value' => 0,
                 'label' => $this->l('No')
-            )
-        );
+            ]
+        ];
 
-        $fastest_cheapest_switcher_values = array(
-            array(
+        $fastest_cheapest_switcher_values = [
+            [
                 'id' => 'active_on',
                 'value' => 1,
                 'label' => $this->l('Cheapest'),
-            ),
-            array(
+            ],
+            [
                 'id' => 'active_off',
                 'value' => 0,
                 'label' => $this->l('Cheapest')
-            )
-        );
+            ]
+        ];
 
-        $this->fields_form = array(
-            'legend' => array(
+        $this->fields_form = [
+            'legend' => [
                 'title' => $this->module->l('Omniva International Carrier'),
                 'icon' => 'icon-truck',
-            ),
-            'input' => array(
-                array(
+            ],
+            'input' => [
+                [
                     'type' => 'text',
                     'label' => $this->module->l('Carrier Name'),
                     'name' => 'carrier_name',
                     'required' => true,
                     'col' => '3',
-                ),
-                array(
+                ],
+                [
                     'type' => 'radio',
                     'label' => $this->l('Price'),
                     'name' => 'price_type',
                     'values' => $this->price_types,
                     'class' => 'col-xs-2'
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'name' => 'price',
                     'label' => '',
                     'col' => '2',
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'name' => 'free_shipping',
                     'label' => 'Free Shipping',
                     'col' => '2',
                     'prefix' => '€'
-                ),
-                array(
+                ],
+                [
                     'type' => 'swap',
                     'label' => $this->module->l('Services'),
                     'name' => 'services',
@@ -249,37 +249,43 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                         'name' => 'name',
                     ],
                     'desc' => $this->module->l('Select all services which will be used by this carrier'),
-                ),
-                array(
+                ],
+                [
                     'type' => 'switch',
                     'label' => $this->l('Fastest'),
                     'name' => 'cheapest',
                     'values' => $fastest_cheapest_switcher_values
-                ),
-                array(
+                ],
+                [
                     'type' => 'text',
                     'name' => 'radius',
                     'label' => 'Radius',
                     'col' => '3',
                     'suffix' => 'km'
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
 
         if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = array(
+            $this->fields_form['input'][] = [
                 'type' => 'shop',
                 'label' => $this->module->l('Shop association'),
                 'name' => 'checkBoxShopAsso',
-            );
+            ];
         }
 
-        $this->fields_form['submit'] = array(
+        $this->fields_form['submit'] = [
             'title' => $this->module->l('Save'),
-        );
+        ];
 
         if(Tools::isSubmit('updateomniva_int_carrier'))
         {
+            $this->fields_form['input'][] = [
+                    'type' => 'switch',
+                    'label' => $this->l('Active'),
+                    'name' => 'active',
+                    'values' => $switcher_values
+            ];
             $prestaCarrier = Carrier::getCarrierByReference($this->object->id_reference);
             $this->fields_value = 
             [

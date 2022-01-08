@@ -10,7 +10,7 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
     {
         parent::__construct();
         $this->list_no_link = true;
-        $this->title_icon = 'icon-map-marker';
+        $this->title_icon = 'icon-flag';
         $this->_orderBy = 'id_country';
         $this->className = 'OmnivaIntCountry';
         $this->table = 'omniva_int_country';
@@ -29,26 +29,26 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
 
     protected function countriesList()
     {
-        $this->fields_list = array(
-            'id_country' => array(
+        $this->fields_list = [
+            'id_country' => [
                 'title' => $this->module->l('ID'),
                 'align' => 'text-center',
-            ),
-            'name' => array(
+            ],
+            'name' => [
                 'type' => 'text',
                 'title' => $this->module->l('Name'),
                 'align' => 'center',
-            ),
-            'en_name' => array(
+            ],
+            'en_name' => [
                 'title' => $this->module->l('Name EN'),
                 'type' => 'text',
                 'align' => 'center',
-            ),
-            'code' => array(
+            ],
+            'code' => [
                 'title' => $this->module->l('Code'),
                 'type' => 'text',
-            ),
-        );
+            ],
+        ];
 
         $this->bulk_actions = [];
     }

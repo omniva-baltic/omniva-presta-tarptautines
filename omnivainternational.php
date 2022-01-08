@@ -1,7 +1,6 @@
 <?php
 
 require_once __DIR__ . "/classes/OmnivaIntDb.php";
-require_once __DIR__ . "/classes/OmnivaIntHelper.php";
 
 require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
@@ -48,7 +47,7 @@ class OmnivaInternational extends CarrierModule
     /**
      * List of hooks
      */
-    protected $_hooks = array(
+    protected $_hooks = [
         'header',
         'displayCarrierExtraContent',
         'updateCarrier',
@@ -62,17 +61,17 @@ class OmnivaInternational extends CarrierModule
         'displayAdminOmnivaIntTerminalsListBefore',
         'displayAdminOmnivaIntCountriesListBefore',
         'displayBeforeCarrier'
-    );
+    ];
 
     /**
      * List of fields keys in module configuration
      */
-    public $_configKeys = array(
-        'API' => array(
+    public $_configKeys = [
+        'API' => [
             'token' => 'OMNIVA_TOKEN',
             'test_mode' => 'OMNIVA_INT_TEST_MODE'
-        ),
-        'SHOP' => array(
+        ],
+        'SHOP' => [
             'sender_name' => 'OMNIVA_SENDER_NAME',
             'shop_contact' => 'OMNIVA_SHOP_CONTACT',
             'company_code' => 'OMNIVA_SHOP_COMPANY_CODE',
@@ -83,8 +82,8 @@ class OmnivaInternational extends CarrierModule
             'shop_phone' => 'OMNIVA_SHOP_PHONE',
             'shop_email' => 'OMNIVA_SHOP_EMAIL',
             'sender_address' => 'OMNIVA_SENDER_ADDRESS',
-        ),
-    );
+        ],
+    ];
 
     /**
      * Fields names and required
@@ -93,31 +92,31 @@ class OmnivaInternational extends CarrierModule
     {
         if ($section_id == 'SHOP') {
             if($config_key == 'sender_address')
-                return array('name' => str_replace('_', ' ', $config_key), 'required' => false);
-            return array('name' => str_replace('_', ' ', $config_key), 'required' => true);
+                return ['name' => str_replace('_', ' ', $config_key), 'required' => false];
+            return ['name' => str_replace('_', ' ', $config_key), 'required' => true];
         }
 
-        return array('name' => 'ERROR_' . $config_key, 'required' => false);
+        return ['name' => 'ERROR_' . $config_key, 'required' => false];
     }
 
-    public static $_order_states = array(
-        'order_state_ready' => array(
+    public static $_order_states = [
+        'order_state_ready' => [
             'key' => 'OMNIVA_INT_ORDER_STATE_READY',
             'color' => '#FCEAA8',
-            'lang' => array(
+            'lang' => [
                 'en' => 'Omniva International shipment ready',
                 'lt' => 'Omniva tarptautinė siunta paruošta',
-            ),
-        ),
-        'order_state_error' => array(
+            ],
+        ],
+        'order_state_error' => [
             'key' => 'OMNIVA_INT_ORDER_STATE_ERROR',
             'color' => '#F24017',
-            'lang' => array(
+            'lang' => [
                 'en' => 'Error on Omniva International shipment',
                 'lt' => 'Klaida Omniva siuntoje',
-            ),
-        ),
-    );
+            ],
+        ],
+    ];
 
     public $id_carrier;
 
@@ -133,9 +132,8 @@ class OmnivaInternational extends CarrierModule
         $this->version = '0.8.0';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = array('min' => '1.6.0', 'max' => '1.7.9');
+        $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
         $this->bootstrap = true;
-        $this->helper = new OmnivaIntHelper();
         if(Configuration::get('OMNIVA_TOKEN'))
             $this->api = new API(Configuration::get('OMNIVA_TOKEN'), Configuration::get('OMNIVA_INT_TEST_MODE'));
 
@@ -190,40 +188,40 @@ class OmnivaInternational extends CarrierModule
      */
     private function getModuleTabs()
     {
-        return array(
-            self::CONTROLLER_OMNIVA_MAIN => array(
+        return [
+            self::CONTROLLER_OMNIVA_MAIN => [
                 'title' => $this->l('Omniva International'),
                 'parent_tab' => 'AdminParentModulesSf',
-            ),
-            self::CONTROLLER_OMNIVA_SETTINGS => array(
+            ],
+            self::CONTROLLER_OMNIVA_SETTINGS => [
                 'title' => $this->l('Settings'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-            self::CONTROLLER_OMNIVA_CARRIERS => array(
+            ],
+            self::CONTROLLER_OMNIVA_CARRIERS => [
                 'title' => $this->l('Carriers'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-            self::CONTROLLER_OMNIVA_SERVICES => array(
+            ],
+            self::CONTROLLER_OMNIVA_SERVICES => [
                 'title' => $this->l('Services'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-            self::CONTROLLER_CATEGORIES => array(
+            ],
+            self::CONTROLLER_CATEGORIES => [
                 'title' => $this->l('Category Settings'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-            self::CONTROLLER_TERMINALS => array(
+            ],
+            self::CONTROLLER_TERMINALS => [
                 'title' => $this->l('Terminals'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-            self::CONTROLLER_OMNIVA_COUNTRIES => array(
+            ],
+            self::CONTROLLER_OMNIVA_COUNTRIES => [
                 'title' => $this->l('Countries'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-            self::CONTROLLER_OMNIVA_ORDER => array(
+            ],
+            self::CONTROLLER_OMNIVA_ORDER => [
                 'title' => $this->l('Omniva Orders'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -241,7 +239,7 @@ class OmnivaInternational extends CarrierModule
             $tab = new Tab();
             $tab->active = 1;
             $tab->class_name = $controller;
-            $tab->name = array();
+            $tab->name = [];
             $languages = Language::getLanguages(false);
 
             foreach ($languages as $language) {
@@ -271,7 +269,7 @@ class OmnivaInternational extends CarrierModule
 
             if (!$order_status->id || !$order_state) {
                 $orderState = new OrderState();
-                $orderState->name = array();
+                $orderState->name = [];
                 foreach (Language::getLanguages() as $language) {
                     if (strtolower($language['iso_code']) == 'lt')
                         $orderState->name[$language['id_lang']] = $os['lang']['lt'];
@@ -467,7 +465,7 @@ class OmnivaInternational extends CarrierModule
 
     public function hookHeader($params)
     {
-      if (in_array(Context::getContext()->controller->php_self, array('order-opc', 'order'))) {
+      if (in_array(Context::getContext()->controller->php_self, ['order-opc', 'order'])) {
 
         Media::addJsDef([
             'omniva_front_controller_url' => $this->context->link->getModuleLink($this->name, 'front')
@@ -513,18 +511,18 @@ class OmnivaInternational extends CarrierModule
         $id_order = Tools::getValue('id_order');
         $order = new Order($id_order);
 
-        $switcher_values = array(
-            array(
+        $switcher_values = [
+            [
                 'id' => 'active_on',
                 'value' => 1,
                 'label' => $this->l('Yes')
-            ),
-            array(
+            ],
+            [
                 'id' => 'active_off',
                 'value' => 0,
                 'label' => $this->l('No')
-            )
-        );
+            ]
+        ];
 
         if(Validate::isLoadedObject($order))
         {
@@ -576,70 +574,70 @@ class OmnivaInternational extends CarrierModule
                     }
                 }
 
-                $form_fields_services = array(
-                    array(
+                $form_fields_services = [
+                    [
                         'type' => 'switch',
                         'label' => $this->l('C.O.D'),
                         'name' => 'cod',
                         'values' => $switcher_values
-                    ),
-                    array(
+                    ],
+                    [
                         'form_group_class' => 'cod-amount-block',
                         'type' => 'text',
                         'label' => $this->l('C.O.D amount'),
                         'name' => 'cod_amount',
                         'prefix' => '€'
-                    ),
-                    array(
+                    ],
+                    [
                         'type' => 'switch',
                         'label' => $this->l('Insurance'),
                         'name' => 'insurance',
                         'values' => $switcher_values
-                    ),
-                    array(
+                    ],
+                    [
                         'type' => 'switch',
                         'label' => $this->l('Carry service'),
                         'name' => 'carry_service',
                         'values' => $switcher_values
-                    ),
-                    array(
+                    ],
+                    [
                         'type' => 'switch',
                         'label' => $this->l('Document Return'),
                         'name' => 'doc_return',
                         'values' => $switcher_values
-                    ),
-                    array(
+                    ],
+                    [
                         'type' => 'switch',
                         'label' => $this->l('Fragile'),
                         'name' => 'fragile',
                         'values' => $switcher_values
-                    ),
-                    array(
+                    ],
+                    [
                         'type' => 'hidden',
                         'name' => 'id_order',
                         'value' => $id_order,
-                    ),
-                );
+                    ],
+                ];
 
                 $form_fields = array_merge($form_fields, $form_fields_services);
-                $fieldsForm[0]['form'] = array(
-                    'legend' => array(
+                $fieldsForm[0]['form'] = [
+                    'legend' => [
                         'title' => 'Omniva International Shipment',
-                    ),
+                    ],
                     'input' => $form_fields,
                     'buttons' => [
-                        array(
+                        [
                             'title' => $this->l('Save'),
                             'class' => 'btn btn-primary',
                             'id' => 'save-shipment'
-                        ),
-                        array(
+                        ],
+                        [
                             'title' => $this->l('Send Shipment'),
                             'class' => 'btn btn-success',
                             'id' => 'send-shipment'
-                        ),
+                        ],
                     ]
-                );
+                ];
 
                 $omnivaOrderParcels = OmnivaIntParcel::getParcelsByOrderId($id_order);
                 $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id_order);
@@ -748,29 +746,6 @@ class OmnivaInternational extends CarrierModule
             ];
             $this->hookActionValidateStepComplete($data);
         }
-    }
-
-    // Separate method, as methods of getting a checkout step on 1.7 are inconsistent among minor versions.
-    public function check17PaymentStep($cart)
-    {
-        if(version_compare(_PS_VERSION_, '1.7', '>'))
-        {
-            $rawData = Db::getInstance()->getValue(
-                'SELECT checkout_session_data FROM ' . _DB_PREFIX_ . 'cart WHERE id_cart = ' . (int) $cart->id
-            );
-            $data = json_decode($rawData, true);
-            if (!is_array($data)) {
-                $data = [];
-            }
-            // Do not add this module extra content, if it is payment step to avoid conflicts with venipakcod.
-            if((isset($data['checkout-delivery-step']) && $data['checkout-delivery-step']['step_is_complete']) &&
-                (isset($data['checkout-payment-step']) && !$data['checkout-payment-step']['step_is_complete'])
-            )
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -953,7 +928,7 @@ class OmnivaInternational extends CarrierModule
         // Something not-translatable, usually a link..
         $sugar = "<b><i>$link</i></b>";
 
-        return $this->helper->displayAlert($content, $sugar);
+        return $this->displayAlert($content, $sugar);
     }
 
     public function hookDisplayAdminOmnivaIntTerminalsListBefore($params)
@@ -963,7 +938,7 @@ class OmnivaInternational extends CarrierModule
 
         $sugar = "<b><i>$link</i></b>";
 
-        return $this->helper->displayAlert($content, $sugar);
+        return $this->displayAlert($content, $sugar);
     }
 
     public function hookDisplayAdminOmnivaIntCountriesListBefore($params)
@@ -973,7 +948,7 @@ class OmnivaInternational extends CarrierModule
 
         $sugar = "<b><i>$link</i></b>";
 
-        return $this->helper->displayAlert($content, $sugar);
+        return $this->displayAlert($content, $sugar);
     }
 
     public function hookDisplayBeforeCarrier($params)
@@ -982,5 +957,18 @@ class OmnivaInternational extends CarrierModule
         {
             return $this->hookDisplayCarrierExtraContent($params);
         }
+    }
+
+    public function displayAlert($content, $sugar, $type = 'info')
+    {
+        $context = Context::getContext();
+        $context->smarty->assign(
+            [
+                'content' => $content,
+                'sugar' => $sugar,
+                'type' => $type,
+            ]
+        );
+        return $context->smarty->fetch(_PS_MODULE_DIR_ . $this->name . "/views/templates/admin/alert.tpl");
     }
 }
