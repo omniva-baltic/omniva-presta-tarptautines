@@ -14,6 +14,7 @@ require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
 require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCartTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntRateCache.php";
+require_once __DIR__ . "/classes/models/OmnivaIntServiceCategory.php";
 
 require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
@@ -368,7 +369,7 @@ class OmnivaInternational extends CarrierModule
         $carrier = new Carrier($this->id_carrier);
         $carrier_reference = $carrier->id_reference;
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
-        if(Validate::isLoadedObject($omnivaCarrier))
+        if(Validate::isLoadedObject($omnivaCarrier) && Validate::isLoadedObject($cart))
         {
             // Check if rate is already cached. Use id_cart also to reduce possibility of hash collision.
             $cache_key_hash = $this->getCacheKey($cart, $omnivaCarrier);
@@ -667,7 +668,7 @@ class OmnivaInternational extends CarrierModule
                 $helper->fields_value = [
                     'id_order' => $id_order,
                     'cod' => $omnivaOrder->cod,
-                    'cod_amount' => $omnivaOrder->cod_amount ? $omnivaOrder->cod_amount : $order->total_paid_tax_incl,
+                    'cod_amount' => $omnivaOrder->cod_amount,
                     'insurance' => $omnivaOrder->insurance,
                     'carry_service' => $omnivaOrder->carry_service,
                     'doc_return' => $omnivaOrder->doc_return,
@@ -715,6 +716,38 @@ class OmnivaInternational extends CarrierModule
 
     public function hookActionValidateStepComplete($params)
     {
+        $cart = $params['cart'];
+        if($params['step_name'] != 'delivery' || !$cart->id_carrier)
+            return true;
+        $carrier = new Carrier($cart->id_carrier);
+        $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier->id_reference);
+
+        if($omnivaCarrier->type == 'terminal')
+        {
+            $cartTerminal = new OmnivaIntCartTerminal($cart->id);
+            // Check if terminal was selected
+            if(!Validate::isLoadedObject($cartTerminal) || !$cartTerminal->id_terminal)
+            {
+                $this->context->controller->errors['omniva_terminal_error'] = $this->l('Please select a terminal.');
+                $params['completed'] = false;
+                return false;
+            }
+        }
+    }
+
+        /**
+     * Use hook to validate carrier selection in Prestashop 1.6
+     */
+    public function hookActionCarrierProcess($params)
+    {
+        if(version_compare(_PS_VERSION_, '1.7', '<'))
+        {
+            $data = [
+                'step_name' => 'delivery',
+                'cart' => $params['cart']
+            ];
+            $this->hookActionValidateStepComplete($data);
+        }
     }
 
     // Separate method, as methods of getting a checkout step on 1.7 are inconsistent among minor versions.
@@ -821,6 +854,7 @@ class OmnivaInternational extends CarrierModule
             $omnivaOrder->id = $order->id;
             $omnivaOrder->id_shop = $order->id_shop; 
             $omnivaOrder->service_code = $this->context->cookie->{'omniva_carrier_' . $carrier_reference};
+            $omnivaOrder->cod_amount = $order->total_paid_tax_incl;
             $omnivaOrder->add();
             if(Validate::isLoadedObject($omnivaOrder))
             {
@@ -901,18 +935,6 @@ class OmnivaInternational extends CarrierModule
             $order->update();
             $history->add();
         }
-    }
-
-    /**
-     * Use hook to validate carrier selection in Prestashop 1.6
-     */
-    public function hookActionCarrierProcess($params)
-    {
-        $data = [
-            'step_name' => 'delivery',
-            'cart' => $params['cart']
-        ];
-        $this->hookActionValidateStepComplete($data);
     }
 
         /**

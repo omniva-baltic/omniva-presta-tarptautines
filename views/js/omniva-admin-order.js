@@ -2,8 +2,10 @@ $(document).ready(function() {
 
 
    if($('#cod_on').is(':checked'))
-      $('.cod-amount-block').show()
-   $('#cod_on, #cod_off').on('change', () =>{
+      $('.cod-amount-block').show();
+   else
+   $('.cod-amount-block').hide();
+   $('#cod_on, #cod_off').on('change', () => {
       if($('#cod_on').is(':checked'))
          $('.cod-amount-block').show();
       else
@@ -41,7 +43,10 @@ $(document).ready(function() {
                try
                {
                   if (res.success)
+                  {
                      showSuccessMessage(res.success);
+                     document.location.reload();
+                  }
                   else
                      showErrorMessage(res.error);
                }
