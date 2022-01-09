@@ -111,11 +111,14 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
 
     public function initPageHeaderToolbar()
     {
-        $this->page_header_toolbar_btn['sync_terminals'] = [
-            'href' => self::$currentIndex . '&sync_terminals=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
-            'desc' => $this->module->l('Update Terminals'),
-            'imgclass' => 'refresh',
-        ];
+        if(Configuration::get('OMNIVA_TOKEN'))
+        {
+            $this->page_header_toolbar_btn['sync_terminals'] = [
+                'href' => self::$currentIndex . '&sync_terminals=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
+                'desc' => $this->module->l('Update Terminals'),
+                'imgclass' => 'refresh',
+            ];
+        }
         parent::initPageHeaderToolbar();
     }
 

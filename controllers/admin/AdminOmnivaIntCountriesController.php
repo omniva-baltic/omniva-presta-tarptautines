@@ -63,11 +63,14 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
 
     public function initPageHeaderToolbar()
     {
-        $this->page_header_toolbar_btn['sync_countries'] = [
-            'href' => self::$currentIndex . '&sync_countries=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
-            'desc' => $this->module->l('Update Countries'),
-            'imgclass' => 'refresh',
-        ];
+        if(Configuration::get('OMNIVA_TOKEN'))
+        {
+            $this->page_header_toolbar_btn['sync_countries'] = [
+                'href' => self::$currentIndex . '&sync_countries=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
+                'desc' => $this->module->l('Update Countries'),
+                'imgclass' => 'refresh',
+            ];
+        }
         parent::initPageHeaderToolbar();
     }
 

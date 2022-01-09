@@ -137,7 +137,6 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/list_action.tpl');
     }
 
-    // Added fictive button to so that counter would be displayed in list header (check list-header.tpl #144-145)
     public function initToolbar()
     {
         $this->toolbar_btn['bogus'] = [
@@ -153,11 +152,14 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
 
     public function initPageHeaderToolbar()
     {
-        $this->page_header_toolbar_btn['sync_services'] = [
-            'href' => self::$currentIndex . '&sync_services=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
-            'desc' => $this->module->l('Update Services'),
-            'imgclass' => 'refresh',
-        ];
+        if(Configuration::get('OMNIVA_TOKEN'))
+        {
+            $this->page_header_toolbar_btn['sync_services'] = [
+                'href' => self::$currentIndex . '&sync_services=1&token=' . $this->token . '&cron_token=' . Configuration::get('OMNIVA_CRON_TOKEN'),
+                'desc' => $this->module->l('Update Services'),
+                'imgclass' => 'refresh',
+            ];
+        }
         parent::initPageHeaderToolbar();
     }
 

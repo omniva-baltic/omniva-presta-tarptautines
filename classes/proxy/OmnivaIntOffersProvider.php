@@ -89,7 +89,7 @@ class OmnivaIntOffersProvider
         $receiver = $this->entityBuilder->buildReceiver($cart, $this->type);
         $parcels = $this->entityBuilder->buildParcels($cart);
 
-        $offers = $this->module->api->getOffers($sender, $receiver, $parcels);
+        $offers = $this->module->helper->getApi()->getOffers($sender, $receiver, $parcels);
         
         // Check if this carrier matches any offer. Return false, if no.
         if(!empty($offers) && $carrier_offers = $this->checkIfCarrierMatchesOffers($omnivaCarrier, $offers))

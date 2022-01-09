@@ -43,6 +43,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         // Invoking getModuleTranslation directly here to get access to sprintf params.
         $this->_error[1] = Translate::getModuleTranslation($this->module, 'Could not get manifest data for manifest %s. Please check that all your orders have tracking numbers and try again later.', $this->module->name, [$cart_id]);
         $this->_error[2] = Translate::getModuleTranslation($this->module, 'Manifest with number %s already exists', $this->module->name, [$cart_id]);
+        $this->_error[3] = $this->module->l('This operation requires API token. Please check your settings.');
     }
 
     public function init()
@@ -156,6 +157,8 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessSendShipment()
     {
+        if(!Configuration::get('OMNIVA_TOKEN'))
+            die(json_encode(['error' => $this->module->l('This operation requires API token. Please check your settings.')]));
         if (Tools::isSubmit('submitSendShipment')) {
             $omnivaOrder = $this->loadObject();
             $order = new Order($omnivaOrder->id);
@@ -164,7 +167,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             {
                 $entityBuilder = new OmnivaIntEntityBuilder();
                 $order = $entityBuilder->buildOrder($order);
-                $response = $this->module->api->generateOrder($order);
+                $response = $this->api->generateOrder($order);
                 $omnivaOrder->setFieldsToUpdate([
                     'shipment_id' => true,
                     'cart_id' => true,
@@ -195,9 +198,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function processPrintLabels()
     {
+        if(!Configuration::get('OMNIVA_TOKEN'))
+            die(json_encode(['error' => $this->module->l('This operation requires API token. Please check your settings.')]));
         if (Tools::isSubmit('submitPrintLabels') || $this->action == 'printLabels') {
             $omnivaOrder = $this->loadObject();
-            $orderTrackingInfo = $this->module->api->getLabel($omnivaOrder->shipment_id);
+            $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
 
             if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
             {
@@ -233,9 +238,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function ajaxProcessCancelOrder()
     {
+        if(!Configuration::get('OMNIVA_TOKEN'))
+            die(json_encode(['error' => $this->module->l('This operation requires API token. Please check your settings.')]));
         if (Tools::isSubmit('submitCancelOrder')) {
             $omnivaOrder = $this->loadObject();
-            $cancelResponse = $this->module->api->cancelOrder($omnivaOrder->shipment_id);
+            $cancelResponse = $this->api->cancelOrder($omnivaOrder->shipment_id);
 
             if($cancelResponse && $cancelResponse->status == 'deleted')
             {
@@ -274,6 +281,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     public function postProcess()
     {
         parent::postProcess();
+        $error = Tools::getValue('error');
+        if(version_compare(_PS_VERSION_, '1.7', '<') && $error && isset($this->_error[$error]))
+        {
+            $this->errors[] = $this->_error[$error];
+        }
         if(Tools::getValue('latest_manifest') || Tools::getValue('id_manifest'))
         {
             $this->generateManifest();
@@ -282,11 +294,16 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function generateManifest()
     {
+        if(!Configuration::get('OMNIVA_TOKEN'))
+        {
+            $this->redirect_after = self::$currentIndex . '&error=3&token=' . $this->token;
+            return;
+        }
         $id_manifest = Tools::getValue('id_manifest');
         if($id_manifest)
-            $manifestInfo = $this->module->api->generateManifest($id_manifest);
+            $manifestInfo = $this->api->generateManifest($id_manifest);
         else
-            $manifestInfo = $this->module->api->generateManifestLatest();
+            $manifestInfo = $this->api->generateManifestLatest();
         if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
             if(OmnivaIntManifest::getManifestByNumber($manifestInfo->cart_id))
@@ -310,7 +327,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
     {
         $omnivaOrder = new OmnivaIntOrder($id); 
         $manifestExists = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
-        if(!$manifestExists)
+        if(!$manifestExists || !Configuration::get('OMNIVA_TOKEN'))
             return false;
         if (!array_key_exists('Print Manifest', self::$cache_lang)) {
             self::$cache_lang['Print Manifest'] = $this->module->l('Print Manifest');
@@ -331,7 +348,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $omnivaOrder = new OmnivaIntOrder($id); 
         $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id);
 
-        if($untrackedParcelsCount > 0)
+        if($untrackedParcelsCount > 0 || !Configuration::get('OMNIVA_TOKEN'))
             return false;
         if (!array_key_exists('Print Labels', self::$cache_lang)) {
             self::$cache_lang['Print Labels'] = $this->module->l('Print Labels');
@@ -352,7 +369,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $omnivaOrder = new OmnivaIntOrder($id);
 
         $manifestExists = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
-        if($manifestExists || !$omnivaOrder->cart_id)
+        if($manifestExists || !$omnivaOrder->cart_id || !Configuration::get('OMNIVA_TOKEN'))
             return false;
         if (!array_key_exists('Generate Manifest', self::$cache_lang)) {
             self::$cache_lang['Generate Manifest'] = $this->module->l('Generate Manifest');
@@ -370,12 +387,17 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function processPrintManifest()
     {
+        if(!Configuration::get('OMNIVA_TOKEN'))
+        {
+            $this->redirect_after = self::$currentIndex . '&error=3&token=' . $this->token;
+            return;
+        }
         $this->loadObject();
         $manifestExists = OmnivaIntManifest::checkManifestExists($this->object->cart_id);
         if(!$manifestExists)
             Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
 
-        $manifestInfo = $this->module->api->generateManifest($this->object->cart_id);
+        $manifestInfo = $this->api->generateManifest($this->object->cart_id);
         if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
             $pdf = base64_decode($manifestInfo->manifest);
@@ -398,6 +420,10 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             readfile($pdfFile);
             unlink($pdfFile);
 
+        }
+        else
+        {
+            Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
         }
     }
 }

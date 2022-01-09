@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . "/classes/OmnivaIntDb.php";
+require_once __DIR__ . "/classes/OmnivaIntHelper.php";
 
 require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
@@ -27,11 +28,6 @@ $autoloadPath = __DIR__ . '/vendor/autoload.php';
 if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }
-
-use OmnivaApi\API;
-use OmnivaApi\Sender;
-use OmnivaApi\Receiver;
-use OmnivaApi\Parcel;
 
 class OmnivaInternational extends CarrierModule
 {
@@ -120,8 +116,6 @@ class OmnivaInternational extends CarrierModule
 
     public $id_carrier;
 
-    public $api;
-
     /**
      * Class constructor
      */
@@ -129,19 +123,19 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '0.8.0';
+        $this->version = '0.8.3';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
         $this->bootstrap = true;
-        if(Configuration::get('OMNIVA_TOKEN'))
-            $this->api = new API(Configuration::get('OMNIVA_TOKEN'), Configuration::get('OMNIVA_INT_TEST_MODE'));
 
         parent::__construct();
 
         $this->displayName = $this->l('Omniva International Shipping');
         $this->description = $this->l('Shipping module for Omniva international delivery method');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
+
+        $this->helper = new OmnivaIntHelper();
     }
 
     /**
@@ -641,11 +635,12 @@ class OmnivaInternational extends CarrierModule
 
                 $omnivaOrderParcels = OmnivaIntParcel::getParcelsByOrderId($id_order);
                 $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id_order);
-                if($omnivaOrder->shipment_id && $untrackedParcelsCount > 0)
+                if($omnivaOrder->shipment_id && $untrackedParcelsCount > 0 && Configuration::get('OMNIVA_TOKEN'))
                 {
                     // Just catch the exception, because it is thrown, if order is not yet ready, i.e gives error "Your order is being generated, please try again later"
                     try {
-                        $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+                        $api = $this->helper->getApi();
+                        $orderTrackingInfo = $api->getLabel($omnivaOrder->shipment_id);
                         if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
                         {
                             $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_ready']['key']));

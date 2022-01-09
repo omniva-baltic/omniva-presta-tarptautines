@@ -1,9 +1,21 @@
 <?php 
 
+use OmnivaApi\API;
+
 abstract class AdminOmnivaIntBaseController extends ModuleAdminController
 {
     /** @var bool Is bootstrap used */
     public $bootstrap = true;
+
+    public $api = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->api = $this->module->helper->getApi();
+        if(!$this->api)
+            $this->errors[] = $this->module->l("Please input the API token in Settings tab. Module requires connection to API to function properly.");
+    }
 
     public function processSave()
     {
