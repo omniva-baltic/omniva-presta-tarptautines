@@ -154,7 +154,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
     public function initToolbar()
     {
-        if(!OmnivaIntService::getCountServices())
+        if(!OmnivaIntService::getCount())
         {
             $this->errors[] = $this->module->l('You must download services before you can add carriers');
             $this->toolbar_btn['bogus'] = [
@@ -162,7 +162,10 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'desc' => $this->module->l('Back to list'),
             ];
         }
-        parent::initToolbar();
+        else
+        {
+            parent::initToolbar();
+        }
     }
 
 

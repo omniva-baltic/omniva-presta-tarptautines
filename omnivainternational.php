@@ -355,7 +355,7 @@ class OmnivaInternational extends CarrierModule
 
     // It's important to cache returned prices, because API may timeout on repeated requests.
     public function getOrderShippingCost($params, $shipping_cost) {
-        if($this->context->controller instanceof AdminController)
+        if($this->context->controller instanceof AdminController || OmnivaIntCountry::getCount() < 1 || OmnivaIntService::getCount() < 1)
             return false;
         $cart = $this->context->cart;
         $carrier = new Carrier($this->id_carrier);

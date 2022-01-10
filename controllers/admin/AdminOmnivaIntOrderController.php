@@ -270,11 +270,14 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function initPageHeaderToolbar()
     {
-        $this->page_header_toolbar_btn['latest_manifest'] = [
-            'href' => self::$currentIndex . '&latest_manifest=1&token=' . $this->token,
-            'desc' => $this->module->l('Generate Latest Manifest'),
-            'imgclass' => 'export',
-        ];
+        if(Configuration::get('OMNIVA_TOKEN'))
+        {
+            $this->page_header_toolbar_btn['latest_manifest'] = [
+                'href' => self::$currentIndex . '&latest_manifest=1&token=' . $this->token,
+                'desc' => $this->module->l('Generate Latest Manifest'),
+                'imgclass' => 'export',
+            ];
+        }
         parent::initPageHeaderToolbar();
     }
 

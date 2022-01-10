@@ -1,6 +1,8 @@
 <?php
 
-class OmnivaIntService extends ObjectModel
+require_once 'OmnivaIntModel.php';
+
+class OmnivaIntService extends OmnivaIntModel
 {
     public $id;
 
@@ -110,15 +112,4 @@ class OmnivaIntService extends ObjectModel
         return new OmnivaIntService($id_service);
     }
 
-    public static function getCountServices()
-    {
-        $query = (new DbQuery())
-        ->select("COUNT(id)")
-        ->from(self::$definition['table']);
-        $count = Db::getInstance()->getValue($query);
-        if (!$count || $count <= 0) {
-            return false;
-        }
-        return true;
-    }
 }

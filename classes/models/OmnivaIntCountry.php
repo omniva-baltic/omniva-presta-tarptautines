@@ -1,6 +1,8 @@
 <?php
 
-class OmnivaIntCountry extends ObjectModel
+require_once 'OmnivaIntModel.php';
+
+class OmnivaIntCountry extends OmnivaIntModel
 {
     public $id;
 
