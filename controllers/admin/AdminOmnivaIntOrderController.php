@@ -161,6 +161,12 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $omnivaOrder = $this->loadObject();
         $this->redirect_after = $_SERVER['HTTP_REFERER'];
 
+        // Check if parcel was removed (does not exist in array of current parcels)
+        // But get them here, or else it will delete the new ones
+        $parcelIds = array_map(function ($parcel) {
+            return $parcel['id'];
+        }, OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id));
+
         $oldParcelsSubmitted = [];
         foreach($parcels as $key => $parcel)
         {
@@ -190,11 +196,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 }
             }
         }
-
-        // Check if parcel was removed (does not exist in array of current parcels)
-        $parcelIds = array_map(function ($parcel) {
-            return $parcel['id'];
-        }, OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id));
 
         $deletedParcels = array_diff($parcelIds, $oldParcelsSubmitted);
         if(!empty($deletedParcels))

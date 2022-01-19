@@ -21,11 +21,19 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $this->title_icon = 'icon-truck';
         $this->list_no_link = true;
         $this->bootstrap = true;
-        $this->_orderBy = 'id';
-        $this->className = 'OmnivaIntCarrier';
-        $this->table = 'omniva_int_carrier';
-        $this->identifier = 'id';
 
+        if(Tools::getValue('submitManageCountries') || Tools::isSubmit('statusomniva_int_carrier_country'))
+        {
+            $this->className = 'OmnivaIntCarrierCountry';
+            $this->table = 'omniva_int_carrier_country';
+        }
+        else
+        {
+            $this->className = 'OmnivaIntCarrier';
+            $this->table = 'omniva_int_carrier';
+        }
+        $this->_orderBy = 'id';
+        $this->identifier = 'id';
         $this->price_type_trans = array_combine(
             self::PRICE_TYPES, [
                 $this->module->l('Fixed, EUR'),
@@ -52,7 +60,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ],
         ];
 
-        $this->_select = ' c.name as name, 
+        $this->_select = ' c.name as name,
+                            a.`id` as id_1, 
                             (SELECT GROUP_CONCAT(os.service_code SEPARATOR ", ") 
                             FROM `' . _DB_PREFIX_ .'omniva_int_service` os 
                             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (os.`id` = ocs.`id_service`)
@@ -70,10 +79,60 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
     {
         if (Shop::isFeatureActive() && Shop::getContext() !== Shop::CONTEXT_SHOP) {
             $this->errors[] = $this->module->l('Select shop');
-        } else {
+        }
+        elseif (Tools::getValue('submitManageCountries'))
+        {
+            $this->carrierCountriesList();
+        }
+        else {
             $this->carrierList();
         }
         parent::init();
+    }
+
+    protected function carrierCountriesList()
+    {
+        $this->_select = ' cl.name';
+
+        $this->_join = '
+            LEFT JOIN ' . _DB_PREFIX_ . 'country_lang cl ON (cl.id_country = a.id_country AND cl.id_lang = ' . $this->context->language->id . ')';
+
+        $this->_group = '';
+
+        $this->fields_list = [
+            'name' => [
+                'title' => $this->module->l('Name'),
+                'align' => 'text-center',
+                'filter_key' => 'c!name'
+            ],
+            'price_type' => [
+                'title' => $this->module->l('Price Type'),
+                'align' => 'center',
+                'type' => 'select',
+                'filter_key' => 'a!price_type',
+                'list' => $this->price_type_trans,
+                'callback' => 'transPriceType'
+            ],
+            'price' => [
+                'title' => $this->module->l('Price'),
+                'align' => 'center',
+                'callback' => 'displayPriceType'
+            ],
+            'free_shipping' => [
+                'type' => 'number',
+                'title' => $this->module->l('Free Shipping'),
+                'align' => 'center',
+                'callback' => 'displayPrice'
+            ],
+            'active' => [
+                'type' => 'bool',
+                'title' => $this->module->l('Active'),
+                'active' => 'status',
+                'align' => 'center',
+            ],
+        ];
+
+        $this->actions = ['edit'];
     }
 
     protected function carrierList()
@@ -128,6 +187,13 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'active' => 'status',
                 'align' => 'center',
             ],
+            'id_1' => [
+                'title' => '',
+                'align' => 'text-center',
+                'search' => false,
+                'orderby' => false,
+                'callback' => 'printCallCarrierBtn',
+            ]
         ];
 
         $this->bulk_actions = [
@@ -154,9 +220,10 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
     public function initToolbar()
     {
-        if(!OmnivaIntService::getCount())
+        if(!OmnivaIntService::getCount() || Tools::getValue('submitManageCountries'))
         {
-            $this->errors[] = $this->module->l('You must download services before you can add carriers');
+            if(!Tools::getValue('submitManageCountries'))
+                $this->errors[] = $this->module->l('You must download services before you can add carriers');
             $this->toolbar_btn['bogus'] = [
                 'href' => '#',
                 'desc' => $this->module->l('Back to list'),
@@ -470,7 +537,26 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
         // If carrier was created successfully, we proceed to adding services.
         else
+        {
+            $this->addCarrierCountries($omnivaCarrier);
             $this->createOmnivaCarrierServices($omnivaCarrier, $final_services);
+        }
+    }
+
+    public function addCarrierCountries($omnivaCarrier)
+    {
+        $countries = Country::getCountries($this->context->language->id, true);
+        foreach ($countries as $country)
+        {
+            $omnivaCarrierCountry = new OmnivaIntCarrierCountry();
+            $omnivaCarrierCountry->id_carrier = $omnivaCarrier->id;
+            $omnivaCarrierCountry->id_country = $country['id_country'];
+            $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
+            $omnivaCarrierCountry->price = $omnivaCarrier->price;
+            $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
+            $omnivaCarrierCountry->active = 1;
+            $omnivaCarrierCountry->add();
+        }
     }
 
     public function createOmnivaCarrierServices($omnivaCarrier, $services)
@@ -614,5 +700,15 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 }
             }
         }
+    }
+
+    public function printCallCarrierBtn($id_carrier)
+    {
+        $this->context->smarty->assign('data_button', [
+            'icon' => 'icon-flag',
+            'title' => $this->module->l('Manage Countries'),
+            'href' => self::$currentIndex . '&submitManageCountries=1&token=' . $this->token . '&id_carrier=' . $id_carrier,
+        ]);
+        return $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->module->name . '/views/templates/admin/action_button.tpl');
     }
 }

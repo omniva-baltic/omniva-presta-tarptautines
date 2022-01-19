@@ -14,7 +14,8 @@ class OmnivaIntDb
         'omniva_int_country',
         'omniva_int_parcel',
         'omniva_int_cart_terminal',
-        'omniva_int_rate_cache'
+        'omniva_int_rate_cache',
+        'omniva_int_carrier_country'
     ];
     /**
      * Create tables for module

@@ -15,6 +15,7 @@ require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
 require_once __DIR__ . "/classes/models/OmnivaIntCartTerminal.php";
 require_once __DIR__ . "/classes/models/OmnivaIntRateCache.php";
 require_once __DIR__ . "/classes/models/OmnivaIntServiceCategory.php";
+require_once __DIR__ . "/classes/models/OmnivaIntCarrierCountry.php";
 
 require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
 require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
