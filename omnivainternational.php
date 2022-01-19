@@ -526,7 +526,11 @@ class OmnivaInternational extends CarrierModule
             {
                 $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($orderCarrier->id_reference);
                 $omnivaOrder = new OmnivaIntOrder($id_order);
-                $this->context->smarty->assign('admin_default_tpl_path', _PS_BO_ALL_THEMES_DIR_ . 'default/template/');
+
+                $this->context->smarty->assign([
+                    'admin_default_tpl_path' => _PS_BO_ALL_THEMES_DIR_ . 'default/template/',
+                    'images_url' => $this->_path . 'views/images/',
+                ]);
 
                 $form_fields = [];
                 if($omnivaCarrier->type == 'terminal')
@@ -634,6 +638,8 @@ class OmnivaInternational extends CarrierModule
                 ];
 
                 $omnivaOrderParcels = OmnivaIntParcel::getParcelsByOrderId($id_order);
+                $this->context->smarty->assign('parcels', $omnivaOrderParcels);
+
                 $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id_order);
                 if($omnivaOrder->shipment_id && $untrackedParcelsCount > 0 && Configuration::get('OMNIVA_TOKEN'))
                 {
@@ -695,14 +701,15 @@ class OmnivaInternational extends CarrierModule
                 $orderHasManifest = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
                 $this->context->smarty->assign('orderHasManifest', $orderHasManifest);
 
-                // Assign this one separatly, otherwise tracking_codes.tpl is does not see it.
+                // Assign this one separately, otherwise tracking_codes.tpl is does not see it.
                 $this->context->smarty->assign([
+                    'update_parcels_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitUpdateParcels=1&action=updateParcels&id=' . $id_order,
                     'shipment_id' => $omnivaOrder->shipment_id,
                     'tracking_numbers' => $tracking_numbers,
                     'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitPrintLabels=1&action=printLabels&id_order=' . $id_order
                 ]);
                 $this->context->smarty->assign([
-
+                    'parcels_form' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/parcels.tpl'),
                     'list' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/tracking_codes.tpl')
                 ]);
                 

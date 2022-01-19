@@ -41,13 +41,11 @@ class OmnivaIntParcel extends ObjectModel
     public static function getParcelsByOrderId($id_order)
     {
         $query = (new DbQuery())
-            ->select("id")
+            ->select("*")
             ->from(self::$definition['table'])
             ->where('id_order = ' . $id_order);
 
-        return array_map(function($parcel) {
-                return $parcel['id'];
-        }, Db::getInstance()->executeS($query));
+        return Db::getInstance()->executeS($query);
     }
 
     public static function getCountUntrackedParcelsByOrderId($id_order)

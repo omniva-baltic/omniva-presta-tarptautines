@@ -5,4 +5,7 @@
     {if isset($list)}
         {$list}
     {/if}
+    {if isset($parcels_form)}
+        {$parcels_form}
+    {/if}
 </div>

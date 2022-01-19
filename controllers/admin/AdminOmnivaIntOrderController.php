@@ -155,6 +155,58 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
     }
 
+    public function processUpdateParcels()
+    {
+        $parcels = Tools::getValue('parcel');
+        $omnivaOrder = $this->loadObject();
+        $this->redirect_after = $_SERVER['HTTP_REFERER'];
+
+        $oldParcelsSubmitted = [];
+        foreach($parcels as $key => $parcel)
+        {
+            if(strpos($key, 'new') !== false)
+            {
+                $omnivaParcel = new OmnivaIntParcel();
+                $omnivaParcel->id_order = $omnivaOrder->id;
+                $omnivaParcel->amount = 1;
+                $omnivaParcel->width = (float) $parcel['y'];
+                $omnivaParcel->length = (float) $parcel['x'];
+                $omnivaParcel->height = (float) $parcel['z'];
+                $omnivaParcel->weight = (float) $parcel['weight'];
+                $omnivaParcel->add();
+            }
+            else
+            {
+                $omnivaParcel = new OmnivaIntParcel((int) $key);
+
+                if(Validate::isLoadedObject($omnivaParcel))
+                {
+                    $oldParcelsSubmitted[] = $key;
+                    $omnivaParcel->width = (float) $parcel['y'];
+                    $omnivaParcel->length = (float) $parcel['x'];
+                    $omnivaParcel->height = (float) $parcel['z'];
+                    $omnivaParcel->weight = (float) $parcel['weight'];
+                    $omnivaParcel->update();
+                }
+            }
+        }
+
+        // Check if parcel was removed (does not exist in array of current parcels)
+        $parcelIds = array_map(function ($parcel) {
+            return $parcel['id'];
+        }, OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id));
+
+        $deletedParcels = array_diff($parcelIds, $oldParcelsSubmitted);
+        if(!empty($deletedParcels))
+        {
+            foreach ($deletedParcels as $id_parcel)
+            {
+                $omnivaParcel = new OmnivaIntParcel($id_parcel);
+                $omnivaParcel->delete();
+            }
+        }
+    }
+
     public function ajaxProcessSendShipment()
     {
         if(!Configuration::get('OMNIVA_TOKEN'))
@@ -248,9 +300,9 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             {
                 $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
                 $result = true;
-                foreach($parcels as $id_parcel)
+                foreach($parcels as $parcel)
                 {
-                    $parcelObj = new OmnivaIntParcel($id_parcel);
+                    $parcelObj = new OmnivaIntParcel($parcel['id']);
                     $parcelObj->tracking_number = '';
                     $parcelObj->setFieldsToUpdate(['tracking_number' => true]);
                     $result &= $parcelObj->update();
