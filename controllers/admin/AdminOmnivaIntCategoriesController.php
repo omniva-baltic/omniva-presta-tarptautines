@@ -216,15 +216,41 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
             {
                 $omnivaCategory = new OmnivaIntCategory();
                 $omnivaCategory->id = $category['id_category'];
-                $omnivaCategory->weight = 0;
-                $omnivaCategory->length = 0;
-                $omnivaCategory->width = 0;
-                $omnivaCategory->height = 0;
+
+                $prestaCategory = new Category($category['id_category']);
+                $omnivaCategoryParent = new OmnivaIntCategory($prestaCategory->id_parent);
+
+                $omnivaCategory->weight = $omnivaCategoryParent->weight;
+                $omnivaCategory->length = $omnivaCategoryParent->length;
+                $omnivaCategory->width = $omnivaCategoryParent->width;
+                $omnivaCategory->height = $omnivaCategoryParent->height;
                 $omnivaCategory->active = 1;
                 $omnivaCategory->force_id = true;
                 $omnivaCategory->add();
             }
         } 
         $this->redirect_after = self::$currentIndex . '&conf=4&token=' . $this->token;  
+    }
+
+    public function processUpdate()
+    {
+        $this->object = parent::processUpdate();
+        $category = new Category($this->object->id);
+        $childCategories = $category->getAllChildren()->getResults();
+        $updatedCategory = $this->object;
+
+        // If updated category has any children, they inherit measures from parent, if child measure is 0.
+        foreach($childCategories as $category)
+        {
+            $omnivaCategory = new OmnivaIntCategory($category->id);
+            if(Validate::isLoadedObject($omnivaCategory))
+            {
+                $omnivaCategory->weight = $omnivaCategory->weight == 0 ? $updatedCategory->weight : $omnivaCategory->weight;
+                $omnivaCategory->length = $omnivaCategory->length == 0 ? $updatedCategory->length : $omnivaCategory->length;
+                $omnivaCategory->width = $omnivaCategory->width == 0 ? $updatedCategory->width : $omnivaCategory->width;
+                $omnivaCategory->height = $omnivaCategory->height == 0 ? $updatedCategory->height :  $omnivaCategory->height;
+                $omnivaCategory->update();
+            }
+        }
     }
 }
