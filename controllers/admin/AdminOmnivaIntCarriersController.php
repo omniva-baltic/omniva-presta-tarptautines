@@ -61,6 +61,19 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ],
         ];
 
+        $this->delivery_types = [
+            [
+                'id' => 'fastest',
+                'value' => 0,
+                'label' => $this->module->l('Fastest'),
+            ],
+            [
+                'id' => 'cheapest',
+                'value' => 1,
+                'label' => $this->module->l('Cheapest'),
+            ],
+        ];
+
         $this->_select = ' c.name as name,
                             a.`id` as id_1, 
                             (SELECT GROUP_CONCAT(os.service_code SEPARATOR ", ") 
@@ -317,19 +330,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ]
         ];
 
-        $fastest_cheapest_switcher_values = [
-            [
-                'id' => 'active_on',
-                'value' => 1,
-                'label' => $this->l('Cheapest'),
-            ],
-            [
-                'id' => 'active_off',
-                'value' => 0,
-                'label' => $this->l('Cheapest')
-            ]
-        ];
-
         $this->fields_form = [
             'legend' => [
                 'title' => $this->module->l('Omniva Carrier Country'),
@@ -357,10 +357,11 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'prefix' => '€'
                 ],
                 [
-                    'type' => 'switch',
-                    'label' => $this->module->l('Fastest'),
+                    'type' => 'radio',
+                    'label' => $this->module->l('Delivery type'),
                     'name' => 'cheapest',
-                    'values' => $fastest_cheapest_switcher_values
+                    'values' => $this->delivery_types,
+                    'class' => 'col-xs-2'
                 ],
                 [
                     'type' => 'switch',
@@ -391,19 +392,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'id' => 'active_off',
                 'value' => 0,
                 'label' => $this->l('No')
-            ]
-        ];
-
-        $fastest_cheapest_switcher_values = [
-            [
-                'id' => 'active_on',
-                'value' => 1,
-                'label' => $this->l('Cheapest'),
-            ],
-            [
-                'id' => 'active_off',
-                'value' => 0,
-                'label' => $this->l('Cheapest')
             ]
         ];
 
@@ -454,10 +442,11 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'desc' => $this->module->l('Select all services which will be used by this carrier'),
                 ],
                 [
-                    'type' => 'switch',
-                    'label' => $this->l('Fastest'),
+                    'type' => 'radio',
+                    'label' => $this->module->l('Delivery type'),
                     'name' => 'cheapest',
-                    'values' => $fastest_cheapest_switcher_values
+                    'values' => $this->delivery_types,
+                    'class' => 'col-xs-2'
                 ],
                 [
                     'type' => 'text',
