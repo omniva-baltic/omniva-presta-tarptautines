@@ -131,6 +131,18 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'search' => false,
                 'callback' => 'displayPrice'
             ],
+            'cheapest' => [
+                'title' => $this->module->l('Price method'),
+                'align' => 'center',
+                'type' => 'select',
+                'filter_key' => 'a!cheapest',
+                'search' => false,
+                'list' => [
+                    $this->module->l('Fastest'),
+                    $this->module->l('Cheapest'),
+                ],
+                'callback' => 'fastestOrCheapest'
+            ],
             'active' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Active'),

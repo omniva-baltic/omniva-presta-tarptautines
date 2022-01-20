@@ -85,6 +85,11 @@ class OmnivaIntOffersProvider
         if(!Validate::isLoadedObject($address))
             return false;
 
+        // Check if destination country is disabled for the carrier.
+        $omnivaCarrierCountry = OmnivaIntCarrierCountry::getCarrierCountry($omnivaCarrier->id, $address->id_country);
+        if(!Validate::isLoadedObject($omnivaCarrierCountry) || !$omnivaCarrierCountry->active)
+            return false;
+
         $sender = $this->entityBuilder->buildSender($this->type);
         $receiver = $this->entityBuilder->buildReceiver($cart, $this->type);
         $parcels = $this->entityBuilder->buildParcels($cart);
@@ -95,15 +100,15 @@ class OmnivaIntOffersProvider
         if(!empty($offers) && $carrier_offers = $this->checkIfCarrierMatchesOffers($omnivaCarrier, $offers))
         {
             // If price type is fixed, we just return that fixed price for all applicable services.
-            if($omnivaCarrier->price_type == 'fixed')
+            if($omnivaCarrierCountry->price_type == 'fixed')
             {
                 $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[0]->service_code;
                 $cookie->write();
-                if($cart_without_shipping >= $omnivaCarrier->free_shipping)
+                if($cart_without_shipping >= $omnivaCarrierCountry->free_shipping)
                 {
                     return 0;
                 }
-                return $omnivaCarrier->price; 
+                return $omnivaCarrierCountry->price;
             }
 
 
@@ -113,15 +118,19 @@ class OmnivaIntOffersProvider
                 $offer = $carrier_offers[0];
                 $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $offer->service_code;
                 $cookie->write();
-                if($cart_without_shipping >= $omnivaCarrier->free_shipping)
+                if($cart_without_shipping >= $omnivaCarrierCountry->free_shipping)
                 {
                     return 0;
                 }
-                return $this->addSurcharge($offer->price, $omnivaCarrier->price, $omnivaCarrier->price_type);
+                return $this->addSurcharge($offer->price, $omnivaCarrierCountry->price, $omnivaCarrierCountry->price_type);
             }
             else
             {
-                if($omnivaCarrier->cheapest)
+                if($cart_without_shipping >= $omnivaCarrierCountry->free_shipping)
+                {
+                    return 0;
+                }
+                if($omnivaCarrierCountry->cheapest)
                 {
                     $prices = array_map(function($offer) {
                         return (float) $offer->price;
@@ -130,7 +139,7 @@ class OmnivaIntOffersProvider
                     $cheapest_key = key($prices);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$cheapest_key]->service_code;
                     $cookie->write();
-                    return $this->addSurcharge(reset($prices), $omnivaCarrier->price, $omnivaCarrier->price_type);
+                    return $this->addSurcharge(reset($prices), $omnivaCarrierCountry->price, $omnivaCarrierCountry->price_type);
                 }
                 // Fastest
                 else
@@ -145,7 +154,7 @@ class OmnivaIntOffersProvider
                     $fastest_key = key($lower_bound_days);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$fastest_key]->service_code;
                     $cookie->write();
-                    return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrier->price, $omnivaCarrier->price_type);
+                    return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrierCountry->price, $omnivaCarrierCountry->price_type);
                 }
             }
         }

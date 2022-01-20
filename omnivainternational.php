@@ -420,9 +420,13 @@ class OmnivaInternational extends CarrierModule
             $cache_key .= $product['id_product'] . '-' . $product['cart_quantity'];
         }
 
-        // OmnivaIntCarrier fields..
-        $cache_key .= $omnivaCarrier->price_type . "-" . $omnivaCarrier->price . "-" . 
-                      $omnivaCarrier->free_shipping . "-" . $omnivaCarrier->cheapest . "-" . $omnivaCarrier->type;
+        // Is it safe to make an assumption that it always exists?
+        $omnivaCarrierCountry = OmnivaIntCarrierCountry::getCarrierCountry($id_carrier, $id_country);
+
+        // OmnivaIntCarrier fields for destination country.
+        $cache_key .= $omnivaCarrierCountry->price_type . "-" . $omnivaCarrierCountry->price . "-"
+                    . $omnivaCarrierCountry->free_shipping . "-" . $omnivaCarrierCountry->cheapest . '-'
+                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type;
         // ..and all it's services 
         $cache_key .= implode('-', OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id));
 

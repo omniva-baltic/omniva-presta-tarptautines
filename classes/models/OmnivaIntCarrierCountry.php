@@ -14,6 +14,8 @@ class OmnivaIntCarrierCountry extends ObjectModel
 
     public $free_shipping;
 
+    public $cheapest;
+
     public $active;
 
     /**
@@ -28,7 +30,24 @@ class OmnivaIntCarrierCountry extends ObjectModel
             'price_type' =>       ['type' => self::TYPE_STRING, 'required' => true, 'size' => 30],
             'price' =>            ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
             'free_shipping' =>    ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
+            'cheapest' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
             'active' =>           ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
         ],
     ];
+
+    public static function getCarrierCountry($id_carrier, $id_country)
+    {
+        $query = (new DbQuery())
+            ->select("id")
+            ->from(self::$definition['table'])
+            ->where('id_carrier = ' . $id_carrier)
+            ->where('id_country = ' . $id_country);
+
+        $id_country = Db::getInstance()->getValue($query);
+        if (!$id_country) {
+            return false;
+        }
+
+        return new OmnivaIntCarrierCountry($id_country);
+    }
 }
