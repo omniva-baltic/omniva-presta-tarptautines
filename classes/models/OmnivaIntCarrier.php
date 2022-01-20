@@ -66,4 +66,13 @@ class OmnivaIntCarrier extends ObjectModel
         return new OmnivaIntCarrier($id_carrier);
     }
 
+    public static function getCarriersIds()
+    {
+        $query = (new DbQuery())
+            ->select("id")
+            ->from(self::$definition['table']);
+
+        return Db::getInstance()->executeS($query);
+    }
+
 }

@@ -57,7 +57,8 @@ class OmnivaInternational extends CarrierModule
         'displayAdminOmnivaIntServicesListBefore',
         'displayAdminOmnivaIntTerminalsListBefore',
         'displayAdminOmnivaIntCountriesListBefore',
-        'displayBeforeCarrier'
+        'displayBeforeCarrier',
+        'actionObjectCountryUpdateAfter'
     ];
 
     /**
@@ -459,6 +460,7 @@ class OmnivaInternational extends CarrierModule
      */
     public function getContent()
     {
+        $this->registerHook('actionObjectCountryUpdateAfter');
         Tools::redirectAdmin($this->context->link->getAdminLink(self::CONTROLLER_OMNIVA_SETTINGS));
     }
 
@@ -981,5 +983,60 @@ class OmnivaInternational extends CarrierModule
             ]
         );
         return $context->smarty->fetch(_PS_MODULE_DIR_ . $this->name . "/views/templates/admin/alert.tpl");
+    }
+
+    public function hookActionObjectCountryUpdateAfter($params)
+    {
+        $country = isset($params['object']) ? $params['object'] : null;
+        if(!Validate::isLoadedObject($country))
+        {
+            return false;
+        }
+
+        // Check if country being modified is active and check if all OmnivaInt carriers have rates for this country.
+        if($country->active)
+        {
+            $omnivaCarriers = OmnivaIntCarrier::getCarriersIds();
+            if(!empty($omnivaCarriers))
+            {
+                foreach ($omnivaCarriers as $carrier)
+                {
+                    $omnivaCarrier = new OmnivaIntCarrier($carrier['id']);
+                    if(!Validate::isLoadedObject($omnivaCarrier))
+                        continue;
+
+                    // try to get carrier country settings
+                    if(!OmnivaIntCarrierCountry::getCarrierCountry($omnivaCarrier->id, $country->id))
+                    {
+                        $omnivaCarrierCountry = new OmnivaIntCarrierCountry();
+                        $omnivaCarrierCountry->id_carrier = $omnivaCarrier->id;
+                        $omnivaCarrierCountry->id_country = $country->id;
+                        $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
+                        $omnivaCarrierCountry->price = $omnivaCarrier->price;
+                        $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
+                        $omnivaCarrierCountry->cheapest = $omnivaCarrier->cheapest;
+                        $omnivaCarrierCountry->active = 1;
+                        $omnivaCarrierCountry->add();
+                    }
+                }
+            }
+        }
+        else
+        {
+            $omnivaCarriers = OmnivaIntCarrier::getCarriersIds();
+            if(!empty($omnivaCarriers))
+            {
+                foreach ($omnivaCarriers as $carrier)
+                {
+                    $omnivaCarrier = new OmnivaIntCarrier($carrier['id']);
+                    if(!Validate::isLoadedObject($omnivaCarrier))
+                        continue;
+
+                    $omnivaCarrierCountry = OmnivaIntCarrierCountry::getCarrierCountry($omnivaCarrier->id, $country->id);
+                    if(Validate::isLoadedObject($omnivaCarrierCountry))
+                        $omnivaCarrierCountry->delete();
+                }
+            }
+        }
     }
 }

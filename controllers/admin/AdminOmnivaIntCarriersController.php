@@ -671,6 +671,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
             $omnivaCarrierCountry->price = $omnivaCarrier->price;
             $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
+            $omnivaCarrierCountry->cheapest = $omnivaCarrier->cheapest;
             $omnivaCarrierCountry->active = 1;
             $omnivaCarrierCountry->add();
         }
