@@ -421,8 +421,9 @@ class OmnivaInternational extends CarrierModule
             $cache_key .= $product['id_product'] . '-' . $product['cart_quantity'];
         }
 
-        // Is it safe to make an assumption that it always exists?
-        $omnivaCarrierCountry = OmnivaIntCarrierCountry::getCarrierCountry($id_carrier, $id_country);
+        $omnivaCarrierCountry = OmnivaIntCarrierCountry::getCarrierCountry((int) $id_carrier, (int) $id_country);
+        if(!Validate::isLoadedObject($omnivaCarrierCountry))
+            return md5($cache_key);
 
         // OmnivaIntCarrier fields for destination country.
         $cache_key .= $omnivaCarrierCountry->price_type . "-" . $omnivaCarrierCountry->price . "-"
