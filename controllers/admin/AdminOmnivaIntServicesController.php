@@ -33,6 +33,7 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         if (Shop::isFeatureActive() && Shop::getContext() !== Shop::CONTEXT_SHOP) {
             $this->errors[] = $this->module->l('Select shop');
         } else {
+            $this->checkNewServices();
             $this->serviceList();
         }
         parent::init();
@@ -189,6 +190,16 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             $this->confirmations[] = $this->module->l('Successfully updated services');
         else
             $this->errors[] = $this->module->l("Failed updating services");
+    }
+
+    public function checkNewServices()
+    {
+        if(!Tools::isSubmit('sync_services'))
+        {
+            $updater = new OmnivaIntUpdater('check_services');
+            if($updater->run())
+                $this->warnings[] = $this->module->l('There are new services in carrier service provider API. Please press "Update Services" button to download new services.');    
+        }
     }
 
     public function processCategories()

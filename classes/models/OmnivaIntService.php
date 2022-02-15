@@ -92,6 +92,11 @@ class OmnivaIntService extends OmnivaIntModel
         return (bool) Db::getInstance()->getValue("SELECT id FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE id = " . $id_service);
     }
 
+    public static function checkServiceExistsByCode($code)
+    {
+        return (bool) Db::getInstance()->getValue("SELECT id FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE service_code = '$code'");
+    }
+
     public function toggleStatus()
     {
         $this->setFieldsToUpdate(['manage_categories' => true]);

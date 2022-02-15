@@ -24,6 +24,8 @@ class OmnivaIntUpdater {
                 return $this->updateTerminals();
             case 'services':
                 return $this->updateServices();
+            case 'check_services':
+                return $this->checkNewServices();
             case 'countries':
                 return $this->updateCountries();
             case 'all':
@@ -147,5 +149,20 @@ class OmnivaIntUpdater {
         }
 
         return $prestaService;
+    }
+
+    public function checkNewServices()
+    {
+        $response = $this->api->listAllServices();
+        if($response && !empty($response))
+        {
+            
+            foreach($response as $service)
+            {
+                if(!OmnivaIntService::checkServiceExistsByCode($service->service_code))
+                    return true;
+            }
+        }
+        return false;
     }
 }
