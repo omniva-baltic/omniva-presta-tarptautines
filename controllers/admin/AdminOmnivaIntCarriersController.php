@@ -435,7 +435,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'multiple' => true,
                     'default_value' => $this->l('Multiple select'),
                     'options' => [
-                        'query' => OmnivaIntService::getServices(),
+                        'query' => OmnivaIntService::getServices(true),
                         'id' => 'id',
                         'name' => 'name',
                     ],
@@ -630,9 +630,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         $omnivaCarrier->radius = $radius;
 
         if($this->adding_terminal_carrier)
-            $omnivaCarrier->type = 'courier';
-        else
             $omnivaCarrier->type = 'terminal';
+        else
+            $omnivaCarrier->type = 'courier';
 
         $result = $omnivaCarrier->add();
         if(!$result)

@@ -34,6 +34,8 @@ class OmnivaIntService extends OmnivaIntModel
 
     public $fragile;
 
+    public $active;
+
     public $manage_categories;
 
     /** @var string Object creation date */
@@ -64,19 +66,20 @@ class OmnivaIntService extends OmnivaIntModel
                 'password' =>                   ['type' => self::TYPE_STRING, 'size' => 50],
                 'fragile' =>                    ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
                 'manage_categories' =>          ['type' => self::TYPE_BOOL, 'validate' => 'isBool'],
+                'active' =>                     ['type' =>  self::TYPE_BOOL, 'validate' => 'isBool'],
                 'date_add' =>                   ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
                 'date_upd' =>                   ['type' => self::TYPE_DATE, 'validate' => 'isDate'],
             ],
         ];
         
-    public static function getServices()
+    public static function getServices($onlyActive = false)
     {
         $cacheId = 'OmnivaIntService::getServices';
 
         if (!Cache::isStored($cacheId)) {
             $result = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
 				SELECT id, CONCAT(name, " - ", service_code) as name
-				FROM ' . _DB_PREFIX_ . self::$definition['table']);
+				FROM ' . _DB_PREFIX_ . self::$definition['table'] . ($onlyActive ? ' WHERE `active`=1' : '') );
             Cache::store($cacheId, $result);
             return $result;
         }
@@ -93,6 +96,13 @@ class OmnivaIntService extends OmnivaIntModel
     {
         $this->setFieldsToUpdate(['manage_categories' => true]);
         $this->manage_categories = !(int) $this->manage_categories;
+        return $this->update(false);
+    }
+
+    public function toggleActive()
+    {
+        $this->setFieldsToUpdate(['active' => true]);
+        $this->active = !(int) $this->active;
         return $this->update(false);
     }
 

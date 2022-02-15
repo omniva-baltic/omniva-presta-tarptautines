@@ -187,7 +187,7 @@ class OmnivaInternational extends CarrierModule
         return [
             self::CONTROLLER_OMNIVA_MAIN => [
                 'title' => $this->l('Omniva International'),
-                'parent_tab' => 'AdminParentModulesSf',
+                'parent_tab' => 'AdminParentShipping',
             ],
             self::CONTROLLER_OMNIVA_SETTINGS => [
                 'title' => $this->l('Settings'),
@@ -541,11 +541,12 @@ class OmnivaInternational extends CarrierModule
                 ]);
 
                 $form_fields = [];
+                $service = OmnivaIntService::getServiceByCode($omnivaOrder->service_code);
+
                 if($omnivaCarrier->type == 'terminal')
                 {
                     $address = new Address($order->id_address_delivery);
                     $country_code = Country::getIsoById($address->id_country);
-                    $service = OmnivaIntService::getServiceByCode($omnivaOrder->service_code);
                     $cities = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, false, 'city');
                     
                     $terminalsByCities = [];
@@ -585,38 +586,44 @@ class OmnivaInternational extends CarrierModule
                         'type' => 'switch',
                         'label' => $this->l('C.O.D'),
                         'name' => 'cod',
-                        'values' => $switcher_values
+                        'values' => $switcher_values,
+                        'disabled' => !$service->cod,
                     ],
                     [
                         'form_group_class' => 'cod-amount-block',
                         'type' => 'text',
                         'label' => $this->l('C.O.D amount'),
                         'name' => 'cod_amount',
-                        'prefix' => '€'
+                        'prefix' => '€',
+                        'disabled' => !$service->cod,
                     ],
                     [
                         'type' => 'switch',
                         'label' => $this->l('Insurance'),
                         'name' => 'insurance',
-                        'values' => $switcher_values
+                        'values' => $switcher_values,
+                        'disabled' => !$service->insurance,
                     ],
                     [
                         'type' => 'switch',
                         'label' => $this->l('Carry service'),
                         'name' => 'carry_service',
-                        'values' => $switcher_values
+                        'values' => $switcher_values,
+                        'disabled' => !$service->carry_service,
                     ],
                     [
                         'type' => 'switch',
                         'label' => $this->l('Document Return'),
                         'name' => 'doc_return',
-                        'values' => $switcher_values
+                        'values' => $switcher_values,
+                        'disabled' => !$service->doc_return,
                     ],
                     [
                         'type' => 'switch',
                         'label' => $this->l('Fragile'),
                         'name' => 'fragile',
-                        'values' => $switcher_values
+                        'values' => $switcher_values,
+                        'disabled' => !$service->fragile,
                     ],
                     [
                         'type' => 'hidden',
@@ -655,12 +662,13 @@ class OmnivaInternational extends CarrierModule
                     try {
                         $api = $this->helper->getApi();
                         $orderTrackingInfo = $api->getLabel($omnivaOrder->shipment_id);
+                    
                         if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
                         {
                             $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_ready']['key']));
-                            foreach($omnivaOrderParcels as $key => $id_parcel)
+                            foreach($omnivaOrderParcels as $key => $parcel)
                             {
-                                $omnivaParcel = new OmnivaIntParcel($id_parcel);
+                                $omnivaParcel = new OmnivaIntParcel($parcel['id']);
                                 $omnivaParcel->setFieldsToUpdate(['tracking_number' => true]);
                                 $omnivaParcel->tracking_number = $orderTrackingInfo->tracking_numbers[$key];
                                 $omnivaParcel->update();
@@ -675,7 +683,6 @@ class OmnivaInternational extends CarrierModule
                         sleep(0);
                     }
                 }
-
                 $helper = new HelperForm();
                 $helper->fields_value = [
                     'id_order' => $id_order,
@@ -714,7 +721,7 @@ class OmnivaInternational extends CarrierModule
                     'update_parcels_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitUpdateParcels=1&action=updateParcels&id=' . $id_order,
                     'shipment_id' => $omnivaOrder->shipment_id,
                     'tracking_numbers' => $tracking_numbers,
-                    'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitPrintLabels=1&action=printLabels&id_order=' . $id_order
+                    'omniva_admin_order_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitPrintLabels=1&action=printLabels&id=' . $id_order
                 ]);
                 $this->context->smarty->assign([
                     'parcels_form' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/admin/parcels.tpl'),

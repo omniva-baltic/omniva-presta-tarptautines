@@ -36,6 +36,10 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         {
             $this->getErrorWithManifestNumber(Tools::getValue('manifest_error'));
         }
+        if(Tools::getValue('label_error'))
+        {
+            $this->_error[1] = $this->module->l('Label is not ready yet. Please, check back again later.');
+        }
     }
 
     public function getErrorWithManifestNumber($cart_id)
@@ -255,7 +259,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             die(json_encode(['error' => $this->module->l('This operation requires API token. Please check your settings.')]));
         if (Tools::isSubmit('submitPrintLabels') || $this->action == 'printLabels') {
             $omnivaOrder = $this->loadObject();
-            $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+            try {
+                $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+            }
+            catch(Exception $e)
+            {
+                Tools::redirectAdmin(self::$currentIndex . '&label_error=1&token=' . $this->token);
+            }
 
             if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
             {

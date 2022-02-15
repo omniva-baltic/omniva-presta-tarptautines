@@ -51,7 +51,7 @@ class OmnivaIntCarrierService extends ObjectModel
             ->select("os.service_code")
             ->from(self::$definition['table'], 'ocs')
             ->leftJoin('omniva_int_service', 'os', 'os.id = ocs.id_service')
-            ->where('ocs.id_carrier = ' . $id_carrier);
+            ->where('ocs.id_carrier = ' . $id_carrier . ' AND os.active = 1');
 
         return array_map(function($service) {
                 return $service['service_code'];

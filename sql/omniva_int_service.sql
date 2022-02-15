@@ -17,5 +17,6 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_service` (
     `manage_categories` tinyint(1),
     `date_add` datetime NOT NULL,
     `date_upd` datetime NOT NULL,
+    `active` tinyint(1),
     PRIMARY KEY (`id`)
 ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

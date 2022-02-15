@@ -63,6 +63,22 @@ class OmnivaIntUpdater {
     {
         $response = $this->api->listAllServices();
         $result = true;
+
+        // First, we disable all services. Then, we enable only the ones that were returned by the API.
+        $services = OmnivaIntService::getServices();
+        if(!empty($services))
+        {
+            foreach($services as $service)
+            {
+                $serviceObj = new OmnivaIntService($service['id']);
+                if(Validate::isLoadedObject($serviceObj))
+                {
+                    $serviceObj->active = 0;
+                    $serviceObj->update();
+                }
+            }
+        }
+
         if($response && !empty($response))
         {
             foreach($response as $service)
@@ -78,6 +94,7 @@ class OmnivaIntUpdater {
                     $serviceObj = $this->hydrateService($serviceObj, $service);
                     $serviceObj->id = $service->id;
                     $serviceObj->force_id = true;
+                    $serviceObj->active = true;
                     // Categories managment for services is disabled by default.
                     $serviceObj->manage_categories = false;
                     $result &= $serviceObj->add();
@@ -117,6 +134,7 @@ class OmnivaIntUpdater {
         $prestaService->pickup_from_address = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
         $prestaService->delivery_to_address = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
         $prestaService->parcel_terminal_type = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
+        $prestaService->active = true;
 
         if(isset($apiService->additional_services))
         {

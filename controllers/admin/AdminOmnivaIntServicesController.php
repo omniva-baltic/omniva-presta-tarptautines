@@ -93,6 +93,12 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                 'active' => 'status',
                 'align' => 'center',
             ],
+            'active' => [
+                'type' => 'bool',
+                'title' => $this->module->l('Active'),
+                'active' => 'active',
+                'align' => 'center',
+            ],
         ];
 
         $this->actions = ['manageCategories', 'manageLogins'];
@@ -169,6 +175,10 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
         if(Tools::getValue('sync_services'))
         {
             $this->updateServices();
+        }
+        if(Tools::isSubmit('active' . $this->table))
+        {
+            $this->loadObject()->toggleActive();
         }
     }
 
