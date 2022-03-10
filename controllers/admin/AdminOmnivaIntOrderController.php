@@ -411,7 +411,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 
     public function displayPrintLabelsLink($token, $id, $name = null)
     {
-        $omnivaOrder = new OmnivaIntOrder($id); 
         $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id);
 
         if($untrackedParcelsCount > 0 || !Configuration::get('OMNIVA_TOKEN'))

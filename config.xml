@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>omnivainternational</name>
+    <displayName><![CDATA[Omniva International Shipping]]></displayName>
+    <version><![CDATA[0.8.3]]></version>
+    <description><![CDATA[Shipping module for Omniva international delivery method]]></description>
+    <author><![CDATA[mijora.lt]]></author>
+    <tab><![CDATA[shipping_logistics]]></tab>
+	<confirmUninstall><![CDATA[Are you sure you want to uninstall?]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

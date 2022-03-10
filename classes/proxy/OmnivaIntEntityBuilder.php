@@ -124,7 +124,6 @@ class OmnivaIntEntityBuilder
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier->id_reference);
         $type = $omnivaCarrier->type;
 
-        $address = new Address($order->id_address_delivery);
         $cart = new Cart($order->id_cart);
         $receiver = $this->buildReceiver($cart, $type);
         $sender = $this->buildSender($type);

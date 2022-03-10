@@ -1,31 +1,44 @@
 <?php
+/**
+ * NOTICE OF LICENSE
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    Mijora
+ *  @copyright 2013-2022 Mijora
+ *  @license   license.txt
+ */
 
-require_once __DIR__ . "/classes/OmnivaIntDb.php";
-require_once __DIR__ . "/classes/OmnivaIntHelper.php";
+require_once dirname(__FILE__) . "/classes/OmnivaIntDb.php";
+require_once dirname(__FILE__) . "/classes/OmnivaIntHelper.php";
 
-require_once __DIR__ . "/classes/models/OmnivaIntCarrier.php";
-require_once __DIR__ . "/classes/models/OmnivaIntCategory.php";
-require_once __DIR__ . "/classes/models/OmnivaIntManifest.php";
-require_once __DIR__ . "/classes/models/OmnivaIntService.php";
-require_once __DIR__ . "/classes/models/OmnivaIntOrder.php";
-require_once __DIR__ . "/classes/models/OmnivaIntTerminal.php";
-require_once __DIR__ . "/classes/models/OmnivaIntCountry.php";
-require_once __DIR__ . "/classes/models/OmnivaIntCarrierService.php";
-require_once __DIR__ . "/classes/models/OmnivaIntParcel.php";
-require_once __DIR__ . "/classes/models/OmnivaIntCartTerminal.php";
-require_once __DIR__ . "/classes/models/OmnivaIntRateCache.php";
-require_once __DIR__ . "/classes/models/OmnivaIntServiceCategory.php";
-require_once __DIR__ . "/classes/models/OmnivaIntCarrierCountry.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntCarrier.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntCategory.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntManifest.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntService.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntOrder.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntTerminal.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntCountry.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntCarrierService.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntParcel.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntCartTerminal.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntRateCache.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntServiceCategory.php";
+require_once dirname(__FILE__) . "/classes/models/OmnivaIntCarrierCountry.php";
 
-require_once __DIR__ . "/classes/proxy/OmnivaIntUpdater.php";
-require_once __DIR__ . "/classes/proxy/OmnivaIntOffersProvider.php";
-require_once __DIR__ . "/vendor/autoload.php";
+require_once dirname(__FILE__) . "/classes/proxy/OmnivaIntUpdater.php";
+require_once dirname(__FILE__) . "/classes/proxy/OmnivaIntOffersProvider.php";
+require_once dirname(__FILE__) . "/vendor/autoload.php";
 
 if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-$autoloadPath = __DIR__ . '/vendor/autoload.php';
+$autoloadPath = dirname(__FILE__) . '/vendor/autoload.php';
 if (file_exists($autoloadPath)) {
     require_once $autoloadPath;
 }
@@ -267,7 +280,7 @@ class OmnivaInternational extends CarrierModule
                 $orderState = new OrderState();
                 $orderState->name = [];
                 foreach (Language::getLanguages() as $language) {
-                    if (strtolower($language['iso_code']) == 'lt')
+                    if (Tools::strtolower($language['iso_code']) == 'lt')
                         $orderState->name[$language['id_lang']] = $os['lang']['lt'];
                     else
                         $orderState->name[$language['id_lang']] = $os['lang']['en'];
@@ -498,6 +511,7 @@ class OmnivaInternational extends CarrierModule
   
         $this->smarty->assign(array(
           'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+          'images_url' => $this->_path . 'views/img/',
         ));
   
         return $this->display(__FILE__, 'header.tpl');
@@ -537,7 +551,7 @@ class OmnivaInternational extends CarrierModule
 
                 $this->context->smarty->assign([
                     'admin_default_tpl_path' => _PS_BO_ALL_THEMES_DIR_ . 'default/template/',
-                    'images_url' => $this->_path . 'views/images/',
+                    'images_url' => $this->_path . 'views/img/',
                 ]);
 
                 $form_fields = [];
@@ -633,6 +647,7 @@ class OmnivaInternational extends CarrierModule
                 ];
 
                 $form_fields = array_merge($form_fields, $form_fields_services);
+                $fieldsForm = [];
                 $fieldsForm[0]['form'] = [
                     'legend' => [
                         'title' => 'Omniva International Shipment',
@@ -824,6 +839,7 @@ class OmnivaInternational extends CarrierModule
                 'omniva_postcode' => $address->postcode,
                 'omniva_map' => 1,
                 'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
+                'images_url' => $this->_path . 'views/img/',
               ));
 
             return $this->display(__FILE__, 'displayCarrierExtraContent.tpl');

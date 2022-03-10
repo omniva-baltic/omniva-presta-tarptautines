@@ -29,7 +29,6 @@ class OmnivaIntOffersProvider
     private function cartIsSuitableForCarriers($cart)
     {
         $cart_products = $cart->getProducts();
-        $parcels = [];
         foreach ($cart_products as $product)
         {
             $id_category = $product['id_category_default'];

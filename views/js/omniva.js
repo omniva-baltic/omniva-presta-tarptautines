@@ -1,3 +1,16 @@
+/**
+ * NOTICE OF LICENSE
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    Mijora
+ *  @copyright 2013-2022 Mijora
+ *  @license   license.txt
+ */
 var omniva_addrese_change = false;
 var omnivalt_parcel_terminal_carrier_id = 0;
 $(document).on('ready', () => {
@@ -402,8 +415,8 @@ $(document).on('ready', () => {
             });
             
           
-            terminalIcon = new Icon({iconUrl: omnivadata.omniva_plugin_url+'sasi.png'});
-            homeIcon = new Icon2({iconUrl: omnivadata.omniva_plugin_url+'locator_img.png'});
+            terminalIcon = new Icon({iconUrl: omnivadata.images_url+'sasi.png'});
+            homeIcon = new Icon2({iconUrl: omnivadata.images_url+'locator_img.png'});
             
           var locations = omnivaTerminals;
             jQuery.each( locations, function( key, location ) {

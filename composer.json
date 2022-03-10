@@ -1,4 +1,13 @@
 {
+    "config": {
+        "prepend-autoloader": false
+    },
+    "authors": [
+        {
+            "name": "Modestas",
+            "email": "modestas.slivinskas@gmail.com"
+        }
+    ],
     "require": {
         "omniva/api-lib": "dev-master"
     },

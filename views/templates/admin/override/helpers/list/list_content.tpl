@@ -117,7 +117,7 @@
 					{elseif isset($params.type) && $params.type == 'decimal'}
 						{$tr.$key|string_format:"%.2f"}
 					{elseif isset($params.type) && $params.type == 'percent'}
-						{$tr.$key} {l s='%'}
+						{$tr.$key} {l s='%' mod='omnivainternational'}
 					{elseif isset($params.type) && $params.type == 'bool'}
             {if $tr.$key == 1}
               {l s='Yes' d='Admin.Global'}
@@ -207,7 +207,7 @@
 		<td class="list-empty" colspan="{count($fields_display)+1}">
 			<div class="list-empty-msg">
 				<i class="icon-warning-sign list-empty-icon"></i>
-				{l s='No records found'}
+				{l s='No records found' mod='omnivainternational'}
 			</div>
 		</td>
 	</tr>

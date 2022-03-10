@@ -1,3 +1,16 @@
+{**
+ * NOTICE OF LICENSE
+ *
+ * This file is licenced under the Software License Agreement.
+ * With the purchase or the installation of the software in your application
+ * you accept the licence agreement.
+ *
+ * You must not modify, adapt or create derivative works of this source code
+ *
+ *  @author    Mijora
+ *  @copyright 2013-2022 Mijora
+ *  @license   license.txt
+ *}
 <form class="omniva_shipment_form" action="{$update_parcels_link}" method="post">
     <div class="panel" id="fieldset_{$f}{if isset($smarty.capture.identifier_count) && $smarty.capture.identifier_count}_{$smarty.capture.identifier_count|intval}{/if}{if $smarty.capture.fieldset_name > 1}_{($smarty.capture.fieldset_name - 1)|intval}{/if}">
         <div class="panel-heading additional">

@@ -30,7 +30,7 @@ class OmnivaIntDb
             $file_parts = pathinfo($sql_file);
             if($file_parts['extension'] == 'sql')
             {
-                $sql_query = str_replace('_DB_PREFIX_', _DB_PREFIX_, file_get_contents($sql_path . $sql_file));
+                $sql_query = str_replace('_DB_PREFIX_', _DB_PREFIX_, Tools::file_get_contents($sql_path . $sql_file));
                 $sql_queries[] = str_replace('_MYSQL_ENGINE_', _MYSQL_ENGINE_, $sql_query);
             }
         }
@@ -56,7 +56,7 @@ class OmnivaIntDb
     {
         foreach (self::TABLES as $table) {
             try {
-                $res_query = Db::getInstance()->execute("DROP TABLE IF EXISTS " . _DB_PREFIX_ . $table);
+                Db::getInstance()->execute("DROP TABLE IF EXISTS " . _DB_PREFIX_ . $table);
             } catch (Exception $e) {
             }
         }
