@@ -83,14 +83,15 @@ class AdminOmnivaIntTerminalsController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Comment'),
                 'type' => 'text',
             ],
-            'identifier' => [
-                'title' => $this->module->l('Identifier'),
-                'align' => 'center',
-                'type' => 'select',
-                'filter_key' => 'a!identifier',
-                'list' => $terminal_identifiers,
-                'callback' => 'transTerminalIdentifier'
-            ],
+            // Will not use for now
+            // 'identifier' => [
+            //     'title' => $this->module->l('Identifier'),
+            //     'align' => 'center',
+            //     'type' => 'select',
+            //     'filter_key' => 'a!identifier',
+            //     'list' => $terminal_identifiers,
+            //     'callback' => 'transTerminalIdentifier'
+            // ],
         ];
 
         $this->bulk_actions = [];

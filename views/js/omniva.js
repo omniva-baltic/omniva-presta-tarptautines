@@ -391,6 +391,9 @@ $(document).on('ready', () => {
           if (omniva_current_country == "EE"){
             map = L.map('omnivaMap').setView([58.7952, 25.5923], 7);
           }
+          if (omniva_current_country == "PL"){
+            map = L.map('omnivaMap').setView([52.2538, 19.2409], 7);
+          }
           L.tileLayer('https://maps.omnivasiunta.lt/tile/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.omniva.lt">Omniva</a>' +
                     ' | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'

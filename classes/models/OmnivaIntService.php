@@ -97,6 +97,11 @@ class OmnivaIntService extends OmnivaIntModel
         return (bool) Db::getInstance()->getValue("SELECT id FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE service_code = '$code'");
     }
 
+    public static function isActive($code)
+    {
+        return (bool) Db::getInstance()->getValue("SELECT id FROM " . _DB_PREFIX_ . self::$definition['table'] . " WHERE service_code = '$code' AND active = 1");
+    }
+
     public function toggleStatus()
     {
         $this->setFieldsToUpdate(['manage_categories' => true]);
@@ -104,11 +109,10 @@ class OmnivaIntService extends OmnivaIntModel
         return $this->update(false);
     }
 
+    // Activity status cannot be changed manually.
     public function toggleActive()
     {
-        $this->setFieldsToUpdate(['active' => true]);
-        $this->active = !(int) $this->active;
-        return $this->update(false);
+        return false;
     }
 
     public static function getServiceByCode($code)

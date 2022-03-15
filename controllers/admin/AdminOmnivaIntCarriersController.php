@@ -79,7 +79,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                             (SELECT GROUP_CONCAT(os.service_code SEPARATOR ", ") 
                             FROM `' . _DB_PREFIX_ .'omniva_int_service` os 
                             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (os.`id` = ocs.`id_service`)
-                            WHERE a.id = ocs.id_carrier) as services';
+                            WHERE a.id = ocs.id_carrier AND os.active = 1) as services';
 
         $this->_join = '
             LEFT JOIN ' . _DB_PREFIX_ . 'omniva_int_carrier_service ocs ON (ocs.id_carrier = a.id)
@@ -321,12 +321,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             [
                 'id' => 'active_on',
                 'value' => 1,
-                'label' => $this->l('Yes')
+                'label' => $this->module->l('Yes')
             ],
             [
                 'id' => 'active_off',
                 'value' => 0,
-                'label' => $this->l('No')
+                'label' => $this->module->l('No')
             ]
         ];
 
@@ -338,7 +338,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             'input' => [
                 [
                     'type' => 'radio',
-                    'label' => $this->l('Price'),
+                    'label' => $this->module->l('Price'),
                     'name' => 'price_type',
                     'values' => $this->price_types,
                     'class' => 'col-xs-2'
@@ -386,12 +386,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             [
                 'id' => 'active_on',
                 'value' => 1,
-                'label' => $this->l('Yes')
+                'label' => $this->module->l('Yes')
             ],
             [
                 'id' => 'active_off',
                 'value' => 0,
-                'label' => $this->l('No')
+                'label' => $this->module->l('No')
             ]
         ];
 
@@ -410,7 +410,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 ],
                 [
                     'type' => 'radio',
-                    'label' => $this->l('Price'),
+                    'label' => $this->module->l('Price'),
                     'name' => 'price_type',
                     'values' => $this->price_types,
                     'class' => 'col-xs-2'
@@ -433,7 +433,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'label' => $this->module->l('Services'),
                     'name' => 'services',
                     'multiple' => true,
-                    'default_value' => $this->l('Multiple select'),
+                    'default_value' => $this->module->l('Multiple select'),
                     'options' => [
                         'query' => OmnivaIntService::getServices(true),
                         'id' => 'id',
@@ -474,7 +474,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         {
             $this->fields_form['input'][] = [
                     'type' => 'switch',
-                    'label' => $this->l('Active'),
+                    'label' => $this->module->l('Active'),
                     'name' => 'active',
                     'values' => $switcher_values
             ];
@@ -589,7 +589,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     if($this->adding_terminal_carrier && !$service->delivery_to_address && $service->parcel_terminal_type)
                         $final_services[] = $id_service;
                     else if(!$this->adding_terminal_carrier)
-                        $final_services[] = $id_service;
+                        $final_services[] = $id_service; 
 
                     // If this is not pickup carrier creation process, we need to determine, if we'll do it later.
                     if(!$service->delivery_to_address && $service->parcel_terminal_type)

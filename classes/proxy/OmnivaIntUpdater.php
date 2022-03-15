@@ -161,6 +161,8 @@ class OmnivaIntUpdater {
             {
                 if(!OmnivaIntService::checkServiceExistsByCode($service->service_code))
                     return true;
+                if(!OmnivaIntService::isActive($service->service_code))
+                    return true;
             }
         }
         return false;
