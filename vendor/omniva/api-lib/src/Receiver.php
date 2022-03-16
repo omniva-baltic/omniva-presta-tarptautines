@@ -31,9 +31,6 @@ class Receiver extends Person
             'shipping_type' => $this->shipping_type,
             'company_name' => $this->company_name,
             'contact_name' => $this->contact_name,
-            $this->shipping_type === 'courier' ?
-              'zipcode' :
-              'terminal_zipcode' => $this->zipcode,
             'street' => $this->street_name,
             'city' => $this->city,
             'phone' => $this->phone_number,
@@ -42,9 +39,9 @@ class Receiver extends Person
         );
 
         if ($this->shipping_type === self::SHIPPING_COURIER)
-            $receiver += [ 'zipcode' => $this->zipcode ];
+            $receiver['zipcode'] = $this->zipcode;
         if ($this->shipping_type === self::SHIPPING_TERMINAL)
-            $receiver += [ 'parcel_terminal_zipcode' => $this->zipcode ];
+            $receiver['terminal_id'] = $this->zipcode;
 
         return $receiver;
     }

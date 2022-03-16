@@ -789,6 +789,9 @@ class OmnivaInternational extends CarrierModule
      */
     public function hookDisplayCarrierExtraContent($params)
     {
+        $this->context->smarty->assign(array(
+            'images_url' => $this->_path . 'views/img/',
+          ));
         if(version_compare(_PS_VERSION_, '1.7', '<'))
         {
             $omniva_terminal_carrier_exists = false;

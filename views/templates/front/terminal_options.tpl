@@ -13,6 +13,6 @@
  *}
 {foreach $terminals as $terminal}
     <optgroup label = "{$terminal['city']}">
-        <option value="{$terminal['id']}"  class="omnivaOption">{$terminal['name']}</option>;
+        <option value="{$terminal['id']}"  class="omnivaOption">{$terminal['address']}, {$terminal['city']}</option>;
     </optgroup>
 {/foreach}

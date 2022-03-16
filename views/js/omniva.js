@@ -182,13 +182,13 @@ $(document).on('ready', () => {
             $(terminals).each(function(i,val){
                 var li = $(document.createElement("li"));
                 li.attr('data-id',val['id']);
-                li.html(val['name']);
+                li.html(val['address']+ ', ' + val['city']);
                 if (val['distance'] !== undefined && val['distance'] != false){
                     li.append(' <strong>' + val['distance'] + 'km</strong>');  
                     counter++;
                     if (settings.showMap == true && counter <= settings.maxShow){
                         //console.log('add-to-map');
-                        html += '<li data-pos="['+[val['y_cord'], val['x_cord']]+']" data-id="'+val['id']+'" ><div><a class="omniva-li">'+counter+'. <b>'+val['name']+'</b></a> <b>'+val['distance']+' km.</b>\
+                        html += '<li data-pos="['+[val['y_cord'], val['x_cord']]+']" data-id="'+val['id']+'" ><div><a class="omniva-li">'+counter+'. <b>'+val['address']+ ', ' +val['city']+'</b></a> <b>'+val['distance']+' km.</b>\
                                   <div align="left" id="omn-' + val['id'] + '" class="omniva-details" style="display:none;"><small>\
                                   '+val['city']+'\
                                   <button type="button" class="btn-marker" style="font-size:14px; padding:0px 5px;margin-bottom:10px; margin-top:5px;height:25px;" data-id="'+val['id']+'">'+select_terminal+'</button>\
@@ -198,7 +198,7 @@ $(document).on('ready', () => {
                 } else {
                     if (settings.showMap == true ){
                         //console.log('add-to-map');
-                        html += '<li data-pos="['+[val['y_cord'], val['x_cord']]+']" data-id="'+val['id']+'" ><div><a class="omniva-li">'+(i+1)+'. <b>'+val['name']+'</b></a>\
+                        html += '<li data-pos="['+[val['y_cord'], val['x_cord']]+']" data-id="'+val['id']+'" ><div><a class="omniva-li">'+(i+1)+'. <b>'+val['address']+ ', ' + val['city']+'</b></a>\
                                   <div align="left" id="omn-'+val['id']+'" class="omniva-details" style="display:none;"><small>\
                                   '+val['city']+'\
                                   <button type="button" class="btn-marker" style="font-size:14px; padding:0px 5px;margin-bottom:10px; margin-top:5px;height:25px;" data-id="'+val['id']+'">'+select_terminal+'</button>\
@@ -394,7 +394,7 @@ $(document).on('ready', () => {
           if (omniva_current_country == "PL"){
             map = L.map('omnivaMap').setView([52.2538, 19.2409], 7);
           }
-          L.tileLayer('https://maps.omnivasiunta.lt/tile/{z}/{x}/{y}.png', {
+          L.tileLayer('http://185.140.230.40:8080/tile/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.omniva.lt">Omniva</a>' +
                     ' | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
           }).addTo(map);
