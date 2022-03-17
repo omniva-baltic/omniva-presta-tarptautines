@@ -499,6 +499,7 @@ class OmnivaInternational extends CarrierModule
                   'priority' => 200,
                 ]
               );
+              $this->context->controller->registerJavascript('modules-mjvp-terminals-mapping-js', 'modules/' . $this->name . '/views/js/terminal.js');
         
         }
         else
@@ -508,6 +509,7 @@ class OmnivaInternational extends CarrierModule
         }
         $this->context->controller->addCSS('modules/' . $this->name . '/views/css/leaflet.css');
         $this->context->controller->addCSS('modules/' . $this->name . '/views/css/omniva.css');
+        $this->context->controller->addCSS('modules/' . $this->name . '/views/css/terminal-mapping.css');
   
         $this->smarty->assign(array(
           'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
@@ -583,7 +585,7 @@ class OmnivaInternational extends CarrierModule
                                 ],
                                 'options' => [
                                     'query' => 'terminals',
-                                    'name' => 'name',
+                                    'name' => 'address',
                                     'id' => 'id'
                                 ]
                             ],
@@ -843,6 +845,8 @@ class OmnivaInternational extends CarrierModule
                 'omniva_map' => 1,
                 'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
                 'images_url' => $this->_path . 'views/img/',
+                'terminals_radius' => $omnivaCarrier->radius,
+                'omnivaint_terminal_reference' => $omnivaCarrier->id_reference,
               ));
 
             return $this->display(__FILE__, 'displayCarrierExtraContent.tpl');

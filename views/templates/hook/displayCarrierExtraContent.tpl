@@ -13,7 +13,9 @@
  *}
 <script>
     var omniva_current_country = '{$omniva_current_country}';
+    var terminals_radius = '{$terminals_radius}';
     var omniva_postcode = '{$omniva_postcode}';
+    var omnivaint_terminal_reference = '{$omnivaint_terminal_reference}';
     var omnivaTerminals = {$terminals_list|@json_encode nofilter}
     var show_omniva_map = {$omniva_map};
 </script>
