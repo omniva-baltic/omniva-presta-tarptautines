@@ -598,14 +598,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     }
                 }
             }
-            if($pickup_services > 0 && !$this->adding_terminal_carrier)
-            {
-                $this->adding_terminal_carrier = true;
-            }
-            else
-            {
-                $this->adding_terminal_carrier = false;
-            }
         }
 
         if(empty($final_services))
@@ -633,6 +625,15 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             $omnivaCarrier->type = 'terminal';
         else
             $omnivaCarrier->type = 'courier';
+
+        if($pickup_services > 0 && !$this->adding_terminal_carrier)
+        {
+            $this->adding_terminal_carrier = true;
+        }
+        else
+        {
+            $this->adding_terminal_carrier = false;
+        }
 
         $result = $omnivaCarrier->add();
         if(!$result)
