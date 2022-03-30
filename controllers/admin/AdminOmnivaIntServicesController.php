@@ -88,6 +88,11 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Fragile'),
                 'align' => 'center',
             ],
+            'parcel_terminal_type' => [
+                'type' => 'text',
+                'title' => $this->module->l('Parcel Terminal Type'),
+                'align' => 'center',
+            ],
             'manage_categories' => [
                 'type' => 'bool',
                 'title' => $this->module->l('Manage Categories'),

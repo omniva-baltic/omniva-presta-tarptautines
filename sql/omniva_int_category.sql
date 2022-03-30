@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_category` (
     `id_category` int(10) unsigned NOT NULL AUTO_INCREMENT,
+    `hs_code` varchar(255),
     `weight` float(10),
     `length` float(10),
     `width` float(10),

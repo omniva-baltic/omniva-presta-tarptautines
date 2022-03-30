@@ -4,6 +4,8 @@ class OmnivaIntCategory extends ObjectModel
 {
     public $id_category;
 
+    public $hs_code;
+
     public $weight;
 
     public $length;
@@ -21,6 +23,7 @@ class OmnivaIntCategory extends ObjectModel
         'table' => 'omniva_int_category',
         'primary' => 'id_category',
         'fields' => [
+                'hs_code' =>       ['type' => self::TYPE_STRING, 'size' => 255],
                 'weight' =>        ['type' => self::TYPE_FLOAT, 'size' => 10],
                 'length' =>        ['type' => self::TYPE_FLOAT, 'size' => 10],
                 'width' =>         ['type' => self::TYPE_FLOAT, 'size' => 10],

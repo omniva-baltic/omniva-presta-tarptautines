@@ -58,6 +58,12 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                 'align' => 'center',
                 'filter_key' => 'cl2!name',
             ],
+            'hs_code' => [
+                'type' => 'text',
+                'title' => $this->module->l('HS Code'),
+                'align' => 'center',
+                'filter_key' => 'a!hs_code',
+            ],
             'weight' => [
                 'title' => $this->module->l('Weight'),
                 'type' => 'text',
@@ -112,6 +118,12 @@ class AdminOmnivaIntCategoriesController extends AdminOmnivaIntBaseController
                 'icon' => 'icon-info-sign',
             ],
             'input' => [
+                [
+                    'type' => 'text',
+                    'label' => $this->module->l('HS Code'),
+                    'name' => 'hs_code',
+                    'col' => '3',
+                ],
                 [
                     'type' => 'text',
                     'label' => $this->module->l('Weight'),
