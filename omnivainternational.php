@@ -395,7 +395,13 @@ class OmnivaInternational extends CarrierModule
                 ->setCarrier($omnivaCarrier)
                 ->setModule($this);
 
-            $rate = $offersProvider->getPrice();
+            try {
+                $rate = $offersProvider->getPrice();
+            }
+            catch (OmnivaApi\Exception\OmnivaApiException $e)
+            {
+                return false;
+            }
 
             $rateCache = new OmnivaIntRateCache();
             $rateCache->id_cart = $cart->id;

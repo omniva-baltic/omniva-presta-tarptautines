@@ -1,6 +1,7 @@
 <?php
 
 use OmnivaApi\API;
+use OmnivaApi\Exception\OmnivaApiException;
 
 class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
 {
@@ -16,13 +17,19 @@ class OmnivaInternationalCronModuleFrontController extends ModuleFrontController
         $type = Tools::getValue('type');
         $updater = new OmnivaIntUpdater($type);
 
-        if($updater->run())
-        {
-            echo "Successfully updated $type";
+        try {
+            if($updater->run())
+            {
+                echo "Successfully updated $type";
+            }
+            else
+            {
+                echo "Failed updating $type";  
+            }
         }
-        else
+        catch (OmnivaApiException $e)
         {
-            echo "Failed updating $type";  
+            echo $e->getMessage();
         }
         die();
     }
