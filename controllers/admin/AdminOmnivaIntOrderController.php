@@ -118,6 +118,12 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             ],
         ];
         $this->actions = ['printManifest', 'printLabels', 'generateManifest'];
+        $this->bulk_actions = [
+            'generateLabels' => array(
+                'text' => $this->module->l('Generate Labels'),
+                'icon' => 'icon-save'
+            ),
+        ];
     }
 
     public function ajaxProcessSaveShipment()
@@ -367,6 +373,61 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         {
             $this->generateManifest();
         }
+        if(Tools::isSubmit('submitBulkgenerateLabelsomniva_int_order'))
+        {
+            $this->bulkSendShipments();
+        }
+    }
+
+    private function bulkSendShipments()
+    {
+        $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(empty($order_ids))
+        {
+            $this->errors[] = $this->module->l('No order ID\'s were provided.');
+            return false;
+        }
+
+        foreach($order_ids as $id_order)
+        {
+            $omnivaOrder = new OmnivaIntOrder($id_order);
+            $order = new Order($omnivaOrder->id);
+            $cart = new Cart($order->id_cart);
+            if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
+            {
+                $entityBuilder = new OmnivaIntEntityBuilder();
+                $order = $entityBuilder->buildOrder($order);
+                
+                try {
+                    $response = $this->api->generateOrder($order);
+                }
+                catch (OmnivaApiException $e)
+                {
+                    $this->errors[] = $e->getMessage();
+                    continue;
+                }
+                $omnivaOrder->setFieldsToUpdate([
+                    'shipment_id' => true,
+                    'cart_id' => true,
+                ]);
+                if($response && isset($response->shipment_id, $response->cart_id))
+                {
+                    $omnivaOrder->shipment_id = $response->shipment_id;
+                    $omnivaOrder->cart_id = $response->cart_id;
+                    if(!$omnivaOrder->update())
+                    {
+                        $this->errors[] = $this->module->l('Couldn\'t update Omniva order.');
+                    }
+                }
+                else
+                {
+                    $this->errors[] = $this->module->l('Failed to receive a response from API.');
+                    return false;
+                }
+            }
+        }
+        if(empty($this->errors))
+            $this->confirmations[] = $this->module->l('Successfully sent shipment data for selected orders');
     }
 
     public function generateManifest()
