@@ -16,6 +16,8 @@ class OmnivaIntCarrierCountry extends ObjectModel
 
     public $cheapest;
 
+    public $tax;
+
     public $active;
 
     /**
@@ -31,6 +33,7 @@ class OmnivaIntCarrierCountry extends ObjectModel
             'price' =>            ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
             'free_shipping' =>    ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
             'cheapest' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
+            'tax' =>              ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10],
             'active' =>           ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
         ],
     ];

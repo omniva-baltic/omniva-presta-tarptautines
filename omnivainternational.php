@@ -198,6 +198,10 @@ class OmnivaInternational extends CarrierModule
     private function getModuleTabs()
     {
         return [
+            self::CONTROLLER_OMNIVA_ORDER => [
+                'title' => $this->l('Omniva Orders'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
+            ],
             self::CONTROLLER_OMNIVA_MAIN => [
                 'title' => $this->l('Omniva International'),
                 'parent_tab' => 'AdminParentShipping',
@@ -224,10 +228,6 @@ class OmnivaInternational extends CarrierModule
             ],
             self::CONTROLLER_OMNIVA_COUNTRIES => [
                 'title' => $this->l('Countries'),
-                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ],
-            self::CONTROLLER_OMNIVA_ORDER => [
-                'title' => $this->l('Omniva Orders'),
                 'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ],
         ];
@@ -441,7 +441,7 @@ class OmnivaInternational extends CarrierModule
         // OmnivaIntCarrier fields for destination country.
         $cache_key .= $omnivaCarrierCountry->price_type . "-" . $omnivaCarrierCountry->price . "-"
                     . $omnivaCarrierCountry->free_shipping . "-" . $omnivaCarrierCountry->cheapest . '-'
-                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type;
+                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type . "-" . $omnivaCarrierCountry->tax . "-" . Configuration::get('PS_TAX');
         // ..and all it's services 
         $cache_key .= implode('-', OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id));
 

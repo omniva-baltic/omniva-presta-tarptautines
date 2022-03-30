@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_carrier_country` (
     `price` float(10),
     `free_shipping` float(10),
     `cheapest` tinyint(1) DEFAULT 1,
+    `tax` float(10),
     `active` tinyint(1) DEFAULT 1,
     PRIMARY KEY (`id`),
     KEY `id_carrier` (`id_carrier`),
