@@ -3,6 +3,7 @@
 require_once "AdminOmnivaIntBaseController.php";
 
 use OmnivaApi\API;
+use OmnivaApi\Exception\OmnivaApiException;
 
 class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
 {
@@ -86,10 +87,16 @@ class AdminOmnivaIntCountriesController extends AdminOmnivaIntBaseController
     public function updateCountries()
     {
         $updater = new OmnivaIntUpdater('countries');
-        if($updater->run())
-            $this->confirmations[] = $this->module->l('Successfully updated countries');
-        else
-            $this->errors[] = $this->module->l("Failed updating countries");
+        try {
+            if($updater->run())
+                $this->confirmations[] = $this->module->l('Successfully updated countries');
+            else
+                $this->errors[] = $this->module->l("Failed updating countries");
+        }
+        catch (OmnivaApiException $e)
+        {
+            $this->errors[] = $e->getMessage();
+        }
     }
     
 }

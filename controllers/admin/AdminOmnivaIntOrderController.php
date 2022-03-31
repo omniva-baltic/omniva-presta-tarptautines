@@ -2,6 +2,8 @@
 
 require_once "AdminOmnivaIntBaseController.php";
 
+use OmnivaApi\Exception\OmnivaApiException;
+
 class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 {
 
@@ -35,10 +37,6 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if(Tools::getValue('manifest_error'))
         {
             $this->getErrorWithManifestNumber(Tools::getValue('manifest_error'));
-        }
-        if(Tools::getValue('label_error'))
-        {
-            $this->_error[1] = $this->module->l('Label is not ready yet. Please, check back again later.');
         }
     }
 
@@ -120,6 +118,12 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             ],
         ];
         $this->actions = ['printManifest', 'printLabels', 'generateManifest'];
+        $this->bulk_actions = [
+            'generateLabels' => array(
+                'text' => $this->module->l('Generate Labels'),
+                'icon' => 'icon-save'
+            ),
+        ];
     }
 
     public function ajaxProcessSaveShipment()
@@ -224,7 +228,14 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             {
                 $entityBuilder = new OmnivaIntEntityBuilder();
                 $order = $entityBuilder->buildOrder($order);
-                $response = $this->api->generateOrder($order);
+                
+                try {
+                    $response = $this->api->generateOrder($order);
+                }
+                catch (OmnivaApiException $e)
+                {
+                    die(json_encode(['error' => $e->getMessage()]));
+                }
                 $omnivaOrder->setFieldsToUpdate([
                     'shipment_id' => true,
                     'cart_id' => true,
@@ -264,7 +275,8 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             }
             catch(Exception $e)
             {
-                Tools::redirectAdmin(self::$currentIndex . '&label_error=1&token=' . $this->token);
+                $this->errors[] = $this->module->l('Label is not ready yet. Please, check back again later.');
+                return false;
             }
 
             if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
@@ -305,8 +317,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             die(json_encode(['error' => $this->module->l('This operation requires API token. Please check your settings.')]));
         if (Tools::isSubmit('submitCancelOrder')) {
             $omnivaOrder = $this->loadObject();
-            $cancelResponse = $this->api->cancelOrder($omnivaOrder->shipment_id);
-
+            try {
+                $cancelResponse = $this->api->cancelOrder($omnivaOrder->shipment_id);
+            }
+            catch (OmnivaApiException $e)
+            {
+                die(json_encode(['error' => $e->getMessage()]));
+            }
             if($cancelResponse && $cancelResponse->status == 'deleted')
             {
                 $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
@@ -356,6 +373,61 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         {
             $this->generateManifest();
         }
+        if(Tools::isSubmit('submitBulkgenerateLabelsomniva_int_order'))
+        {
+            $this->bulkSendShipments();
+        }
+    }
+
+    private function bulkSendShipments()
+    {
+        $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(empty($order_ids))
+        {
+            $this->errors[] = $this->module->l('No order ID\'s were provided.');
+            return false;
+        }
+
+        foreach($order_ids as $id_order)
+        {
+            $omnivaOrder = new OmnivaIntOrder($id_order);
+            $order = new Order($omnivaOrder->id);
+            $cart = new Cart($order->id_cart);
+            if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
+            {
+                $entityBuilder = new OmnivaIntEntityBuilder();
+                $order = $entityBuilder->buildOrder($order);
+                
+                try {
+                    $response = $this->api->generateOrder($order);
+                }
+                catch (OmnivaApiException $e)
+                {
+                    $this->errors[] = $e->getMessage();
+                    continue;
+                }
+                $omnivaOrder->setFieldsToUpdate([
+                    'shipment_id' => true,
+                    'cart_id' => true,
+                ]);
+                if($response && isset($response->shipment_id, $response->cart_id))
+                {
+                    $omnivaOrder->shipment_id = $response->shipment_id;
+                    $omnivaOrder->cart_id = $response->cart_id;
+                    if(!$omnivaOrder->update())
+                    {
+                        $this->errors[] = $this->module->l('Couldn\'t update Omniva order.');
+                    }
+                }
+                else
+                {
+                    $this->errors[] = $this->module->l('Failed to receive a response from API.');
+                    return false;
+                }
+            }
+        }
+        if(empty($this->errors))
+            $this->confirmations[] = $this->module->l('Successfully sent shipment data for selected orders');
     }
 
     public function generateManifest()
@@ -366,10 +438,17 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             return;
         }
         $id_manifest = Tools::getValue('id_manifest');
-        if($id_manifest)
-            $manifestInfo = $this->api->generateManifest($id_manifest);
-        else
-            $manifestInfo = $this->api->generateManifestLatest();
+        try {
+            if($id_manifest)
+                $manifestInfo = $this->api->generateManifest($id_manifest);
+             else
+                $manifestInfo = $this->api->generateManifestLatest();
+        }
+        catch (OmnivaApiException $e)
+        {
+            $this->errors[] = $e->getMessage();
+            return false;
+        }
         if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
             if(OmnivaIntManifest::getManifestByNumber($manifestInfo->cart_id))
@@ -462,7 +541,15 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if(!$manifestExists)
             Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
 
-        $manifestInfo = $this->api->generateManifest($this->object->cart_id);
+
+        try {
+            $manifestInfo = $this->api->generateManifest($this->object->cart_id);
+        }
+        catch (OmnivaApiException $e)
+        {
+            $this->errors[] = $e->getMessage();
+            return false;
+        }
         if($manifestInfo && $manifestInfo->cart_id && $manifestInfo->manifest)
         {
             $pdf = base64_decode($manifestInfo->manifest);

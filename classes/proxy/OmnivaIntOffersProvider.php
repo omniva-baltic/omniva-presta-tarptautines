@@ -56,18 +56,32 @@ class OmnivaIntOffersProvider
         return !empty($carrier_offers) ? $carrier_offers : false;
     }
 
-    private function addSurcharge($price, $omniva_price, $price_type)
+    private function addSurcharge($price, $omnivaCarrierCountry)
     {
+        $omniva_price = $omnivaCarrierCountry->price;
+        $price_type = $omnivaCarrierCountry->price_type;
         if($price_type == 'surcharge-percent')
         {
-            return $price * (1 + $omniva_price / 100);
+            $price *= (1 + $omniva_price / 100);
         }
         elseif($price_type == 'surcharge-fixed')
         {
-            return $price + $omniva_price;
+            $price *= + $omniva_price;
         }
         else
             return false;
+
+        $taxRate = $omnivaCarrierCountry->tax;
+        return $this->addTax($price, $taxRate);
+    }
+
+    private function addTax($price, $taxRate = 0)
+    {
+        $use_tax = (int) Configuration::get('PS_TAX');
+        if(!$taxRate || !$use_tax)
+            return $price;
+        else
+            return ($price * (1 + ($taxRate / 100.0)));
     }
 
     public function getPrice()
@@ -107,7 +121,7 @@ class OmnivaIntOffersProvider
                 {
                     return 0;
                 }
-                return $omnivaCarrierCountry->price;
+                return $this->addTax($omnivaCarrierCountry->price, $omnivaCarrierCountry->tax);
             }
 
 
@@ -121,7 +135,7 @@ class OmnivaIntOffersProvider
                 {
                     return 0;
                 }
-                return $this->addSurcharge($offer->price, $omnivaCarrierCountry->price, $omnivaCarrierCountry->price_type);
+                return $this->addSurcharge($offer->price, $omnivaCarrierCountry);
             }
             else
             {
@@ -138,7 +152,7 @@ class OmnivaIntOffersProvider
                     $cheapest_key = key($prices);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$cheapest_key]->service_code;
                     $cookie->write();
-                    return $this->addSurcharge(reset($prices), $omnivaCarrierCountry->price, $omnivaCarrierCountry->price_type);
+                    return $this->addSurcharge(reset($prices), $omnivaCarrierCountry);
                 }
                 // Fastest
                 else
@@ -153,7 +167,7 @@ class OmnivaIntOffersProvider
                     $fastest_key = key($lower_bound_days);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$fastest_key]->service_code;
                     $cookie->write();
-                    return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrierCountry->price, $omnivaCarrierCountry->price_type);
+                    return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrierCountry);
                 }
             }
         }
