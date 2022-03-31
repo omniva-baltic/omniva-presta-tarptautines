@@ -135,7 +135,7 @@ class OmnivaIntOffersProvider
                 {
                     return 0;
                 }
-                return $this->addSurcharge($offer->price, $omnivaCarrierCountry);
+                return $this->addSurcharge($offer->total_price_excl_vat, $omnivaCarrierCountry);
             }
             else
             {
@@ -146,7 +146,7 @@ class OmnivaIntOffersProvider
                 if($omnivaCarrierCountry->cheapest)
                 {
                     $prices = array_map(function($offer) {
-                        return (float) $offer->price;
+                        return (float) $offer->total_price_excl_vat;
                     }, $carrier_offers);
                     asort($prices);
                     $cheapest_key = key($prices);

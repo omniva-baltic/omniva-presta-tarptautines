@@ -121,7 +121,12 @@ class OmnivaIntEntityBuilder
     {
         
         $carrier = new Carrier($order->id_carrier);
+        if(!Validate::isLoadedObject($carrier))
+            return false;
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier->id_reference);
+        if(!Validate::isLoadedObject($omnivaCarrier))
+            return false;
+
         $type = $omnivaCarrier->type;
 
         $cart = new Cart($order->id_cart);

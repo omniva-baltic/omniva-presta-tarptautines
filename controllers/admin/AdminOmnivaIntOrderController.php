@@ -53,6 +53,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         if (Shop::isFeatureActive() && Shop::getContext() !== Shop::CONTEXT_SHOP) {
             $this->errors[] = $this->module->l('Select shop');
         } else {
+            $this->refreshLabelStatus();
             $this->orderList();
         }
         parent::init();
@@ -228,7 +229,9 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             {
                 $entityBuilder = new OmnivaIntEntityBuilder();
                 $order = $entityBuilder->buildOrder($order);
-                
+
+                if(!$order)
+                    die(json_encode(['error' => $this->module->l('Could not build order.')]));
                 try {
                     $response = $this->api->generateOrder($order);
                 }
@@ -398,6 +401,12 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 $entityBuilder = new OmnivaIntEntityBuilder();
                 $order = $entityBuilder->buildOrder($order);
                 
+                if(!$order)
+                {
+                    $this->errors[] = Translate::getModuleTranslation($this->module, 'Could not build request for order %s.', $this->module->name, [$id_order]);
+                    continue;
+                }
+
                 try {
                     $response = $this->api->generateOrder($order);
                 }
@@ -576,6 +585,58 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         else
         {
             Tools::redirectAdmin(self::$currentIndex . '&error=1&token=' . $this->token);
+        }
+    }
+
+    private function refreshLabelStatus()
+    {
+        $ordersWithNoManifest = Db::getInstance()->executeS(
+            (new DbQuery())
+                ->select('oo.id')
+                ->from('omniva_int_order', 'oo')
+                ->leftJoin('omniva_int_manifest', 'om', 'om.manifest_number = oo.cart_id')
+                ->where('om.manifest_number IS NULL AND oo.shipment_id != ""')
+        );
+        if(!empty($ordersWithNoManifest))
+        {
+            foreach($ordersWithNoManifest as $order)
+            {
+                if(isset($order['id']))
+                {
+                    $id_order = (int) $order['id'];
+                    $omnivaOrder = new OmnivaIntOrder($id_order);
+                    $omnivaOrderParcels = OmnivaIntParcel::getParcelsByOrderId($id_order);
+    
+                    $untrackedParcelsCount = OmnivaIntParcel::getCountUntrackedParcelsByOrderId($id_order);
+                    if($omnivaOrder->shipment_id && $untrackedParcelsCount > 0 && Configuration::get('OMNIVA_TOKEN'))
+                    {
+                        // Just catch the exception, because it is thrown, if order is not yet ready, i.e gives error "Your order is being generated, please try again later"
+                        try {
+                            $api = $this->module->helper->getApi();
+                            $orderTrackingInfo = $api->getLabel($omnivaOrder->shipment_id);
+                        
+                            if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
+                            {
+                                $this->module->changeOrderStatus($id_order, Configuration::get(OmnivaInternational::$_order_states['order_state_ready']['key']));
+                                foreach($omnivaOrderParcels as $key => $parcel)
+                                {
+                                    $omnivaParcel = new OmnivaIntParcel($parcel['id']);
+                                    $omnivaParcel->setFieldsToUpdate(['tracking_number' => true]);
+                                    $omnivaParcel->tracking_number = $orderTrackingInfo->tracking_numbers[$key];
+                                    $omnivaParcel->update();
+                                }
+                            }
+                            else
+                            {
+                                $this->module->changeOrderStatus($id_order, Configuration::get(OmnivaInternational::$_order_states['order_state_error']['key']));
+                            }
+                            // for debugging
+                        } catch (Exception $e) {
+                            sleep(0);
+                        }
+                    }
+                }
+            }
         }
     }
 }

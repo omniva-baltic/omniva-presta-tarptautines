@@ -161,7 +161,7 @@ abstract class AdminOmnivaIntBaseController extends ModuleAdminController
         ];
     }
 
-        /**
+    /**
      * This function sets various display options for helper list.
      *
      * @param Helper $helper
