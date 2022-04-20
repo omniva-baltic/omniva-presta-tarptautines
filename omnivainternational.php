@@ -505,7 +505,7 @@ class OmnivaInternational extends CarrierModule
                   'priority' => 200,
                 ]
               );
-              $this->context->controller->registerJavascript('modules-mjvp-terminals-mapping-js', 'modules/' . $this->name . '/views/js/terminal.js');
+              $this->context->controller->registerJavascript('omniva-int-terminals-mapping-js', 'modules/' . $this->name . '/views/js/terminal.js');
         
         }
         else
