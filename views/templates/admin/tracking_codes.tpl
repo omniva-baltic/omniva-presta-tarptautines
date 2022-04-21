@@ -19,11 +19,12 @@
         <div class="panel-heading additional">
             {l s='Omniva Tracking numbers' mod='omnivainternational'}
         </div>
+
         <div class="panel-body">
             {if isset($shipment_id) && !$shipment_id}
-                    {l s='Shipment is not yet created. Please check information in Omniva International Shipment panel and register the shipment.' mod='omnivainternational'}
+                {l s='Shipment is not yet created. Please check information in Omniva International Shipment panel and register the shipment.' mod='omnivainternational'}
             {elseif isset($shipment_id) && $shipment_id && empty($tracking_numbers)}
-                {l s="Your shipment is being processed, but labels are currently unavailable. Please check back again later." mod='omnivainternational'}
+                {l s="Please note that due to a technical issue during shipment registration, address card will appears in system later. If you haven't received the address card within 1 working day, please contact us by email at" mod='omnivainternational'} <b>{l s='tarptautines@omniva.lt'}</b>.                
             {elseif isset($shipment_id) && $shipment_id && !empty($tracking_numbers)}
                 {assign var='tracking_numbers_count' value=count($tracking_numbers)}
                 <p>{l s='Order has %d parcels with following tracking numbers:' mod='omnivainternational' sprintf=[$tracking_numbers_count]}</p>
