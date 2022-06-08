@@ -37,25 +37,33 @@ class OmnivaIntUpdater {
 
     public function updateTerminals()
     {
-        $response = $this->api->getTerminals();
+        $activeCountriesIos = array_map(function ($country) {
+            return $country['iso_code'];
+        }, $countries = Country::getCountries(Context::getContext()->language->id, true));
+
         $result = true;
-        if($response && isset($response->terminals))
+        $result &= Db::getInstance()->execute('TRUNCATE TABLE ' . _DB_PREFIX_ . OmnivaIntTerminal::$definition['table']);
+
+        foreach($activeCountriesIos as $iso)
         {
-            $result &= Db::getInstance()->execute('TRUNCATE TABLE ' . _DB_PREFIX_ . OmnivaIntTerminal::$definition['table']);
-            foreach($response->terminals as $terminal)
+            $response = $this->api->getTerminals($iso);
+            if($response && isset($response->terminals))
             {
-                $terminalObj = new OmnivaIntTerminal();
-                $terminalObj->id = $terminal->id;
-                $terminalObj->force_id = true;
-                $terminalObj->name = $terminal->name;
-                $terminalObj->city = $terminal->city;
-                $terminalObj->country_code = $terminal->country_code;
-                $terminalObj->address = $terminal->address;
-                $terminalObj->x_cord = $terminal->x_cord;
-                $terminalObj->y_cord = $terminal->y_cord;
-                $terminalObj->comment = $terminal->comment;
-                $terminalObj->identifier = $terminal->identifier;
-                $result &= $terminalObj->add();
+                foreach($response->terminals as $terminal)
+                {
+                    $terminalObj = new OmnivaIntTerminal();
+                    $terminalObj->id = $terminal->id;
+                    $terminalObj->force_id = true;
+                    $terminalObj->name = $terminal->name;
+                    $terminalObj->city = $terminal->city;
+                    $terminalObj->country_code = $terminal->country_code;
+                    $terminalObj->address = $terminal->address;
+                    $terminalObj->x_cord = $terminal->x_cord;
+                    $terminalObj->y_cord = $terminal->y_cord;
+                    $terminalObj->comment = $terminal->comment;
+                    $terminalObj->identifier = $terminal->identifier;
+                    $result &= $terminalObj->add();
+                }
             }
         }
         return $result;
