@@ -47,9 +47,16 @@ class OmnivaIntUpdater {
         foreach($activeCountriesIos as $iso)
         {
             $response = $this->api->getTerminals($iso);
-            if($response && isset($response->terminals))
+            if($response)
             {
-                foreach($response->terminals as $terminal)
+                if (isset($response->terminals)) {
+                    $terminals_list = $response->terminals;
+                } else if (isset($response->parcel_machines)) {
+                    $terminals_list = $response->parcel_machines;
+                } else {
+                    $terminals_list = array();
+                }
+                foreach($terminals_list as $terminal)
                 {
                     $terminalObj = new OmnivaIntTerminal();
                     $terminalObj->id = $terminal->id;
