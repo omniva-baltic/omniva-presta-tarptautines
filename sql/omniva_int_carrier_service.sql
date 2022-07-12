@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_carrier_service` (
     `id_service` int(10) unsigned NOT NULL,
     PRIMARY KEY (`id`),
     KEY `carrier_service` (`id_carrier`, `id_service`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;

@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_rate_cache` (
     `rate` float(10) NOT NULL,
     PRIMARY KEY (`id`),
     KEY `cache_key` (`id_cart`, `hash`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;
