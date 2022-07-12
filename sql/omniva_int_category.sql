@@ -7,4 +7,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_category` (
     `height` float(10),
     `active` tinyint(1),
     PRIMARY KEY (`id_category`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;

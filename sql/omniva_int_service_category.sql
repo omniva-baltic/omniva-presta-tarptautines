@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_service_category` (
     `id_category` int(10) unsigned NOT NULL,
     PRIMARY KEY (`id`),
     KEY `service_category` (`id_service`, `id_category`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;

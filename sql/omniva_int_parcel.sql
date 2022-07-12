@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_parcel` (
     `tracking_number` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
     KEY `id_order` (`id_order`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;

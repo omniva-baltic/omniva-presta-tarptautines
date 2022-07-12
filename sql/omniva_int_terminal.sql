@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_terminal` (
     `comment` varchar(255),
     `identifier` varchar(50),
     PRIMARY KEY (`id`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;

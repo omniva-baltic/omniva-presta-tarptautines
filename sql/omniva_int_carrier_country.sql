@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_carrier_country` (
     PRIMARY KEY (`id`),
     KEY `id_carrier` (`id_carrier`),
     KEY `id_country` (`id_country`)
-    ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+    ) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;

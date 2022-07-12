@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_country` (
     `code` varchar(3),
     PRIMARY KEY (`id_country`),
     KEY `code` (`code`)
-) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=_MYSQL_ENGINE_ DEFAULT CHARSET=utf8;
