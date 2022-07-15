@@ -1,12 +1,15 @@
 $(document).on('ready', () => {
-  if($(`#delivery_option_${omnivaint_terminal_reference}`).is(':checked'))
+  if(typeof(omnivaint_terminal_reference) !== "undefined" && $(`#delivery_option_${omnivaint_terminal_reference}`).is(':checked'))
   {
     loadTerminalMapping();
   }
-  $(`#delivery_option_${omnivaint_terminal_reference}`).on('click', () => {
-    if($('.tmjs-container').length == 0)
-      loadTerminalMapping();
-  });
+  if(typeof(omnivaint_terminal_reference) !== "undefined")
+  {
+    $(`#delivery_option_${omnivaint_terminal_reference}`).on('click', () => {
+      if($('.tmjs-container').length == 0)
+        loadTerminalMapping();
+    });
+  }
 });
 function loadTerminalMapping() {
   let isModalReady = false;

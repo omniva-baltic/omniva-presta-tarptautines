@@ -27,6 +27,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         {
             $this->className = 'OmnivaIntCarrierCountry';
             $this->table = 'omniva_int_carrier_country';
+            $this->_default_pagination = 1000;
         }
         else
         {

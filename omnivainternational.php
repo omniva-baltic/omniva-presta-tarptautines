@@ -852,7 +852,7 @@ class OmnivaInternational extends CarrierModule
                 'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
                 'images_url' => $this->_path . 'views/img/',
                 'terminals_radius' => $omnivaCarrier->radius,
-                'omnivaint_terminal_reference' => $omnivaCarrier->id_reference,
+                'omnivaint_terminal_reference' => $params['carrier']['id'],
               ));
 
             return $this->display(__FILE__, 'displayCarrierExtraContent.tpl');
@@ -1047,6 +1047,7 @@ class OmnivaInternational extends CarrierModule
                     {
                         $omnivaCarrierCountry = new OmnivaIntCarrierCountry();
                         $omnivaCarrierCountry->id_carrier = $omnivaCarrier->id;
+                        $omnivaCarrierCountry->tax = $omnivaCarrier->tax;
                         $omnivaCarrierCountry->id_country = $country->id;
                         $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
                         $omnivaCarrierCountry->price = $omnivaCarrier->price;
