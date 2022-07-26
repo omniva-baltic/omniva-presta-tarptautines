@@ -13,14 +13,14 @@ $(document).on('ready', () => {
 });
 function loadTerminalMapping() {
   let isModalReady = false;
-  var tmjs = new TerminalMapping('https://tarptautines.mijora.lt/api/v1');
+  var tmjs = new TerminalMapping(omniva_int_endpoint);
   tmjs
     .sub('terminal-selected', data => {
       $('input[name="order[receiver_attributes][parcel_machine_id]"]').val(data.id);
       $('#order_receiver_attributes_terminal_address').val(data.name + ", " + data.address);
       $('.receiver_parcel_machine_address_filled').text('');
       $('.receiver_parcel_machine_address_filled').append('<div class="d-inline-flex" style="margin-top: 5px;">' +
-        '<img class="my-auto mx-0 me-2" src="https://tarptautines.mijora.lt/default_icon_icon.svg" width="25" height="25">' +
+        '<img class="my-auto mx-0 me-2" src="https://tarptautines.omniva.lt/default_icon_icon.svg" width="25" height="25">' +
         '<h5 class="my-auto mx-0">' + data.address + ", " + data.zip + ", " + data.city + '</h5></div>' +
         '<br><a class="select_parcel_btn select_parcel_href" data-remote="true" href="#">Pakeisti</a>')
       $('.receiver_parcel_machine_address_filled').show();
@@ -33,7 +33,7 @@ function loadTerminalMapping() {
   tmjs_identifier = $('#order_receiver_attributes_service_identifier').val();
 
 
-  tmjs.setImagesPath('https://tarptautines.mijora.lt/');
+  tmjs.setImagesPath('https://tarptautines.omniva.lt/');
   tmjs.init({country_code: 'PL', identifier: 'w2s_inpost', receiver_address: omniva_postcode});
 
   window['tmjs'] = tmjs;

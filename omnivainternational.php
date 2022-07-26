@@ -569,31 +569,17 @@ class OmnivaInternational extends CarrierModule
                 {
                     $address = new Address($order->id_address_delivery);
                     $country_code = Country::getIsoById($address->id_country);
-                    $cities = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, false, 'city');
-                    
-                    $terminalsByCities = [];
-                    foreach($cities as $key => $city)
-                    {
-                        $terminalsByCities[$key]['city'] = $city['city'];
-                        $terminalsByCities[$key]['terminals'] = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type, $city['city']);
-                    }
-
-                    if(!empty($terminalsByCities))
+                    $terminals = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type);
+                    if(!empty($terminals))
                     {
                         $form_fields[] = [
                             'type' => 'select',
-                            'label' => $this->l('Terminal'),
+                            'label' => $this->l('Terminals'),
                             'name' => 'terminal',
                             'options' => [
-                                'optiongroup' => [
-                                    'query' => $terminalsByCities,
-                                    'label' => 'city',
-                                ],
-                                'options' => [
-                                    'query' => 'terminals',
-                                    'name' => 'address',
-                                    'id' => 'id'
-                                ]
+                                'query' => $terminals,
+                                'id' => 'id',
+                                'name' => 'name'
                             ],
                             'required' => true
                         ];
@@ -841,6 +827,7 @@ class OmnivaInternational extends CarrierModule
             if (!$terminals || empty($terminals)) {
                 return '';
             }
+            $test_mode = Configuration::get('OMNIVA_INT_TEST_MODE');
             $this->context->smarty->assign('terminals', $terminals);
             $this->context->smarty->assign(array(
                 'id_carrier' => version_compare(_PS_VERSION_, '1.7', '>=') ? $params['carrier']['id'] : $carrierObj->id,
@@ -853,6 +840,7 @@ class OmnivaInternational extends CarrierModule
                 'images_url' => $this->_path . 'views/img/',
                 'terminals_radius' => $omnivaCarrier->radius,
                 'omnivaint_terminal_reference' => $params['carrier']['id'],
+                'omniva_int_endpoint' => $test_mode ? 'https://tarptautines.mijora.lt/api/v1' : 'https://tarptautines.omniva.lt/api/v1',
               ));
 
             return $this->display(__FILE__, 'displayCarrierExtraContent.tpl');
