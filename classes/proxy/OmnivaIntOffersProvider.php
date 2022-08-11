@@ -94,9 +94,20 @@ class OmnivaIntOffersProvider
 
         $address = new Address($cart->id_address_delivery);
 
-        // If there is no address in the cart, it's not possible to fetch rates yet.
+        // If there is no address in the cart and carrier uses fixed rates - give them.
+        // Otherwise, fetching rates is not possible.
         if(!Validate::isLoadedObject($address))
+        {
+            if($omnivaCarrier->price_type == 'fixed')
+            {
+                if($cart_without_shipping >= $omnivaCarrier->free_shipping)
+                {
+                    return 0;
+                }
+                return $this->addTax($omnivaCarrier->price, $omnivaCarrier->tax);
+            }
             return false;
+        }
 
         // Check if destination country is disabled for the carrier.
         $omnivaCarrierCountry = OmnivaIntCarrierCountry::getCarrierCountry($omnivaCarrier->id, $address->id_country);
