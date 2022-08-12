@@ -488,6 +488,7 @@ class OmnivaInternational extends CarrierModule
     {
       if (in_array(Context::getContext()->controller->php_self, ['order-opc', 'order'])) {
 
+        $this->addMapTranslationDefs();
         Media::addJsDef([
             'omniva_front_controller_url' => $this->context->link->getModuleLink($this->name, 'front')
         ]);
@@ -524,6 +525,23 @@ class OmnivaInternational extends CarrierModule
   
         return $this->display(__FILE__, 'header.tpl');
       }
+    }
+
+    private function addMapTranslationDefs()
+    {
+        Media::addJsDef([
+            'modal_header' => $this->l('Terminal map'),
+            'terminal_list_header' => $this->l('Terminal list'),
+            'seach_header' => $this->l('Search around'),
+            'search_btn' => $this->l('Find'),
+            'modal_open_btn' => $this->l('Select terminal'),
+            'geolocation_btn' => $this->l('Use my location'),
+            'your_position' => $this->l('Distance calculated from this point'),
+            'nothing_found' => $this->l('Nothing found'),
+            'no_cities_found' => $this->l('There were no cities found for your search term'),
+            'geolocation_not_supported' => $this->l('Geolocation is not supported'),
+            'select_pickup_point' => $this->l('Select a pickup point'),
+        ]);
     }
 
 

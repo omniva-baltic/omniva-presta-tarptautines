@@ -39,16 +39,16 @@ function loadTerminalMapping() {
   window['tmjs'] = tmjs;
 
   tmjs.setTranslation({
-    modal_header: 'Paštomatų žemėlapis',
-    terminal_list_header: 'Paštomatų sąrašas',
-    seach_header: 'Ieškoti',
-    search_btn: 'Ieškoti',
-    modal_open_btn: 'Pasirinkti paštomatą',
-    geolocation_btn: 'Naudoti mano lokaciją',
-    your_position: 'Distance calculated from this point',
-    nothing_found: 'Rezultatų nerasta',
-    no_cities_found: 'Nerastas nei vienas miestas',
-    geolocation_not_supported: 'Geolokacija nepalaikoma',
+    modal_header: modal_header,
+    terminal_list_header: terminal_list_header,
+    seach_header: seach_header,
+    search_btn: search_btn,
+    modal_open_btn: modal_open_btn,
+    geolocation_btn: geolocation_btn,
+    your_position: your_position,
+    nothing_found: nothing_found,
+    no_cities_found: no_cities_found,
+    geolocation_not_supported: geolocation_not_supported,
 
     // Unused strings
     search_placeholder: 'Įrašykite savo pašto kodą/miestą',
