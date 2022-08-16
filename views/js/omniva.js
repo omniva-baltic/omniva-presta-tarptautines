@@ -54,7 +54,6 @@ function loadTerminalMapping() {
     search_placeholder: 'Įrašykite savo pašto kodą/miestą',
     workhours_header: 'Darbo valandos',
     contacts_header: 'Kontaktai',
-    select_pickup_point: 'Pasirinkite paštomatą',
     no_pickup_points: 'Paštomatas nepasirinktas',
     select_btn: 'Pasirinkite',
     back_to_list_btn: 'Atstatyti paiešką',

@@ -541,6 +541,7 @@ class OmnivaInternational extends CarrierModule
             'no_cities_found' => $this->l('There were no cities found for your search term'),
             'geolocation_not_supported' => $this->l('Geolocation is not supported'),
             'select_pickup_point' => $this->l('Select a pickup point'),
+            'enter_text' => $this->l('Enter'),
         ]);
     }
 
