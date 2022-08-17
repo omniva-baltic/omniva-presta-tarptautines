@@ -8,11 +8,11 @@ use OmnivaApi\Item;
 
 class OmnivaIntEntityBuilder
 {
-    public function buildSender($type)
+    public function buildSender()
     {
         $sender = new Sender();
         $sender
-            ->setShippingType($type)
+            ->setShippingType('courier')
             ->setCompanyName(Configuration::get('OMNIVA_SENDER_NAME'))
             ->setContactName(Configuration::get('OMNIVA_SHOP_CONTACT'))
             ->setStreetName(Configuration::get('OMNIVA_SHOP_ADDRESS'))
@@ -131,7 +131,7 @@ class OmnivaIntEntityBuilder
 
         $cart = new Cart($order->id_cart);
         $receiver = $this->buildReceiver($cart, $type);
-        $sender = $this->buildSender($type);
+        $sender = $this->buildSender();
 
         $parcels = $this->buildParcels($cart);
         $items = $this->buildItems($cart);

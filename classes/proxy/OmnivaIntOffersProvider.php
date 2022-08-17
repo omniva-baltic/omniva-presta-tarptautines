@@ -114,7 +114,7 @@ class OmnivaIntOffersProvider
         if(!Validate::isLoadedObject($omnivaCarrierCountry) || !$omnivaCarrierCountry->active)
             return false;
 
-        $sender = $this->entityBuilder->buildSender($this->type);
+        $sender = $this->entityBuilder->buildSender();
         $receiver = $this->entityBuilder->buildReceiver($cart, $this->type);
         $parcels = $this->entityBuilder->buildParcels($cart);
 
