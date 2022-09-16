@@ -12,15 +12,15 @@
  *  @license   license.txt
  *}
 <script type="text/javascript">
-    var omnivadata = [];
-    omnivadata.text_select_terminal = '{l s='Select terminal' mod='omnivainternational'}';
-    omnivadata.text_search_placeholder = '{l s='Enter postcode' mod='omnivainternational'}';
-    omnivadata.not_found = '{l s='Place not found' mod='omnivainternational'}';
-    omnivadata.text_enter_address = '{l s='Enter postcode/address' mod='omnivainternational'}';
-    omnivadata.text_show_in_map = '{l s='Show in map' mod='omnivainternational'}';
-    omnivadata.text_show_more = '{l s='Show more' mod='omnivainternational'}';
-    omnivadata.omniva_plugin_url = '{$module_url}';
-    omnivadata.images_url = '{$images_url}';
+    var omnivaIntdata = [];
+    omnivaIntdata.text_select_terminal = '{l s='Select terminal' mod='omnivainternational'}';
+    omnivaIntdata.text_search_placeholder = '{l s='Enter postcode' mod='omnivainternational'}';
+    omnivaIntdata.not_found = '{l s='Place not found' mod='omnivainternational'}';
+    omnivaIntdata.text_enter_address = '{l s='Enter postcode/address' mod='omnivainternational'}';
+    omnivaIntdata.text_show_in_map = '{l s='Show in map' mod='omnivainternational'}';
+    omnivaIntdata.text_show_more = '{l s='Show more' mod='omnivainternational'}';
+    omnivaIntdata.omniva_plugin_url = '{$module_url}';
+    omnivaIntdata.images_url = '{$images_url}';
     var omnivalt_parcel_terminal_error = '{l s='Please select parcel terminal' mod='omnivainternational'}';
 </script>
 
