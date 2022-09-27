@@ -1,6 +1,6 @@
  # OmnivaApi API-lib
 
-Its a library for OmnivaApi API.
+Its a library for International Omniva shipments.
 
 ## Using OmnivaApi API-lib
 - ```__PATH_TO_LIB__``` is a path where OmnivaApi API is placed. This will load OmnivaApi namespace
@@ -97,7 +97,7 @@ Minimum required setup:
 ```php
 use OmnivaApi\Parcel;
 
-$parcel = new Parcel();=
+$parcel = new Parcel();
 $parcel
     ->setAmount(2)
     ->setUnitWeight(1)
@@ -113,9 +113,7 @@ $parcel
 Minimum required setup:
 
 ```php
-// apacioje du zemiau use istrinti ir naudoti use OmnivaApi\Item;
 use OmnivaApi\Item;
-use OmnivaApi\Sender;
 
 $item = new Item();
 $item
@@ -129,8 +127,6 @@ $item
 ---
 
 ```php
-// API use nera panaudotas - galima istrinti
-use OmnivaApi\API;
 use OmnivaApi\Sender;
 use OmnivaApi\Receiver;
 use OmnivaApi\Item;

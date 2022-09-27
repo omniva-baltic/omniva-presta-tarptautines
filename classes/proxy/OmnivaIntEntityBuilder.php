@@ -8,6 +8,15 @@ use OmnivaApi\Item;
 
 class OmnivaIntEntityBuilder
 {
+    const MAX_DESCRIPTION_LENGTH = 39;
+
+    private $api;
+
+    public function __construct($api)
+    {
+        $this->api = $api;
+    }
+
     public function buildSender()
     {
         $sender = new Sender();
@@ -23,6 +32,24 @@ class OmnivaIntEntityBuilder
         return $sender;
     }
 
+    private function addStateCode($receiver, $address)
+    {
+        $states = (array) $this->api->listAllStates();
+        $countryIso = Country::getIsoById($address->id_country);
+        $id_state = $address->id_state;
+        $state = new State($id_state);
+        $state_iso = $state->iso_code;
+
+        foreach($states as $state)
+        {
+            if($state->country_code == $countryIso && $state->code == $state_iso)
+            {
+                $receiver->setStateCode($state_iso);
+                return;
+            }
+        }
+    }
+
     public function buildReceiver($cart, $type)
     {
         $address = new Address($cart->id_address_delivery);
@@ -31,9 +58,13 @@ class OmnivaIntEntityBuilder
 
         $receiver
         ->setShippingType($type)
-        ->setContactName($address->firstname . ' ' . $address->lastname)       
+        ->setContactName($address->firstname . ' ' . $address->lastname)
         ->setPhoneNumber($address->phone)
         ->setCountryId($country_code);
+
+        if($address->id_state)
+            $this->addStateCode($receiver, $address);
+
         $cartTerminal = new OmnivaIntCartTerminal($cart->id);
         if($type == 'courier' || ($type == 'terminal' && !Validate::isLoadedObject($cartTerminal)))
         {
@@ -108,7 +139,7 @@ class OmnivaIntEntityBuilder
 
             $item = new Item();
             $item
-                ->setDescription($product['name'])
+                ->setDescription(substr($product['name'], 0, self::MAX_DESCRIPTION_LENGTH))
                 ->setItemPrice($product['price'])
                 ->setItemAmount($amount)
                 ->setCountryId($country_code);

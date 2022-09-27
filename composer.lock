@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:mijora/omniva-api.git",
-                "reference": "baa5aa2d7256dc3d46e7bae48a9f8fddf1c05499"
+                "reference": "23e274fce80f77e2b8aaa6c7d1f1bacbcfafdcd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mijora/omniva-api/zipball/baa5aa2d7256dc3d46e7bae48a9f8fddf1c05499",
-                "reference": "baa5aa2d7256dc3d46e7bae48a9f8fddf1c05499",
+                "url": "https://api.github.com/repos/mijora/omniva-api/zipball/23e274fce80f77e2b8aaa6c7d1f1bacbcfafdcd1",
+                "reference": "23e274fce80f77e2b8aaa6c7d1f1bacbcfafdcd1",
                 "shasum": ""
             },
             "require": {
@@ -39,7 +39,7 @@
                 "source": "https://github.com/mijora/omniva-api/tree/master",
                 "issues": "https://github.com/mijora/omniva-api/issues"
             },
-            "time": "2021-12-29T12:43:14+00:00"
+            "time": "2022-09-12T10:37:36+00:00"
         }
     ],
     "packages-dev": [],
@@ -52,5 +52,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.3.0"
 }

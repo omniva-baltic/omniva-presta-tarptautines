@@ -17,6 +17,8 @@ class Person
     protected $phone_number;
     protected $country_id;
     protected $eori;
+    protected $hs_code;
+    protected $state_code;
 
     protected $shipping_type;
 
@@ -99,6 +101,20 @@ class Person
     public function setEori($eori)
     {
       $this->eori = $eori;
+
+      return $this;
+    }
+
+    public function setHsCode($hs_code)
+    {
+      $this->hs_code = $hs_code;
+
+      return $this;
+    }
+
+    public function setStateCode($state_code)
+    {
+      $this->state_code = $state_code;
 
       return $this;
     }
