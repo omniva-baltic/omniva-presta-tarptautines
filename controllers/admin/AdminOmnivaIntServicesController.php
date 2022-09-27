@@ -258,14 +258,6 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
             ],
         ];
 
-        if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = [
-                'type' => 'shop',
-                'label' => $this->module->l('Shop association'),
-                'name' => 'checkBoxShopAsso',
-            ];
-        }
-
         $this->fields_form['submit'] = [
             'title' => $this->module->l('Save'),
         ];
@@ -352,14 +344,6 @@ class AdminOmnivaIntServicesController extends AdminOmnivaIntBaseController
                 ],
             ],
         ];
-
-        if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = [
-                'type' => 'shop',
-                'label' => $this->module->l('Shop association'),
-                'name' => 'checkBoxShopAsso',
-            ];
-        }
 
         $this->fields_form['submit'] = [
             'name' => 'serviceLogin',

@@ -294,11 +294,14 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
     public function processStatus()
     {
         parent::processStatus();
-        $this->redirect_after = $this->context->link->getAdminLink("AdminOmnivaIntCarriers", true, [], [
-            'id' => $this->object->id_carrier,
-            'submitManageCountries' => 1,
-            'conf' => 5
-        ]);
+        if(Tools::isSubmit('statusomniva_int_carrier_country'))
+        {
+            $this->redirect_after = $this->context->link->getAdminLink("AdminOmnivaIntCarriers", true, [], [
+                'id' => $this->object->id_carrier,
+                'submitManageCountries' => 1,
+                'conf' => 5
+            ]);
+        }
     }
 
     public function fastestOrCheapest($cheapest)
@@ -481,14 +484,6 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 ],
             ],
         ];
-
-        if (Shop::isFeatureActive()) {
-            $this->fields_form['input'][] = [
-                'type' => 'shop',
-                'label' => $this->module->l('Shop association'),
-                'name' => 'checkBoxShopAsso',
-            ];
-        }
 
         $this->fields_form['submit'] = [
             'title' => $this->module->l('Save'),
