@@ -66,7 +66,7 @@ class OmnivaIntOffersProvider
         }
         elseif($price_type == 'surcharge-fixed')
         {
-            $price *= + $omniva_price;
+            $price += $omniva_price;
         }
         else
             return false;
