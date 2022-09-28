@@ -21,11 +21,6 @@ class OmnivaIntOffersProvider
 
     private $type;
 
-    public function __construct()
-    {
-        $this->entityBuilder = new OmnivaIntEntityBuilder();
-    }
-
     private function cartIsSuitableForCarriers($cart)
     {
         $cart_products = $cart->getProducts();
@@ -86,6 +81,8 @@ class OmnivaIntOffersProvider
 
     public function getPrice()
     {
+        $this->entityBuilder = new OmnivaIntEntityBuilder($this->module->helper->getApi());
+
         $context = Context::getContext();
         $cookie = $context->cookie;
         $cart = $this->cart;
