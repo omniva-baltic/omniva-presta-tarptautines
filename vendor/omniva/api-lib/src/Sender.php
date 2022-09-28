@@ -28,8 +28,10 @@ class Sender extends Person
             'shipping_type' => $this->shipping_type,
             'company_name' => $this->company_name,
             'contact_name' => $this->contact_name,
-            'street' => $this->street_name,
-            'zipcode' => $this->zipcode,
+            'street_name' => $this->street_name,
+            $this->shipping_type === 'courier' ?
+              'zipcode' :
+              'terminal_zipcode' => $this->zipcode,
             'city' => $this->city,
             'phone' => $this->phone_number,
             'country_id' => $this->country_id,
