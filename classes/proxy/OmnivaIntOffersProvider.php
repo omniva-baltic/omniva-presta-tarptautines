@@ -81,7 +81,7 @@ class OmnivaIntOffersProvider
 
     public function getPrice()
     {
-        $this->entityBuilder = new OmnivaIntEntityBuilder($this->module->helper->getApi());
+        $this->entityBuilder = new OmnivaIntEntityBuilder($this->module);
 
         $context = Context::getContext();
         $cookie = $context->cookie;

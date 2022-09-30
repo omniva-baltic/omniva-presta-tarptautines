@@ -93,6 +93,7 @@ class OmnivaInternational extends CarrierModule
             'shop_phone' => 'OMNIVA_SHOP_PHONE',
             'shop_email' => 'OMNIVA_SHOP_EMAIL',
             'sender_address' => 'OMNIVA_SENDER_ADDRESS',
+            'consolidation' => 'OMNIVA_CONSOLIDATION',
         ],
     ];
 
@@ -138,7 +139,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '0.9.0';
+        $this->version = '1.0.0';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -150,7 +151,7 @@ class OmnivaInternational extends CarrierModule
         $this->description = $this->l('Shipping module for Omniva international delivery method');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
 
-        $this->helper = new OmnivaIntHelper();
+        $this->helper = new OmnivaIntHelper($this);
     }
 
     /**
@@ -432,8 +433,9 @@ class OmnivaInternational extends CarrierModule
         $id_address = $address->id;
         $id_country = $address->id_country;
         $postcode = $address->postcode;
+        $consolidation = (int) $this->helper->getConfigValue('consolidation');
 
-        $cache_key = "$id_customer-$id_cart-$id_carrier-$id_address-$id_country-$postcode";
+        $cache_key = "$id_customer-$id_cart-$id_carrier-$id_address-$id_country-$postcode-$consolidation";
         $cart_products = $cart->getProducts();
         foreach ($cart_products as $product)
         {
@@ -744,7 +746,7 @@ class OmnivaInternational extends CarrierModule
                 $orderHasManifest = OmnivaIntManifest::checkManifestExists($omnivaOrder->cart_id);
                 $this->context->smarty->assign('orderHasManifest', $orderHasManifest);
 
-                // Assign this one separately, otherwise tracking_codes.tpl is does not see it.
+                // Assign this one separately, otherwise tracking_codes.tpl does not see it.
                 $this->context->smarty->assign([
                     'update_parcels_link' => $this->context->link->getAdminLink('AdminOmnivaIntOrder') . '&submitUpdateParcels=1&action=updateParcels&id=' . $id_order,
                     'shipment_id' => $omnivaOrder->shipment_id,
@@ -891,38 +893,79 @@ class OmnivaInternational extends CarrierModule
             if(Validate::isLoadedObject($omnivaOrder))
             {
                 $cart_products = $cart->getProducts();
-                foreach ($cart_products as $product)
+                $consolidation = $this->helper->getConfigValue('consolidation');
+
+                if($consolidation)
                 {
-                    $id_category = $product['id_category_default'];
-                    $amount = (int) $product['cart_quantity'];
-                    $omnivaCategory = new OmnivaIntCategory($id_category);
-                    
-                    if($omnivaCategory->active)
-                    { 
-                        for($i = 0; $i < $amount; $i++)
+                    $totalWidth = $totalLength = $totalHeight = $totalWeight = 0;
+                    foreach ($cart_products as $product)
+                    {
+                        $id_category = $product['id_category_default'];
+                        $amount = (int) $product['cart_quantity'];
+                        $omnivaCategory = new OmnivaIntCategory($id_category);
+                        
+                        if($omnivaCategory->active)
                         {
-                            $omnivaParcel = new OmnivaIntParcel();
-                            $omnivaParcel->id_order = $omnivaOrder->id;
-                            $omnivaParcel->amount = 1;
-                            $omnivaParcel->weight = $omnivaCategory->weight ? $omnivaCategory->weight : 1;
-                            $omnivaParcel->length = $omnivaCategory->length ? $omnivaCategory->length : 1;
-                            $omnivaParcel->width = $omnivaCategory->width ? $omnivaCategory->width : 1;
-                            $omnivaParcel->height = $omnivaCategory->height ? $omnivaCategory->height : 1;
-                            $omnivaParcel->add();
+                            $totalWeight +=  ($omnivaCategory->weight ? $omnivaCategory->weight : 1) * $amount;
+                            $totalWidth += ($omnivaCategory->width ? $omnivaCategory->width : 1) * $amount;
+                            $totalLength += ($omnivaCategory->length ? $omnivaCategory->length : 1) * $amount;
+                            $totalHeight += ($omnivaCategory->height ? $omnivaCategory->height : 1) * $amount;
+                        }
+                        else
+                        {
+        
+                            $totalWeight +=  ($product['weight'] ? $product['weight'] : 1) * $amount;
+                            $totalWidth += ($product['width'] ? $product['width'] : 1) * $amount;
+                            $totalLength += ($product['depth'] ? $product['depth'] : 1) * $amount;
+                            $totalHeight += ($product['height'] ? $product['height'] : 1) * $amount;
                         }
                     }
-                    else
+                    $omnivaParcel = new OmnivaIntParcel();
+                    $omnivaParcel->id_order = $omnivaOrder->id;
+                    $omnivaParcel->amount = 1;
+                    $volume = $totalWidth * $totalLength * $totalHeight;
+                    $averageDimension = ceil($volume ** (1/3));
+                    $omnivaParcel->weight = $totalWeight;
+                    $omnivaParcel->length = $averageDimension;
+                    $omnivaParcel->width = $averageDimension;
+                    $omnivaParcel->height = $averageDimension;
+                    $omnivaParcel->add();
+                }
+                else
+                {
+                    foreach ($cart_products as $product)
                     {
-                        for($i = 0; $i < $amount; $i++)
+                        $id_category = $product['id_category_default'];
+                        $amount = (int) $product['cart_quantity'];
+                        $omnivaCategory = new OmnivaIntCategory($id_category);
+                        
+                        if($omnivaCategory->active)
+                        { 
+                            for($i = 0; $i < $amount; $i++)
+                            {
+                                $omnivaParcel = new OmnivaIntParcel();
+                                $omnivaParcel->id_order = $omnivaOrder->id;
+                                $omnivaParcel->amount = 1;
+                                $omnivaParcel->weight = $omnivaCategory->weight ? $omnivaCategory->weight : 1;
+                                $omnivaParcel->length = $omnivaCategory->length ? $omnivaCategory->length : 1;
+                                $omnivaParcel->width = $omnivaCategory->width ? $omnivaCategory->width : 1;
+                                $omnivaParcel->height = $omnivaCategory->height ? $omnivaCategory->height : 1;
+                                $omnivaParcel->add();
+                            }
+                        }
+                        else
                         {
-                            $omnivaParcel = new OmnivaIntParcel();
-                            $omnivaParcel->id_order = $omnivaOrder->id;
-                            $omnivaParcel->amount = 1;
-                            $omnivaParcel->weight = $product['weight'] ? $product['weight'] : 1;
-                            $omnivaParcel->length = $product['depth'] ? $product['depth'] : 1;
-                            $omnivaParcel->width = $product['width'] ? $product['width'] : 1;
-                            $omnivaParcel->height = $product['height'] ? $product['height'] : 1;
-                            $omnivaParcel->add();
+                            for($i = 0; $i < $amount; $i++)
+                            {
+                                $omnivaParcel = new OmnivaIntParcel();
+                                $omnivaParcel->id_order = $omnivaOrder->id;
+                                $omnivaParcel->amount = 1;
+                                $omnivaParcel->weight = $product['weight'] ? $product['weight'] : 1;
+                                $omnivaParcel->length = $product['depth'] ? $product['depth'] : 1;
+                                $omnivaParcel->width = $product['width'] ? $product['width'] : 1;
+                                $omnivaParcel->height = $product['height'] ? $product['height'] : 1;
+                                $omnivaParcel->add();
+                            }
                         }
                     }
                 }

@@ -227,7 +227,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             $cart = new Cart($order->id_cart);
             if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
             {
-                $entityBuilder = new OmnivaIntEntityBuilder($this->api);
+                $entityBuilder = new OmnivaIntEntityBuilder($this->module);
                 $order = $entityBuilder->buildOrder($order);
 
                 if(!$order)
@@ -398,7 +398,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             $cart = new Cart($order->id_cart);
             if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
             {
-                $entityBuilder = new OmnivaIntEntityBuilder();
+                $entityBuilder = new OmnivaIntEntityBuilder($this->module);
                 $order = $entityBuilder->buildOrder($order);
                 
                 if(!$order)

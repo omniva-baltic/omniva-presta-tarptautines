@@ -140,6 +140,13 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
                             'size' => 20,
                             'required' => true
                         ],
+                        [
+                            'type' => 'switch',
+                            'label' => $this->module->l('Consolidation'),
+                            'name' => $this->module->getConfigKey('consolidation', $this->section_id[1]),
+                            'desc' => $this->module->l('If enabled, all order products will be put into one package.'),
+                            'values' => $switcher_values
+                        ],
 
                     ],
                     'submit' => [

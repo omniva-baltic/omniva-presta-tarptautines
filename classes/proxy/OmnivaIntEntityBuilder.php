@@ -10,11 +10,11 @@ class OmnivaIntEntityBuilder
 {
     const MAX_DESCRIPTION_LENGTH = 39;
 
-    private $api;
+    private $module;
 
-    public function __construct($api)
+    public function __construct($module)
     {
-        $this->api = $api;
+        $this->module = $module;
     }
 
     public function buildSender()
@@ -34,7 +34,7 @@ class OmnivaIntEntityBuilder
 
     private function addStateCode($receiver, $address)
     {
-        $states = (array) $this->api->listAllStates();
+        $states = (array) $this->module->helper->getApi()->listAllStates();
         $countryIso = Country::getIsoById($address->id_country);
         $id_state = $address->id_state;
         $state = new State($id_state);
@@ -96,32 +96,78 @@ class OmnivaIntEntityBuilder
     {
         $cart_products = $cart->getProducts();
         $parcels = [];
-        foreach ($cart_products as $product)
+
+        $consolidation = $this->module->helper->getConfigValue('consolidation');
+
+        if($consolidation)
         {
-            $id_category = $product['id_category_default'];
             $parcel = new Parcel();
-            $amount = (int) $product['cart_quantity'];
-            $parcel->setAmount($amount);
-            $omnivaCategory = new OmnivaIntCategory($id_category);
-            
-            if($omnivaCategory->active)
+            $parcel->setAmount(1);
+
+            $totalWidth = $totalLength = $totalHeight = $totalWeight = 0;
+            foreach ($cart_products as $product)
             {
-                $parcel
-                ->setUnitWeight($this->unZero($omnivaCategory->weight) * $amount)
-                ->setWidth($this->unZero($omnivaCategory->width) * $amount)
-                ->setLength($this->unZero($omnivaCategory->length) * $amount)
-                ->setHeight($this->unZero($omnivaCategory->height) * $amount);
+                $id_category = $product['id_category_default'];
+                $amount = (int) $product['cart_quantity'];
+                $omnivaCategory = new OmnivaIntCategory($id_category);
+                
+                if($omnivaCategory->active)
+                {
+                    $totalWeight +=  $this->unZero($omnivaCategory->weight) * $amount;
+                    $totalWidth += $this->unZero($omnivaCategory->width) * $amount;
+                    $totalLength += $this->unZero($omnivaCategory->length) * $amount;
+                    $totalHeight += $this->unZero($omnivaCategory->height) * $amount;
+                }
+                else
+                {
+
+                    $totalWeight +=  $this->unZero($product['weight']) * $amount;
+                    $totalWidth += $this->unZero($product['width']) * $amount;
+                    $totalLength += $this->unZero($product['depth']) * $amount;
+                    $totalHeight += $this->unZero($product['height']) * $amount;
+                }
             }
-            else
-            {
-                $parcel
-                ->setUnitWeight($this->unZero($product['weight']) * $amount)
-                ->setWidth($this->unZero($product['width']) * $amount)
-                ->setLength($this->unZero($product['depth']) * $amount)
-                ->setHeight($this->unZero($product['height']) * $amount);
-            }
+            $parcel->setUnitWeight($this->unZero($totalWeight));
+            $volume = $totalWidth * $totalLength * $totalHeight;
+
+            $averageDimension = ceil($volume ** (1/3));
+            $parcel
+                ->setWidth($averageDimension)
+                ->setLength($averageDimension)
+                ->setHeight($averageDimension);
+
             $parcels[] = $parcel->generateParcel(); 
         }
+        else
+        {
+            foreach ($cart_products as $product)
+            {
+                $id_category = $product['id_category_default'];
+                $parcel = new Parcel();
+                $amount = (int) $product['cart_quantity'];
+                $parcel->setAmount($amount);
+                $omnivaCategory = new OmnivaIntCategory($id_category);
+                
+                if($omnivaCategory->active)
+                {
+                    $parcel
+                    ->setUnitWeight($this->unZero($omnivaCategory->weight) * $amount)
+                    ->setWidth($this->unZero($omnivaCategory->width) * $amount)
+                    ->setLength($this->unZero($omnivaCategory->length) * $amount)
+                    ->setHeight($this->unZero($omnivaCategory->height) * $amount);
+                }
+                else
+                {
+                    $parcel
+                    ->setUnitWeight($this->unZero($product['weight']) * $amount)
+                    ->setWidth($this->unZero($product['width']) * $amount)
+                    ->setLength($this->unZero($product['depth']) * $amount)
+                    ->setHeight($this->unZero($product['height']) * $amount);
+                }
+                $parcels[] = $parcel->generateParcel(); 
+            }
+        }
+
         return $parcels;
     }
 
