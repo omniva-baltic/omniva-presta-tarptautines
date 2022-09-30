@@ -199,13 +199,13 @@ class OmnivaInternational extends CarrierModule
     private function getModuleTabs()
     {
         return [
-            self::CONTROLLER_OMNIVA_ORDER => [
-                'title' => $this->l('Omniva Orders'),
-                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
-            ],
             self::CONTROLLER_OMNIVA_MAIN => [
                 'title' => $this->l('Omniva International'),
                 'parent_tab' => 'AdminParentShipping',
+            ],
+            self::CONTROLLER_OMNIVA_ORDER => [
+                'title' => $this->l('Omniva Orders'),
+                'parent_tab' => self::CONTROLLER_OMNIVA_MAIN,
             ],
             self::CONTROLLER_OMNIVA_SETTINGS => [
                 'title' => $this->l('Settings'),
