@@ -139,7 +139,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -907,7 +907,14 @@ class OmnivaInternational extends CarrierModule
                         $amount = (int) $product['cart_quantity'];
                         $omnivaCategory = new OmnivaIntCategory($id_category);
                         
-                        if($omnivaCategory->active)
+                        if($product['weight'] != 0 && $product['width'] != 0 && $product['depth'] != 0 && $product['height'] != 0)
+                        {
+                            $totalWeight +=  $omnivaCategory->weight * $amount;
+                            $totalWidth += $omnivaCategory->width * $amount;
+                            $totalLength += $omnivaCategory->length * $amount;
+                            $totalHeight += $omnivaCategory->height * $amount;
+                        }
+                        elseif($omnivaCategory->active)
                         {
                             $totalWeight +=  ($omnivaCategory->weight != 0 ? $omnivaCategory->weight : 1) * $amount;
                             $totalWidth += ($omnivaCategory->width != 0 ? $omnivaCategory->width : 1) * $amount;
@@ -917,10 +924,10 @@ class OmnivaInternational extends CarrierModule
                         else
                         {
         
-                            $totalWeight +=  ($product['weight'] != 0 ? $product['weight'] : 1) * $amount;
-                            $totalWidth += ($product['width'] != 0 ? $product['width'] : 1) * $amount;
-                            $totalLength += ($product['depth'] != 0 ? $product['depth'] : 1) * $amount;
-                            $totalHeight += ($product['height'] != 0 ? $product['height'] : 1) * $amount;
+                            $totalWeight += 1;
+                            $totalWidth += 1;
+                            $totalLength += 1;
+                            $totalHeight += 1;
                         }
                     }
                     $omnivaParcel = new OmnivaIntParcel();
@@ -942,7 +949,21 @@ class OmnivaInternational extends CarrierModule
                         $amount = (int) $product['cart_quantity'];
                         $omnivaCategory = new OmnivaIntCategory($id_category);
                         
-                        if($omnivaCategory->active)
+                        if($product['weight'] != 0 && $product['width'] != 0 && $product['depth'] != 0 && $product['height'] != 0)
+                        {
+                            for($i = 0; $i < $amount; $i++)
+                            {
+                                $omnivaParcel = new OmnivaIntParcel();
+                                $omnivaParcel->id_order = $omnivaOrder->id;
+                                $omnivaParcel->amount = 1;
+                                $omnivaParcel->weight = $product['weight'];
+                                $omnivaParcel->length = $product['depth'];
+                                $omnivaParcel->width = $product['width'];
+                                $omnivaParcel->height = $product['height'];
+                                $omnivaParcel->add();
+                            }
+                        }
+                        elseif($omnivaCategory->active)
                         { 
                             for($i = 0; $i < $amount; $i++)
                             {
@@ -963,10 +984,10 @@ class OmnivaInternational extends CarrierModule
                                 $omnivaParcel = new OmnivaIntParcel();
                                 $omnivaParcel->id_order = $omnivaOrder->id;
                                 $omnivaParcel->amount = 1;
-                                $omnivaParcel->weight = $product['weight'] ? $product['weight'] : 1;
-                                $omnivaParcel->length = $product['depth'] ? $product['depth'] : 1;
-                                $omnivaParcel->width = $product['width'] ? $product['width'] : 1;
-                                $omnivaParcel->height = $product['height'] ? $product['height'] : 1;
+                                $omnivaParcel->weight = 1;
+                                $omnivaParcel->length = 1;
+                                $omnivaParcel->width = 1;
+                                $omnivaParcel->height = 1;
                                 $omnivaParcel->add();
                             }
                         }
