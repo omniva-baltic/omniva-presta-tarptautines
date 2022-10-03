@@ -578,6 +578,9 @@ class OmnivaInternational extends CarrierModule
                 $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($orderCarrier->id_reference);
                 $omnivaOrder = new OmnivaIntOrder($id_order);
 
+                if(!Validate::isLoadedObject($omnivaCarrier) || !Validate::isLoadedObject($omnivaOrder))
+                    return '';
+
                 $this->context->smarty->assign([
                     'admin_default_tpl_path' => _PS_BO_ALL_THEMES_DIR_ . 'default/template/',
                     'images_url' => $this->_path . 'views/img/',
@@ -906,18 +909,18 @@ class OmnivaInternational extends CarrierModule
                         
                         if($omnivaCategory->active)
                         {
-                            $totalWeight +=  ($omnivaCategory->weight ? $omnivaCategory->weight : 1) * $amount;
-                            $totalWidth += ($omnivaCategory->width ? $omnivaCategory->width : 1) * $amount;
-                            $totalLength += ($omnivaCategory->length ? $omnivaCategory->length : 1) * $amount;
-                            $totalHeight += ($omnivaCategory->height ? $omnivaCategory->height : 1) * $amount;
+                            $totalWeight +=  ($omnivaCategory->weight != 0 ? $omnivaCategory->weight : 1) * $amount;
+                            $totalWidth += ($omnivaCategory->width != 0 ? $omnivaCategory->width : 1) * $amount;
+                            $totalLength += ($omnivaCategory->length != 0 ? $omnivaCategory->length : 1) * $amount;
+                            $totalHeight += ($omnivaCategory->height != 0 ? $omnivaCategory->height : 1) * $amount;
                         }
                         else
                         {
         
-                            $totalWeight +=  ($product['weight'] ? $product['weight'] : 1) * $amount;
-                            $totalWidth += ($product['width'] ? $product['width'] : 1) * $amount;
-                            $totalLength += ($product['depth'] ? $product['depth'] : 1) * $amount;
-                            $totalHeight += ($product['height'] ? $product['height'] : 1) * $amount;
+                            $totalWeight +=  ($product['weight'] != 0 ? $product['weight'] : 1) * $amount;
+                            $totalWidth += ($product['width'] != 0 ? $product['width'] : 1) * $amount;
+                            $totalLength += ($product['depth'] != 0 ? $product['depth'] : 1) * $amount;
+                            $totalHeight += ($product['height'] != 0 ? $product['height'] : 1) * $amount;
                         }
                     }
                     $omnivaParcel = new OmnivaIntParcel();

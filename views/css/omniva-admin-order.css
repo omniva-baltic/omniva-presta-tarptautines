@@ -8,7 +8,7 @@
     box-shadow: 0 0 4px 0 rgb(0 0 0 / 6%);
 }
 
-#print-label-heading {
+#content.bootstrap #print-label-heading, #print-label-heading {
     margin: 15px 0 0 -20px;
 }
 
@@ -219,4 +219,10 @@
 
 .omniva_shipment_form .parcel-row.first a.remove_nested_fields_link {
     cursor: not-allowed;
+}
+
+@media (min-width: 768px) {
+    .omniva_shipment_form .mt-md-0 {
+        margin-top: 0 !important;
+    }
 }
