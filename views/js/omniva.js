@@ -34,7 +34,7 @@ function loadTerminalMapping() {
 
 
   tmjs.setImagesPath('https://tarptautines.omniva.lt/');
-  tmjs.init({country_code: omniva_current_country, identifier: 'w2s_inpost', receiver_address: omniva_postcode});
+  tmjs.init({country_code: omniva_current_country, identifier: omnivaint_terminal_type, receiver_address: omniva_postcode});
 
   window['tmjs'] = tmjs;
 

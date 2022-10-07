@@ -829,7 +829,7 @@ class OmnivaInternational extends CarrierModule
 
         if ((version_compare(_PS_VERSION_, '1.7', '>=') && $omnivaCarrier->type == 'terminal') || (version_compare(_PS_VERSION_, '1.7', '<') && $omniva_terminal_carrier_exists))
         {
-            // If it is terminal, it should have only one service, which we need to filter out terminals by identifier.
+            // If it is a terminal, it should have only one service, which we need to filter out terminals by identifier.
             $carrierServices = OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id);
             if(isset($carrierServices[0]))
             {
@@ -852,14 +852,11 @@ class OmnivaInternational extends CarrierModule
                 return '';
             }
             $test_mode = Configuration::get('OMNIVA_INT_TEST_MODE');
-            $this->context->smarty->assign('terminals', $terminals);
             $this->context->smarty->assign(array(
                 'id_carrier' => version_compare(_PS_VERSION_, '1.7', '>=') ? $params['carrier']['id'] : $carrierObj->id,
-                'parcel_terminals' => $this->context->smarty->fetch(_PS_MODULE_DIR_ . $this->name .'/views/templates/front/terminal_options.tpl'),
-                'terminals_list' => $terminals,
                 'omniva_current_country' => $country_code,
+                'omnivaint_terminal_type' => $service->parcel_terminal_type,
                 'omniva_postcode' => $address->postcode,
-                'omniva_map' => 1,
                 'module_url' => Tools::getHttpHost(true) . __PS_BASE_URI__ . 'modules/' . $this->name . '/',
                 'images_url' => $this->_path . 'views/img/',
                 'terminals_radius' => $omnivaCarrier->radius,
