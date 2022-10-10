@@ -612,14 +612,14 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 $service = new OmnivaIntService($id_service);
                 if(Validate::isLoadedObject($service))
                 {
-                    // Additionally, if adding pickup carrier, check if "delivery_to_address" is false and "parcel_terminal_type" is set.
-                    if($this->adding_terminal_carrier && !$service->delivery_to_address && $service->parcel_terminal_type)
+                    // Additionally, if adding pickup carrier, check if "parcel_terminal_type" is set.
+                    if($this->adding_terminal_carrier && !empty($service->parcel_terminal_type))
                         $final_services[] = $id_service;
                     else if(!$this->adding_terminal_carrier)
                         $final_services[] = $id_service; 
 
                     // If this is not pickup carrier creation process, we need to determine, if we'll do it later.
-                    if(!$service->delivery_to_address && $service->parcel_terminal_type)
+                    if(!$this->adding_terminal_carrier && $service->parcel_terminal_type)
                     {
                         $pickup_services++;
                     }
@@ -629,6 +629,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
         if(empty($final_services))
         {
+            $this->adding_terminal_carrier = false;
             $this->errors[] = $this->module->l('No valid services were provided. Carrier creation could not be finished.');
             $carrier->delete();
             return;

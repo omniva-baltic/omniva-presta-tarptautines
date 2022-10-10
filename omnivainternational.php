@@ -140,7 +140,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.2';
+        $this->version = '1.0.3';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -849,10 +849,6 @@ class OmnivaInternational extends CarrierModule
                 return '';
             }
 
-            $terminals = OmnivaIntTerminal::getTerminalsByIsoAndIndentifier($country_code, $service->parcel_terminal_type);
-            if (!$terminals || empty($terminals)) {
-                return '';
-            }
             $test_mode = Configuration::get('OMNIVA_INT_TEST_MODE');
             $this->context->smarty->assign(array(
                 'id_carrier' => version_compare(_PS_VERSION_, '1.7', '>=') ? $params['carrier']['id'] : $carrierObj->id,

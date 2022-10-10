@@ -229,13 +229,17 @@ class OmnivaIntEntityBuilder
         
         $omnivaOrder = new OmnivaIntOrder($order->id);
 
-        $additional_services = [
-            'cod' => $omnivaOrder->cod,
-            'insurance' => $omnivaOrder->insurance,
-            'carry_service' => $omnivaOrder->carry_service,
-            'doc_return' => $omnivaOrder->doc_return,
-            'fragile' => $omnivaOrder->fragile,
-        ];
+        $additional_services = [];
+        if($omnivaOrder->cod)
+            $additional_services[] = 'cod';
+        if($omnivaOrder->insurance)
+            $additional_services[] = 'insurance';
+        if($omnivaOrder->carry_service)
+            $additional_services[] = 'carry_service';        
+        if($omnivaOrder->doc_return)
+            $additional_services[] = 'doc_return';        
+        if($omnivaOrder->fragile)
+            $additional_services[] = 'fragile';
 
         $cod_amount = 0;
         if($omnivaOrder->cod)
