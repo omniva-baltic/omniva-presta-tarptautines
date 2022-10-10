@@ -3,6 +3,7 @@
 require_once "AdminOmnivaIntBaseController.php";
 
 use OmnivaApi\Exception\OmnivaApiException;
+use setasign\Fpdi\Fpdi;
 
 class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
 {
@@ -120,6 +121,10 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         ];
         $this->actions = ['printManifest', 'printLabels', 'generateManifest'];
         $this->bulk_actions = [
+            'printLabels' => array(
+                'text' => $this->module->l('Print labels'),
+                'icon' => 'icon-print'
+            ),
             'generateLabels' => array(
                 'text' => $this->module->l('Generate Labels'),
                 'icon' => 'icon-save'
@@ -376,10 +381,80 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         {
             $this->generateManifest();
         }
+        if(Tools::isSubmit('submitBulkprintLabelsomniva_int_order'))
+        {
+            $this->bulkPrintLabels();
+        }
         if(Tools::isSubmit('submitBulkgenerateLabelsomniva_int_order'))
         {
             $this->bulkSendShipments();
         }
+    }
+
+    private function bulkPrintLabels()
+    {
+        $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(empty($order_ids))
+        {
+            $this->errors[] = $this->module->l('No order ID\'s were provided.');
+            return false;
+        }
+
+        $pdfs = [];
+        foreach($order_ids as $id_order)
+        {
+            $omnivaOrder = new OmnivaIntOrder($id_order);
+            try {
+                $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+            }
+            catch(Exception $e)
+            {
+                // $this->errors[] = Translate::getModuleTranslation($this->module, 'Label is not ready yet for order #%s. Please, check back again later.', $this->module->name, [$id_order]);
+                continue;
+            }
+    
+            if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
+            {
+                $pdf = $orderTrackingInfo->base64pdf;
+                $pdfs[] = $pdf;
+            }
+            else
+            {
+                $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to get labels from API for order #%s. Please try again later.', $this->module->name, [$id_order]);
+            }
+        }
+
+        if(!empty($pdfs))
+        {
+            $this->mergePdf($pdfs);
+        }
+        else
+        {
+            $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to get labels from API for all selected orders. Please try again later.', $this->module->name);
+        }
+    }
+
+    private function mergePdf($pdfs) {
+        $pageCount = 0;
+        // initiate FPDI
+        $pdf = new Fpdi();
+
+        foreach ($pdfs as $data) {
+            $name = tempnam("/tmp", "tmppdf");
+            $handle = fopen($name, "w");
+            fwrite($handle, base64_decode($data));
+            fclose($handle);
+
+            $pageCount = $pdf->setSourceFile($name);
+            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                $templateId = $pdf->importPage($pageNo);
+                
+                $pdf->AddPage('P');
+                
+                $pdf->useTemplate($templateId, ['adjustPageSize' => true]);
+            }
+        }
+        $pdf->Output('I');
     }
 
     private function bulkSendShipments()

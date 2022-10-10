@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "omniva/api-lib": "dev-master"
+        "omniva/api-lib": "dev-master",
+        "iio/libmergepdf": "^3.0"
     },
     "repositories": [
         {

@@ -7,6 +7,14 @@ namespace Composer\Autoload;
 class ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c
 {
     public static $prefixLengthsPsr4 = array (
+        's' => 
+        array (
+            'setasign\\Fpdi\\' => 14,
+        ),
+        'i' => 
+        array (
+            'iio\\libmergepdf\\' => 16,
+        ),
         'O' => 
         array (
             'OmnivaApi\\' => 10,
@@ -14,6 +22,14 @@ class ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c
     );
 
     public static $prefixDirsPsr4 = array (
+        'setasign\\Fpdi\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/setasign/fpdi/src',
+        ),
+        'iio\\libmergepdf\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/iio/libmergepdf/src',
+        ),
         'OmnivaApi\\' => 
         array (
             0 => __DIR__ . '/..' . '/omniva/api-lib/src',
@@ -22,6 +38,7 @@ class ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c
 
     public static $classMap = array (
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
+        'FPDF' => __DIR__ . '/..' . '/setasign/fpdf/fpdf.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
