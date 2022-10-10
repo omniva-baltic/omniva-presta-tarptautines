@@ -412,7 +412,8 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 }
                 catch (OmnivaApiException $e)
                 {
-                    $this->errors[] = $e->getMessage();
+                    $message = $e->getMessage() . ". Order: #" . $id_order;
+                    $this->errors[] = Translate::getModuleTranslation($this->module, $message, $this->module->displayName);
                     continue;
                 }
                 $omnivaOrder->setFieldsToUpdate([
@@ -425,18 +426,22 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                     $omnivaOrder->cart_id = $response->cart_id;
                     if(!$omnivaOrder->update())
                     {
-                        $this->errors[] = $this->module->l('Couldn\'t update Omniva order.');
+                        $this->errors[] = Translate::getModuleTranslation($this->module, 'Couldn\'t update Omniva order: #%s.', $this->module->name, [$id_order]);
+                    }
+                    else
+                    {
+                        $this->confirmations[] = Translate::getModuleTranslation($this->module, 'Successfully sent shipment for order #%s.', $this->module->name, [$id_order]);
                     }
                 }
                 else
                 {
-                    $this->errors[] = $this->module->l('Failed to receive a response from API.');
+                    $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
                     return false;
                 }
             }
         }
         if(empty($this->errors))
-            $this->confirmations[] = $this->module->l('Successfully sent shipment data for selected orders');
+            $this->confirmations[] = $this->module->l('Successfully sent shipment data for all selected orders');
     }
 
     public function generateManifest()
