@@ -79,6 +79,30 @@ class OmnivaIntOffersProvider
             return ($price * (1 + ($taxRate / 100.0)));
     }
 
+    private function getOfferPrice($offer)
+    {
+        if(!is_object($offer))
+            return 0;
+        $offers_tax = $this->module->helper->getConfigValue('offers_tax');
+
+        if($offers_tax && !empty($offer->total_price_with_vat))
+        {
+            return (float) $offer->total_price_with_vat;
+        }
+        if(!$offers_tax && !empty($offer->total_price_excl_vat))
+        {
+            return (float) $offer->total_price_excl_vat;
+        }
+
+        //Default to price 
+        if(!empty($offer->price))
+        {
+            return (float) $offer->price;
+        }
+
+        return 0;
+    }
+
     public function getPrice()
     {
         $this->entityBuilder = new OmnivaIntEntityBuilder($this->module);
@@ -132,7 +156,6 @@ class OmnivaIntOffersProvider
                 return $this->addTax($omnivaCarrierCountry->price, $omnivaCarrierCountry->tax);
             }
 
-
             // When there is only one offer, simply return it's price.
             if(count($carrier_offers) == 1)
             {
@@ -143,7 +166,7 @@ class OmnivaIntOffersProvider
                 {
                     return 0;
                 }
-                return $this->addSurcharge($offer->total_price_excl_vat, $omnivaCarrierCountry);
+                return $this->addSurcharge($this->getOfferPrice($offer), $omnivaCarrierCountry);
             }
             else
             {
@@ -153,9 +176,7 @@ class OmnivaIntOffersProvider
                 }
                 if($omnivaCarrierCountry->cheapest)
                 {
-                    $prices = array_map(function($offer) {
-                        return (float) $offer->total_price_excl_vat;
-                    }, $carrier_offers);
+                    $prices = array_map([$this, 'getOfferPrice'], $carrier_offers);
                     asort($prices);
                     $cheapest_key = key($prices);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$cheapest_key]->service_code;
@@ -175,7 +196,7 @@ class OmnivaIntOffersProvider
                     $fastest_key = key($lower_bound_days);
                     $cookie->{'omniva_carrier_' . $omnivaCarrier->id_reference} = $carrier_offers[$fastest_key]->service_code;
                     $cookie->write();
-                    return $this->addSurcharge($carrier_offers[$fastest_key]->price, $omnivaCarrierCountry);
+                    return $this->addSurcharge($this->getOfferPrice($carrier_offers[$fastest_key]), $omnivaCarrierCountry);
                 }
             }
         }

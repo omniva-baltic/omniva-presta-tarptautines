@@ -147,6 +147,13 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
                             'desc' => $this->module->l('If enabled, all order products will be put into one package.'),
                             'values' => $switcher_values
                         ],
+                        [
+                            'type' => 'switch',
+                            'label' => $this->module->l('Offers tax'),
+                            'name' => $this->module->getConfigKey('offers_tax', $this->section_id[1]),
+                            'desc' => $this->module->l('If enabled, module will take carrier service price offers with taxes from the API.'),
+                            'values' => $switcher_values
+                        ],
 
                     ],
                     'submit' => [

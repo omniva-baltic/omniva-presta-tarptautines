@@ -94,6 +94,7 @@ class OmnivaInternational extends CarrierModule
             'shop_email' => 'OMNIVA_SHOP_EMAIL',
             'sender_address' => 'OMNIVA_SENDER_ADDRESS',
             'consolidation' => 'OMNIVA_CONSOLIDATION',
+            'offers_tax' => 'OMNIVA_OFFERS_TAX',
         ],
     ];
 
@@ -434,8 +435,9 @@ class OmnivaInternational extends CarrierModule
         $id_country = $address->id_country;
         $postcode = $address->postcode;
         $consolidation = (int) $this->helper->getConfigValue('consolidation');
+        $offers_tax = (int) $this->helper->getConfigValue('offers_tax');
 
-        $cache_key = "$id_customer-$id_cart-$id_carrier-$id_address-$id_country-$postcode-$consolidation";
+        $cache_key = "$id_customer-$id_cart-$id_carrier-$id_address-$id_country-$postcode-$consolidation-$offers_tax";
         $cart_products = $cart->getProducts();
         foreach ($cart_products as $product)
         {
