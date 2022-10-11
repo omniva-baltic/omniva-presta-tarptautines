@@ -1,5 +1,8 @@
 <?php
 
+// ALTER TABLE `ps_omniva_int_carrier_country` ADD COLUMN `is_exception` tinyint(1) DEFAULT NULL;
+// ALTER TABLE `ps_omniva_int_carrier_country` ADD COLUMN `exception_price` float(10) DEFAULT NULL;
+
 class OmnivaIntCarrierCountry extends ObjectModel
 {
     public $id;
@@ -11,6 +14,10 @@ class OmnivaIntCarrierCountry extends ObjectModel
     public $price_type;
 
     public $price;
+
+    public $is_exception;
+
+    public $exception_price;
 
     public $free_shipping;
 
@@ -31,10 +38,12 @@ class OmnivaIntCarrierCountry extends ObjectModel
             'id_country' =>       ['type' => self::TYPE_INT, 'required' => true, 'size' => 10],
             'price_type' =>       ['type' => self::TYPE_STRING, 'required' => true, 'size' => 30],
             'price' =>            ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
+            'exception_price' =>  ['type' => self::TYPE_FLOAT, 'required' => false, 'size' => 10, 'validate' => 'isPrice'],
             'free_shipping' =>    ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10, 'validate' => 'isPrice'],
             'cheapest' =>         ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
             'tax' =>              ['type' => self::TYPE_FLOAT, 'required' => true, 'size' => 10],
             'active' =>           ['type' => self::TYPE_BOOL, 'required' => true, 'validate' => 'isBool'],
+            'is_exception' =>     ['type' => self::TYPE_BOOL, 'required' => false, 'validate' => 'isBool'],
         ],
     ];
 

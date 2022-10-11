@@ -1111,6 +1111,9 @@ class OmnivaInternational extends CarrierModule
                     if(!Validate::isLoadedObject($omnivaCarrier))
                         continue;
 
+                    $omnivaCarrierServices = OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id);
+                    $is_service_exception = $this->helper->checkServiceException($omnivaCarrierServices);
+
                     // try to get carrier country settings
                     if(!OmnivaIntCarrierCountry::getCarrierCountry($omnivaCarrier->id, $country->id))
                     {
@@ -1120,6 +1123,8 @@ class OmnivaInternational extends CarrierModule
                         $omnivaCarrierCountry->id_country = $country->id;
                         $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
                         $omnivaCarrierCountry->price = $omnivaCarrier->price;
+                        $omnivaCarrierCountry->is_exception = $is_service_exception;
+                        $omnivaCarrierCountry->exception_price = $omnivaCarrier->price;
                         $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
                         $omnivaCarrierCountry->cheapest = $omnivaCarrier->cheapest;
                         $omnivaCarrierCountry->active = 1;

@@ -9,6 +9,12 @@ require_once 'OmnivaIntEntityBuilder.php';
 
 class OmnivaIntOffersProvider
 {
+    const MAX_WEIGHT_KG = 2.5;
+
+    const MAX_SUM_EDGES_CM = 90;
+
+    const MAX_EDGE_CM = 60;
+
     private $cart;
 
     private $offers;
@@ -200,8 +206,68 @@ class OmnivaIntOffersProvider
                 }
             }
         }
+        elseif($omnivaCarrierCountry->is_exception)
+        {
+            // Determine by how much the exception price will multiplied (depends on cart)
+            $multiplier = $this->calculateExceptionPriceMultiplier($cart);
+            if($multiplier)
+            {
+                return $multiplier * $omnivaCarrierCountry->exception_price;
+            }
+            return false;
+        }
         else
             return false;
+    }
+
+    private function calculateExceptionPriceMultiplier($cart)
+    {
+        $cart_products = $cart->getProducts();
+
+        // Check for exception in separate loop, before doing actual calculations.
+        foreach ($cart_products as $product)
+        {
+            $tooHeavy = $product['weight'] > self::MAX_WEIGHT_KG;
+            $someEdgeTooLarge = $product['width'] > self::MAX_EDGE_CM || $product['depth'] > self::MAX_EDGE_CM || $product['height'] > self::MAX_EDGE_CM;
+            $tooLargeSumEdges = ($product['width'] + $product['depth'] + $product['height']) > self::MAX_SUM_EDGES_CM;
+            if($tooHeavy || $someEdgeTooLarge || $tooLargeSumEdges)
+                return false;
+        }
+
+        // If no limits were breached, then do the actual size calculation.
+        $totalWeight = $totalVolume = 0;
+
+        // Starting with one box and incrementing it, if needed.
+        $numBoxes = 1;
+        foreach ($cart_products as $product)
+        {
+            $amount = (int) $product['cart_quantity'];
+            $weight = $product['weight'] ?: 1;
+            $height = $product['height'] ?: 1;
+            $depth = $product['depth'] ?: 1;
+            $width = $product['width'] ?: 1;
+
+            for($i = 0; $i < $amount; $i++)
+            {
+                $totalWeight += $weight;
+                $tooHeavy = $totalWeight >= self::MAX_WEIGHT_KG;
+
+                $totalVolume += ($height * $depth * $width);
+                $avgEdge = $totalVolume ** (1/3);
+                $tooLargeSumEdges = ($avgEdge * 3) > self::MAX_SUM_EDGES_CM;
+
+                if($tooHeavy || $tooLargeSumEdges)
+                {
+                    $numBoxes++;
+                    $totalWeight = $totalVolume = 0;
+                    $totalWeight += $weight;
+                    $totalVolume += ($height * $depth * $width);
+                }
+
+            }
+        }
+
+        return $numBoxes;
     }
 
     public function filterOffersByCategories($offers)

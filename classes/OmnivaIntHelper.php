@@ -4,6 +4,8 @@ use OmnivaApi\API;
 
 class OmnivaIntHelper
 {
+    const POST_NL_SERVICE_NAME = 'PostNL';
+
     private $module;
 
     public function __construct($module)
@@ -32,5 +34,17 @@ class OmnivaIntHelper
             }
         }
         return null;
+    }
+
+    // Return boolean.
+    public function checkServiceException($final_services)
+    {
+        foreach($final_services as $id_service)
+        {
+            $service = new OmnivaIntService($id_service);
+            if($service->name == self::POST_NL_SERVICE_NAME)
+                return true;
+        }
+        return false;
     }
 }

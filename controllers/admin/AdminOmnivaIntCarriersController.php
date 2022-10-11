@@ -392,6 +392,17 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             ],
         ];
 
+        if($this->object->is_exception)
+        {
+            $this->fields_form['input'][] = [
+                'type' => 'text',
+                'name' => 'exception_price',
+                'label' => 'Exception Price',
+                'col' => '2',
+                'prefix' => '€'
+            ];
+        }
+
         $this->fields_form['submit'] = [
             'title' => $this->module->l('Save'),
         ];
@@ -674,13 +685,14 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         // If carrier was created successfully, we proceed to adding services.
         else
         {
-            $this->addCarrierCountries($omnivaCarrier);
+            $this->addCarrierCountries($omnivaCarrier, $final_services);
             $this->createOmnivaCarrierServices($omnivaCarrier, $final_services);
         }
     }
 
-    public function addCarrierCountries($omnivaCarrier)
+    private function addCarrierCountries($omnivaCarrier, $final_services)
     {
+        $is_service_exception = $this->module->helper->checkServiceException($final_services);
         $countries = Country::getCountries($this->context->language->id, true);
         foreach ($countries as $country)
         {
@@ -689,6 +701,11 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             $omnivaCarrierCountry->id_country = $country['id_country'];
             $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
             $omnivaCarrierCountry->price = $omnivaCarrier->price;
+            $omnivaCarrierCountry->is_exception = $is_service_exception;
+
+            // Initiallly, the exception price is same as carrier's. Later, client choose to change it. Or not.
+            $omnivaCarrierCountry->exception_price = $omnivaCarrier->price;
+
             $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
             $omnivaCarrierCountry->cheapest = $omnivaCarrier->cheapest;
             $omnivaCarrierCountry->tax = $omnivaCarrier->tax;
