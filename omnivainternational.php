@@ -54,6 +54,10 @@ class OmnivaInternational extends CarrierModule
     const CONTROLLER_OMNIVA_COUNTRIES = 'AdminOmnivaIntCountries';
     const CONTROLLER_OMNIVA_ORDER = 'AdminOmnivaIntOrder';
 
+    const MAX_WEIGHT_KG = 2.5;
+
+    const MAX_SUM_EDGES_CM = 90;
+
     /**
      * List of hooks
      */
@@ -885,7 +889,7 @@ class OmnivaInternational extends CarrierModule
             $omnivaOrder->force_id = true;
             $omnivaOrder->id = $order->id;
             $omnivaOrder->id_shop = $order->id_shop; 
-            $omnivaOrder->service_code = $this->context->cookie->{'omniva_carrier_' . $carrier_reference};
+            $omnivaOrder->service_code = $this->context->cookie->{'omniva_carrier_' . $carrier_reference} ?? null;
             $omnivaOrder->cod_amount = $order->total_paid_tax_incl;
             $omnivaOrder->add();
             if(Validate::isLoadedObject($omnivaOrder))
@@ -893,7 +897,45 @@ class OmnivaInternational extends CarrierModule
                 $cart_products = $cart->getProducts();
                 $consolidation = $this->helper->getConfigValue('consolidation');
 
-                if($consolidation)
+                $exception_price = $this->context->cookie->{'omniva_carrier_exception_' . $carrier_reference} ?? null;
+                if($exception_price)
+                {
+                    $totalWeight = $totalVolume = 0;
+                    foreach ($cart_products as $product)
+                    {
+                        $amount = (int) $product['cart_quantity'];
+                        $weight = $product['weight'] ?: 1;
+                        $height = $product['height'] ?: 1;
+                        $depth = $product['depth'] ?: 1;
+                        $width = $product['width'] ?: 1;
+            
+                        for($i = 0; $i < $amount; $i++)
+                        {
+                            $tooHeavy = ($totalWeight + $weight) >= self::MAX_WEIGHT_KG;
+                
+                            $avgEdge = ($totalVolume + ($height * $depth * $width)) ** (1/3);
+                            $tooLargeSumEdges = ($avgEdge * 3) > self::MAX_SUM_EDGES_CM;
+            
+                            if($tooHeavy || $tooLargeSumEdges)
+                            {
+                                $omnivaParcel = new OmnivaIntParcel();
+                                $omnivaParcel->id_order = $omnivaOrder->id;
+                                $omnivaParcel->amount = 1;
+                                $averageDimension = ceil($totalVolume ** (1/3));
+                                $omnivaParcel->weight = $totalWeight;
+                                $omnivaParcel->length = $averageDimension;
+                                $omnivaParcel->width = $averageDimension;
+                                $omnivaParcel->height = $averageDimension;
+                                $omnivaParcel->add();
+
+                                $totalWeight = $totalVolume = 0;
+                            }
+                            $totalWeight += $weight;
+                            $totalVolume += ($height * $depth * $width);
+                        }
+                    }
+                }
+                elseif($consolidation)
                 {
                     $totalWidth = $totalLength = $totalHeight = $totalWeight = 0;
                     foreach ($cart_products as $product)

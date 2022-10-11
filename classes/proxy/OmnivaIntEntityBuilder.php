@@ -92,7 +92,59 @@ class OmnivaIntEntityBuilder
         return $receiver;
     }
 
-    public function buildParcels($cart)
+    public function buildParcels($omnivaOrder)
+    {
+        $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+        $consolidation = $this->module->helper->getConfigValue('consolidation');
+
+        $builtParcels = [];
+
+        if($consolidation)
+        {
+            $parcel = new Parcel();
+            $parcel->setAmount(1);
+            
+            $totalWeight = $totalVolume = 0;
+
+            foreach($parcels as $parcel)
+            {
+                $parcelObj = new OmnivaIntParcel($parcel['id']);
+                $totalVolume += ($parcelObj->height * $parcelObj->length * $parcelObj->width);
+                $totalWeight += $parcelObj->weight;
+            }
+
+            $parcel->setUnitWeight($totalWeight);
+
+            $averageDimension = ceil($totalVolume ** (1/3));
+            $parcel
+                ->setWidth($averageDimension)
+                ->setLength($averageDimension)
+                ->setHeight($averageDimension);
+
+            $builtParcels[] = $parcel->generateParcel(); 
+        }
+        else
+        {
+            foreach($parcels as $parcel)
+            {
+                $parcelObj = new OmnivaIntParcel($parcel['id']);
+
+                $parcel = new Parcel();
+                $parcel->setAmount($parcelObj->amount);
+                $parcel
+                ->setUnitWeight($parcelObj->weight)
+                ->setWidth($parcelObj->width)
+                ->setLength($parcelObj->length)
+                ->setHeight($parcelObj->height);
+
+                $builtParcels[] = $parcel->generateParcel(); 
+            }
+        }
+
+        return $builtParcels;
+    }
+
+    public function buildParcelsCart($cart)
     {
         $cart_products = $cart->getProducts();
         $parcels = [];
@@ -224,10 +276,10 @@ class OmnivaIntEntityBuilder
         $receiver = $this->buildReceiver($cart, $type);
         $sender = $this->buildSender();
 
-        $parcels = $this->buildParcels($cart);
-        $items = $this->buildItems($cart);
-        
         $omnivaOrder = new OmnivaIntOrder($order->id);
+
+        $parcels = $this->buildParcels($omnivaOrder);
+        $items = $this->buildItems($cart);
 
         $additional_services = [];
         if($omnivaOrder->cod)

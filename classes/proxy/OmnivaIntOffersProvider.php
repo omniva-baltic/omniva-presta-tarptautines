@@ -143,7 +143,7 @@ class OmnivaIntOffersProvider
 
         $sender = $this->entityBuilder->buildSender();
         $receiver = $this->entityBuilder->buildReceiver($cart, $this->type);
-        $parcels = $this->entityBuilder->buildParcels($cart);
+        $parcels = $this->entityBuilder->buildParcelsCart($cart);
 
         $offers = $this->module->helper->getApi()->getOffers($sender, $receiver, $parcels);
         
@@ -212,6 +212,8 @@ class OmnivaIntOffersProvider
             $multiplier = $this->calculateExceptionPriceMultiplier($cart);
             if($multiplier)
             {
+                $cookie->{'omniva_carrier_exception_' . $omnivaCarrier->id_reference} = 1;
+                $cookie->write();
                 return $multiplier * $omnivaCarrierCountry->exception_price;
             }
             return false;
@@ -249,21 +251,18 @@ class OmnivaIntOffersProvider
 
             for($i = 0; $i < $amount; $i++)
             {
-                $totalWeight += $weight;
-                $tooHeavy = $totalWeight >= self::MAX_WEIGHT_KG;
+                $tooHeavy = ($totalWeight + $weight) >= self::MAX_WEIGHT_KG;
 
-                $totalVolume += ($height * $depth * $width);
-                $avgEdge = $totalVolume ** (1/3);
+                $avgEdge = ($totalVolume + ($height * $depth * $width)) ** (1/3);
                 $tooLargeSumEdges = ($avgEdge * 3) > self::MAX_SUM_EDGES_CM;
 
                 if($tooHeavy || $tooLargeSumEdges)
                 {
                     $numBoxes++;
                     $totalWeight = $totalVolume = 0;
-                    $totalWeight += $weight;
-                    $totalVolume += ($height * $depth * $width);
                 }
-
+                $totalWeight += $weight;
+                $totalVolume += ($height * $depth * $width);
             }
         }
 
