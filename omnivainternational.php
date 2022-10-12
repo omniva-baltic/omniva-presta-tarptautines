@@ -455,6 +455,7 @@ class OmnivaInternational extends CarrierModule
         // OmnivaIntCarrier fields for destination country.
         $cache_key .= $omnivaCarrierCountry->price_type . "-" . $omnivaCarrierCountry->price . "-"
                     . $omnivaCarrierCountry->free_shipping . "-" . $omnivaCarrierCountry->cheapest . '-'
+                    . $omnivaCarrierCountry->is_exception . "-" . $omnivaCarrierCountry->exception_price . '-'
                     . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type . "-" . $omnivaCarrierCountry->tax . "-" . Configuration::get('PS_TAX');
         // ..and all it's services 
         $cache_key .= implode('-', OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id));
@@ -934,6 +935,15 @@ class OmnivaInternational extends CarrierModule
                             $totalVolume += ($height * $depth * $width);
                         }
                     }
+                    $omnivaParcel = new OmnivaIntParcel();
+                    $omnivaParcel->id_order = $omnivaOrder->id;
+                    $omnivaParcel->amount = 1;
+                    $averageDimension = ceil($totalVolume ** (1/3));
+                    $omnivaParcel->weight = $totalWeight;
+                    $omnivaParcel->length = $averageDimension;
+                    $omnivaParcel->width = $averageDimension;
+                    $omnivaParcel->height = $averageDimension;
+                    $omnivaParcel->add();
                 }
                 elseif($consolidation)
                 {
