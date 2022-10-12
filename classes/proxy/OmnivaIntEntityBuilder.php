@@ -106,9 +106,9 @@ class OmnivaIntEntityBuilder
             
             $totalWeight = $totalVolume = 0;
 
-            foreach($parcels as $parcel)
+            foreach($parcels as $parcel_data)
             {
-                $parcelObj = new OmnivaIntParcel($parcel['id']);
+                $parcelObj = new OmnivaIntParcel($parcel_data['id']);
                 $totalVolume += ($parcelObj->height * $parcelObj->length * $parcelObj->width);
                 $totalWeight += $parcelObj->weight;
             }
@@ -125,9 +125,9 @@ class OmnivaIntEntityBuilder
         }
         else
         {
-            foreach($parcels as $parcel)
+            foreach($parcels as $parcel_data)
             {
-                $parcelObj = new OmnivaIntParcel($parcel['id']);
+                $parcelObj = new OmnivaIntParcel($parcel_data['id']);
 
                 $parcel = new Parcel();
                 $parcel->setAmount($parcelObj->amount);
