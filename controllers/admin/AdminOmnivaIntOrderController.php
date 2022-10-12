@@ -233,31 +233,81 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
             {
                 $entityBuilder = new OmnivaIntEntityBuilder($this->module);
-                $order = $entityBuilder->buildOrder($order);
+                $orders = $entityBuilder->buildOrders($order);
 
-                if(!$order)
+                if(!$orders)
                     die(json_encode(['error' => $this->module->l('Could not build order.')]));
-                try {
-                    $response = $this->api->generateOrder($order);
-                }
-                catch (OmnivaApiException $e)
+
+
+                if($this->module->helper->checkIfOrderException($order))
                 {
-                    die(json_encode(['error' => $e->getMessage()]));
-                }
-                $omnivaOrder->setFieldsToUpdate([
-                    'shipment_id' => true,
-                    'cart_id' => true,
-                ]);
-                if($response && isset($response->shipment_id, $response->cart_id))
-                {
-                    $omnivaOrder->shipment_id = $response->shipment_id;
-                    $omnivaOrder->cart_id = $response->cart_id;
-                    die($omnivaOrder->update() ? json_encode(['success' => $this->module->l('Omniva successfully generated shipment.')]) : 
-                    json_encode(['error' => $this->module->l('Couldn\'t update Omniva order.')]));
+                    // 1st part
+                    $responses = [];
+                    foreach($orders as $order)
+                    {
+                        try {
+                            $response = $this->api->generateOrder($order);
+                        }
+                        catch (OmnivaApiException $e)
+                        {
+                            die(json_encode(['error' => $e->getMessage()]));
+                        }
+                        $omnivaOrder->setFieldsToUpdate([
+                            'shipment_id' => true,
+                            'cart_id' => true,
+                        ]);
+                        if($response && isset($response->shipment_id, $response->cart_id))
+                        {
+                            $responses[] = $response;
+                        }
+                        else
+                        {
+                            die(json_encode(['error' => $this->module->l('Failed to receive a response from API.')]));
+                        } 
+                    }
+                    // 2nd part
+                    $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+                    foreach($parcels as $key => $parcel)
+                    {
+                        $parcelObj = new OmnivaIntParcel($parcel['id']);
+                        $response = $responses[$key] ?? null;
+                        if(!$response)
+                        {
+                            die(json_encode(['error' => $this->module->l('Failed to receive a response from API.')]));
+                        }
+
+                        $parcelObj->shipment_id = $response->shipment_id;
+                        $parcelObj->cart_id = $response->cart_id;
+                        if(!$parcelObj->update())
+                            die(json_encode(['error' => $this->module->l('Couldn\'t update Omniva order.')]));
+        
+                    }
+                    die(json_encode(['success' => $this->module->l('Omniva successfully generated shipment.')]));
                 }
                 else
                 {
-                    die(json_encode(['error' => $this->module->l('Failed to receive a response from API.')]));
+                    try {
+                        $response = $this->api->generateOrder($orders[0]);
+                    }
+                    catch (OmnivaApiException $e)
+                    {
+                        die(json_encode(['error' => $e->getMessage()]));
+                    }
+                    $omnivaOrder->setFieldsToUpdate([
+                        'shipment_id' => true,
+                        'cart_id' => true,
+                    ]);
+                    if($response && isset($response->shipment_id, $response->cart_id))
+                    {
+                        $omnivaOrder->shipment_id = $response->shipment_id;
+                        $omnivaOrder->cart_id = $response->cart_id;
+                        die($omnivaOrder->update() ? json_encode(['success' => $this->module->l('Omniva successfully generated shipment.')]) : 
+                        json_encode(['error' => $this->module->l('Couldn\'t update Omniva order.')]));
+                    }
+                    else
+                    {
+                        die(json_encode(['error' => $this->module->l('Failed to receive a response from API.')]));
+                    }   
                 }
             }
             die(json_encode(['error' => $this->module->l('Couldn\'t load Omniva order info.')]));
@@ -474,7 +524,7 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             if($omnivaOrder && Validate::isLoadedObject($omnivaOrder) && Validate::isLoadedObject($order) && Validate::isLoadedObject($cart))
             {
                 $entityBuilder = new OmnivaIntEntityBuilder($this->module);
-                $order = $entityBuilder->buildOrder($order);
+                $orders = $entityBuilder->buildOrders($order);
                 
                 if(!$order)
                 {
@@ -482,36 +532,98 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                     continue;
                 }
 
-                try {
-                    $response = $this->api->generateOrder($order);
-                }
-                catch (OmnivaApiException $e)
+                if($this->module->helper->checkIfOrderException($order))
                 {
-                    $message = $e->getMessage() . ". Order: #" . $id_order;
-                    $this->errors[] = Translate::getModuleTranslation($this->module, $message, $this->module->displayName);
-                    continue;
-                }
-                $omnivaOrder->setFieldsToUpdate([
-                    'shipment_id' => true,
-                    'cart_id' => true,
-                ]);
-                if($response && isset($response->shipment_id, $response->cart_id))
-                {
-                    $omnivaOrder->shipment_id = $response->shipment_id;
-                    $omnivaOrder->cart_id = $response->cart_id;
-                    if(!$omnivaOrder->update())
+                    // 1st part
+                    $responses = [];
+                    $failed = false;
+                    foreach($orders as $order)
                     {
-                        $this->errors[] = Translate::getModuleTranslation($this->module, 'Couldn\'t update Omniva order: #%s.', $this->module->name, [$id_order]);
+                        try {
+                            $response = $this->api->generateOrder($order);
+                        }
+                        catch (OmnivaApiException $e)
+                        {
+                            $message = $e->getMessage() . ". Order: #" . $id_order;
+                            $this->errors[] = Translate::getModuleTranslation($this->module, $message, $this->module->displayName);
+                            $failed = true;
+                            break;
+                        }
+                        $omnivaOrder->setFieldsToUpdate([
+                            'shipment_id' => true,
+                            'cart_id' => true,
+                        ]);
+                        if($response && isset($response->shipment_id, $response->cart_id))
+                        {
+                            $responses[] = $response;
+                        }
+                        else
+                        {
+                            $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
+                            $failed = true;
+                            break;
+                        } 
                     }
-                    else
+                    if($failed)
+                        continue;
+                    // 2nd part
+                    $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+                    foreach($parcels as $key => $parcel)
                     {
+                        $parcelObj = new OmnivaIntParcel($parcel['id']);
+                        $response = $responses[$key] ?? null;
+                        if(!$response)
+                        {
+                            $failed = true;
+                            $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
+                            break;
+                        }
+
+                        $parcelObj->shipment_id = $response->shipment_id;
+                        $parcelObj->cart_id = $response->cart_id;
+                        if(!$parcelObj->update())
+                        {
+                            $failed = true;
+                            $this->errors[] = Translate::getModuleTranslation($this->module, 'Couldn\'t update Omniva order: #%s.', $this->module->name, [$id_order]);        
+                            break;
+                        }
+                    }
+                    if($failed)
                         $this->confirmations[] = Translate::getModuleTranslation($this->module, 'Successfully sent shipment for order #%s.', $this->module->name, [$id_order]);
-                    }
                 }
                 else
                 {
-                    $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
-                    return false;
+                    try {
+                        $response = $this->api->generateOrder($orders[0]);
+                    }
+                    catch (OmnivaApiException $e)
+                    {
+                        $message = $e->getMessage() . ". Order: #" . $id_order;
+                        $this->errors[] = Translate::getModuleTranslation($this->module, $message, $this->module->displayName);
+                        continue;
+                    }
+                    $omnivaOrder->setFieldsToUpdate([
+                        'shipment_id' => true,
+                        'cart_id' => true,
+                    ]);
+                    if($response && isset($response->shipment_id, $response->cart_id))
+                    {
+                        $omnivaOrder->shipment_id = $response->shipment_id;
+                        $omnivaOrder->cart_id = $response->cart_id;
+                        if(!$omnivaOrder->update())
+                        {
+                            $this->errors[] = Translate::getModuleTranslation($this->module, 'Couldn\'t update Omniva order: #%s.', $this->module->name, [$id_order]);
+                        }
+                        else
+                        {
+                            $this->confirmations[] = Translate::getModuleTranslation($this->module, 'Successfully sent shipment for order #%s.', $this->module->name, [$id_order]);
+                        }
+                    }
+                    else
+                    {
+                        $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
+                        return false;
+                    }   
                 }
             }
         }

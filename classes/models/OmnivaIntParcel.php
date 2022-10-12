@@ -1,5 +1,7 @@
 <?php
 
+// ALTER TABLE `ps_omniva_int_parcel` ADD COLUMN `shipment_id` varchar(100) DEFAULT NULL;
+// ALTER TABLE `ps_omniva_int_parcel` ADD COLUMN `cart_id` varchar(100) DEFAULT NULL;
 class OmnivaIntParcel extends ObjectModel
 {
     public $id;
@@ -18,6 +20,10 @@ class OmnivaIntParcel extends ObjectModel
 
     public $tracking_number;
 
+    public $shipment_id;
+
+    public $cart_id;
+
     /**
      * @see ObjectModel::$definition
      */
@@ -32,6 +38,8 @@ class OmnivaIntParcel extends ObjectModel
             'width' =>              ['type' => self::TYPE_FLOAT, 'size' => 10],
             'height' =>             ['type' => self::TYPE_FLOAT, 'size' => 10],
             'tracking_number' =>    ['type' => self::TYPE_STRING, 'size' => 100],
+            'shipment_id' =>         ['type' => self::TYPE_STRING, 'size' => 100],
+            'cart_id' =>             ['type' => self::TYPE_STRING, 'size' => 100],
         ],
         'associations' => [
             'shipment' => ['type' => self::HAS_ONE],

@@ -9,7 +9,7 @@ require_once 'OmnivaIntEntityBuilder.php';
 
 class OmnivaIntOffersProvider
 {
-    const MAX_WEIGHT_KG = 2.5;
+    const MAX_WEIGHT_KG = 2;
 
     const MAX_SUM_EDGES_CM = 90;
 

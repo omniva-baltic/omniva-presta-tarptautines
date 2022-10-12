@@ -260,7 +260,7 @@ class OmnivaIntEntityBuilder
         return $items;
     }
 
-    public function buildOrder($order)
+    public function buildOrders($order)
     {
         
         $carrier = new Carrier($order->id_carrier);
@@ -299,17 +299,39 @@ class OmnivaIntEntityBuilder
         
 
         $reference = $order->reference;
-        $order = new Order();
-        
-        $order
-            ->setServiceCode($omnivaOrder->service_code)
-            ->setSender($sender)
-            ->setReceiver($receiver)
-            ->setParcels($parcels)
-            ->setReference($reference)
-            ->setItems($items)
-            ->setAdditionalServices($additional_services, $cod_amount);
-        return $order;
+
+        $orders = [];
+        if($this->module->helper->checkIfOrderException($order))
+        {
+            foreach($parcels as $parcel)
+            {
+                $order = new Order();
+                $order
+                    ->setServiceCode($omnivaOrder->service_code)
+                    ->setSender($sender)
+                    ->setReceiver($receiver)
+                    ->setParcels([$parcel])
+                    ->setReference($reference)
+                    ->setItems($items)
+                    ->setAdditionalServices($additional_services, $cod_amount);
+                $orders[] = $order;
+            }
+        }
+        else
+        {
+            $order = new Order();
+            $order
+                ->setServiceCode($omnivaOrder->service_code)
+                ->setSender($sender)
+                ->setReceiver($receiver)
+                ->setParcels($parcels)
+                ->setReference($reference)
+                ->setItems($items)
+                ->setAdditionalServices($additional_services, $cod_amount);
+            $orders[] = $order;
+        }
+
+        return $orders;
     }
 
     // Hacky way to avoid API exception as it does not allow any zero values (weight, length, width, height) for items

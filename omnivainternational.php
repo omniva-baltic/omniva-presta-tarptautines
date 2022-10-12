@@ -54,7 +54,7 @@ class OmnivaInternational extends CarrierModule
     const CONTROLLER_OMNIVA_COUNTRIES = 'AdminOmnivaIntCountries';
     const CONTROLLER_OMNIVA_ORDER = 'AdminOmnivaIntOrder';
 
-    const MAX_WEIGHT_KG = 2.5;
+    const MAX_WEIGHT_KG = 2;
 
     const MAX_SUM_EDGES_CM = 90;
 
@@ -701,22 +701,54 @@ class OmnivaInternational extends CarrierModule
                     // Just catch the exception, because it is thrown, if order is not yet ready, i.e gives error "Your order is being generated, please try again later"
                     try {
                         $api = $this->helper->getApi();
-                        $orderTrackingInfo = $api->getLabel($omnivaOrder->shipment_id);
-                    
-                        if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
+                        if($this->helper->checkIfOrderException($order))
                         {
-                            $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_ready']['key']));
-                            foreach($omnivaOrderParcels as $key => $parcel)
+                            $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+                            $gotErrors = false;
+                            foreach($parcels as $parcel)
                             {
-                                $omnivaParcel = new OmnivaIntParcel($parcel['id']);
-                                $omnivaParcel->setFieldsToUpdate(['tracking_number' => true]);
-                                $omnivaParcel->tracking_number = $orderTrackingInfo->tracking_numbers[$key];
-                                $omnivaParcel->update();
+                                $parcelObj = new OmnivaIntParcel($parcel['id']);
+                                $orderTrackingInfo = $api->getLabel($parcelObj->shipment_id);
+                
+                                if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
+                                {
+                                    $parcelObj->tracking_number = $orderTrackingInfo->tracking_numbers[0];
+                                    $parcelObj->update();
+                                }
+                                else
+                                {
+                                    $gotErrors = true;
+                                }
+                            }
+
+                            if($gotErrors)
+                            {
+                                $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_error']['key']));
+                            }
+                            else
+                            {
+                                $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_ready']['key']));
                             }
                         }
                         else
                         {
-                            $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_error']['key']));
+                            $orderTrackingInfo = $api->getLabel($omnivaOrder->shipment_id);
+                        
+                            if($orderTrackingInfo && isset($orderTrackingInfo->tracking_numbers))
+                            {
+                                $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_ready']['key']));
+                                foreach($omnivaOrderParcels as $key => $parcel)
+                                {
+                                    $omnivaParcel = new OmnivaIntParcel($parcel['id']);
+                                    $omnivaParcel->setFieldsToUpdate(['tracking_number' => true]);
+                                    $omnivaParcel->tracking_number = $orderTrackingInfo->tracking_numbers[$key];
+                                    $omnivaParcel->update();
+                                }
+                            }
+                            else
+                            {
+                                $this->changeOrderStatus($id_order, Configuration::get(self::$_order_states['order_state_error']['key']));
+                            }
                         }
                         // for debugging
                     } catch (Exception $e) {
