@@ -328,43 +328,62 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
             die(json_encode(['error' => $this->module->l('This operation requires API token. Please check your settings.')]));
         if (Tools::isSubmit('submitPrintLabels') || $this->action == 'printLabels') {
             $omnivaOrder = $this->loadObject();
-            try {
-                $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
-            }
-            catch(Exception $e)
+
+            $order = new Order($omnivaOrder->id);
+            $pdfs = [];
+            if($this->module->helper->checkIfOrderException($order))
             {
-                $this->errors[] = $this->module->l('Label is not ready yet. Please, check back again later.');
-                return false;
-            }
-
-            if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
-            {
-                $pdf = base64_decode($orderTrackingInfo->base64pdf);
-
-                $pdfFile = tempnam(sys_get_temp_dir(), 'data');
-                $file = fopen($pdfFile, 'w');
-                fwrite($file, $pdf);
-                fclose($file);
-
-                header("Content-Type: application/pdf;");
-                header('Content-Transfer-Encoding: binary');
-                if(Tools::getValue('downloadLabels'))
-                    header('Content-Disposition: attachment; filename=labels_' . $omnivaOrder->shipment_id . '.pdf');
-                header('Expires: 0');
-                header('Cache-Control: must-revalidate');
-                header('Pragma: public');
-                header('Content-Length: ' . filesize($pdfFile));
-
-                ob_clean();
-                flush();
-                readfile($pdfFile);
-
-                unlink($pdfFile);
-                die(['success' => $this->module->l('Labels printed successfully.')]);
+                $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+                foreach($parcels as $key => $parcel)
+                {
+                    $parcelObj = new OmnivaIntParcel($parcel['id']);
+                    try {
+                        $orderTrackingInfo = $this->api->getLabel($parcelObj->shipment_id);
+                    }
+                    catch(Exception $e)
+                    {
+                        die(json_encode(['error' => $this->module->l('Label is not ready yet. Please, check back again later.')]));
+                    }
+        
+                    if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
+                    {
+                        $pdf = $orderTrackingInfo->base64pdf;
+                        $pdfs[] = $pdf;
+                    }
+                    else
+                    {
+                        die(json_encode(['error' => $this->module->l('Failed to get labels from API. Please try again later.')]));
+                    }
+                }
             }
             else
             {
-                die(json_encode(['error' => $this->module->l('Failed to get labels from API. Please try again later.')]));
+                try {
+                    $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+                }
+                catch(Exception $e)
+                {
+                    $this->errors[] = $this->module->l('Label is not ready yet. Please, check back again later.');
+                    return false;
+                }
+    
+                if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
+                {
+                    $pdf = $orderTrackingInfo->base64pdf;
+                    $pdfs[] = $pdf;
+                }
+                else
+                {
+                    die(json_encode(['error' => $this->module->l('Failed to get labels from API. Please try again later.')]));
+                }
+            }
+            if(!empty($pdfs))
+            {
+                $this->mergePdf($pdfs);
+            }
+            else
+            {
+                die(json_encode(['error' => $this->module->l('Failed to get labels from API for all selected orders. Please try again later.')]));
             }
         }
     }
@@ -453,24 +472,54 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $pdfs = [];
         foreach($order_ids as $id_order)
         {
+            $order = new Order($id_order);
             $omnivaOrder = new OmnivaIntOrder($id_order);
-            try {
-                $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
-            }
-            catch(Exception $e)
+            
+            if($this->module->helper->checkIfOrderException($order))
             {
-                // $this->errors[] = Translate::getModuleTranslation($this->module, 'Label is not ready yet for order #%s. Please, check back again later.', $this->module->name, [$id_order]);
-                continue;
-            }
-    
-            if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
-            {
-                $pdf = $orderTrackingInfo->base64pdf;
-                $pdfs[] = $pdf;
+                $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+                foreach($parcels as $key => $parcel)
+                {
+                    $parcelObj = new OmnivaIntParcel($parcel['id']);
+                    try {
+                        $orderTrackingInfo = $this->api->getLabel($parcelObj->shipment_id);
+                    }
+                    catch(Exception $e)
+                    {
+                        die(json_encode(['error' => $this->module->l('Label is not ready yet. Please, check back again later.')]));
+                    }
+        
+                    if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
+                    {
+                        $pdf = $orderTrackingInfo->base64pdf;
+                        $pdfs[] = $pdf;
+                    }
+                    else
+                    {
+                        die(json_encode(['error' => $this->module->l('Failed to get labels from API. Please try again later.')]));
+                    }
+                }
             }
             else
             {
-                $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to get labels from API for order #%s. Please try again later.', $this->module->name, [$id_order]);
+                try {
+                    $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
+                }
+                catch(Exception $e)
+                {
+                    // $this->errors[] = Translate::getModuleTranslation($this->module, 'Label is not ready yet for order #%s. Please, check back again later.', $this->module->name, [$id_order]);
+                    continue;
+                }
+        
+                if($orderTrackingInfo && isset($orderTrackingInfo->base64pdf))
+                {
+                    $pdf = $orderTrackingInfo->base64pdf;
+                    $pdfs[] = $pdf;
+                }
+                else
+                {
+                    $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to get labels from API for order #%s. Please try again later.', $this->module->name, [$id_order]);
+                }
             }
         }
 
@@ -504,6 +553,8 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 $pdf->useTemplate($templateId, ['adjustPageSize' => true]);
             }
         }
+        if(Tools::getValue('downloadLabels'))
+            $pdf->Output('D');
         $pdf->Output('I');
     }
 
