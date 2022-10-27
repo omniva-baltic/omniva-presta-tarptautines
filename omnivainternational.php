@@ -71,7 +71,10 @@ class OmnivaInternational extends CarrierModule
         'displayAdminOmnivaIntTerminalsListBefore',
         'displayAdminOmnivaIntCountriesListBefore',
         'displayBeforeCarrier',
-        'actionObjectCountryUpdateAfter'
+        'actionObjectCountryUpdateAfter',
+        'actionOrderGridDefinitionModifier',
+        'actionAdminOrdersListingFieldsModifier',
+        'displayAdminListBefore',
     ];
 
     /**
@@ -141,7 +144,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.4';
+        $this->version = '1.0.5';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -1147,5 +1150,28 @@ class OmnivaInternational extends CarrierModule
                 }
             }
         }
+    }
+
+    /**
+     * Use hook to add Bulk actions for printing and generating labels on Orders page (1.7.7)
+     */
+    // note: cannot "use PrestaShop\PrestaShop\Core\Grid\Action\Bulk\Type\SubmitBulkAction",
+    // because 1.6 breaks with any use statement in the module main file...
+    public function hookActionOrderGridDefinitionModifier($params)
+    {
+        $params['definition']->getBulkActions()->add(
+            (new PrestaShop\PrestaShop\Core\Grid\Action\Bulk\Type\SubmitBulkAction('omniva_int_bulk_generate_labels'))
+                ->setName('Omniva international generate labels')
+                ->setOptions([
+                    'submit_route' => 'admin_omniva_int_generate_bulk',
+                ])
+        );
+        $params['definition']->getBulkActions()->add(
+            (new PrestaShop\PrestaShop\Core\Grid\Action\Bulk\Type\SubmitBulkAction('omniva_int_bulk_print_labels'))
+                ->setName('Omniva international print labels')
+                ->setOptions([
+                    'submit_route' => 'admin_omniva_int_print_bulk',
+                ])
+        );
     }
 }

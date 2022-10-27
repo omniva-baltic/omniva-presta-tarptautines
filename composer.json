@@ -2,6 +2,11 @@
     "config": {
         "prepend-autoloader": false
     },
+    "autoload": {
+        "psr-4": {
+          "OmnivaInt\\": "src/"
+        }
+    },
     "authors": [
         {
             "name": "Modestas",
