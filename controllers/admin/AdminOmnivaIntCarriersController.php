@@ -6,6 +6,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 {
     const PRICE_TYPES = ['fixed', 'surcharge-percent', 'surcharge-fixed'];
 
+    const DEFAULT_FREE_SHIPPING = 99999;
+
     public $price_types;
 
     public $adding_terminal_carrier = false;
@@ -143,7 +145,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Free Shipping'),
                 'align' => 'center',
                 'search' => false,
-                'callback' => 'displayPrice'
+                'callback' => 'displayPrice',
+                'default_value' => self::DEFAULT_FREE_SHIPPING,
             ],
             'cheapest' => [
                 'title' => $this->module->l('Price method'),
@@ -654,7 +657,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         }
     }
 
-    public function addCarrierCountries($omnivaCarrier)
+    private function addCarrierCountries($omnivaCarrier)
     {
         $countries = Country::getCountries($this->context->language->id, true);
         foreach ($countries as $country)
@@ -668,6 +671,21 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
             $omnivaCarrierCountry->cheapest = $omnivaCarrier->cheapest;
             $omnivaCarrierCountry->active = 1;
             $omnivaCarrierCountry->add();
+        }
+    }
+
+    private function updateCarrierCountries($omnivaCarrier)
+    {
+        $countries = OmnivaIntCarrierCountry::getCarrierCountries($omnivaCarrier->id);
+        foreach ($countries as $country)
+        {
+            $omnivaCarrierCountry = new OmnivaIntCarrierCountry($country['id']);
+            $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
+            $omnivaCarrierCountry->price = $omnivaCarrier->price;
+            $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
+            $omnivaCarrierCountry->cheapest = $omnivaCarrier->cheapest;
+            $omnivaCarrierCountry->active = $omnivaCarrier->active;;
+            $omnivaCarrierCountry->update();
         }
     }
 
@@ -779,6 +797,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     }
                 }
             }
+
+            $this->updateCarrierCountries($this->object);
         }
     }
 

@@ -50,4 +50,18 @@ class OmnivaIntCarrierCountry extends ObjectModel
 
         return new OmnivaIntCarrierCountry($id_country);
     }
+
+    public static function getCarrierCountries($id_carrier)
+    {
+        $query = (new DbQuery())
+            ->select("id")
+            ->from(self::$definition['table'])
+            ->where('id_carrier = ' . $id_carrier);
+
+        $countries = Db::getInstance()->executeS($query);
+
+        return array_map(function($country) {
+            return $country['id'];
+        }, $countries);
+    }
 }
