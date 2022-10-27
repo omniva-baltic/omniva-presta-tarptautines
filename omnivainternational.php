@@ -141,7 +141,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.3';
+        $this->version = '1.0.4';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -188,6 +188,8 @@ class OmnivaInternational extends CarrierModule
         if(!Configuration::get('OMNIVA_CRON_TOKEN'))
         {
             Configuration::updateValue('OMNIVA_CRON_TOKEN', md5(time()));
+            Configuration::updateValue(self::$_configKeys['SHOP']['consolidation'], 1);
+            Configuration::updateValue(self::$_configKeys['SHOP']['offers_tax'], 1);
         }
 
         return true;
@@ -452,7 +454,7 @@ class OmnivaInternational extends CarrierModule
         // OmnivaIntCarrier fields for destination country.
         $cache_key .= $omnivaCarrierCountry->price_type . "-" . $omnivaCarrierCountry->price . "-"
                     . $omnivaCarrierCountry->free_shipping . "-" . $omnivaCarrierCountry->cheapest . '-'
-                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type . "-" . $omnivaCarrierCountry->tax . "-" . Configuration::get('PS_TAX');
+                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type . "-" . Configuration::get('PS_TAX');
         // ..and all it's services 
         $cache_key .= implode('-', OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id));
 
@@ -1032,7 +1034,7 @@ class OmnivaInternational extends CarrierModule
         }
     }
 
-        /**
+    /**
      * Get config key from all keys list
      */
     public function getConfigKey($key_name, $section = '')
@@ -1117,7 +1119,6 @@ class OmnivaInternational extends CarrierModule
                     {
                         $omnivaCarrierCountry = new OmnivaIntCarrierCountry();
                         $omnivaCarrierCountry->id_carrier = $omnivaCarrier->id;
-                        $omnivaCarrierCountry->tax = $omnivaCarrier->tax;
                         $omnivaCarrierCountry->id_country = $country->id;
                         $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
                         $omnivaCarrierCountry->price = $omnivaCarrier->price;
