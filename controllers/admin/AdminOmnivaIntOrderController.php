@@ -408,6 +408,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         foreach($order_ids as $id_order)
         {
             $omnivaOrder = new OmnivaIntOrder($id_order);
+            if(!Validate::isLoadedObject($omnivaOrder))
+            {
+                $errors[] = Translate::getModuleTranslation($this->module, 'Can generate shipment for Order: #%s. Not Omniva International order.', $this->module->name, [$id_order]);
+                continue;
+            }
             try {
                 $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
             }
@@ -519,8 +524,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 else
                 {
                     $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
-                    return false;
                 }
+            }
+            else
+            {
+                $errors[] = Translate::getModuleTranslation($this->module, 'Can generate shipment for Order: #%s. Not Omniva International order.', $this->module->name, [$id_order]);
             }
         }
         if(empty($this->errors))
