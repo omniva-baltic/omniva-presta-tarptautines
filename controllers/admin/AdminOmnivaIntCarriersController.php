@@ -145,8 +145,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 'title' => $this->module->l('Free Shipping'),
                 'align' => 'center',
                 'search' => false,
-                'callback' => 'displayPrice',
-                'default_value' => self::DEFAULT_FREE_SHIPPING,
+                'callback' => 'displayPrice'
             ],
             'cheapest' => [
                 'title' => $this->module->l('Price method'),
@@ -361,7 +360,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'name' => 'free_shipping',
                     'label' => 'Free Shipping',
                     'col' => '2',
-                    'prefix' => '€'
+                    'prefix' => '€',
+                    'default_value' => self::DEFAULT_FREE_SHIPPING,
                 ],
                 [
                     'type' => 'radio',
@@ -433,7 +433,8 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                     'name' => 'free_shipping',
                     'label' => 'Free Shipping',
                     'col' => '2',
-                    'prefix' => '€'
+                    'prefix' => '€',
+                    'default_value' => self::DEFAULT_FREE_SHIPPING,
                 ],
                 [
                     'type' => 'swap',
@@ -677,9 +678,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
     private function updateCarrierCountries($omnivaCarrier)
     {
         $countries = OmnivaIntCarrierCountry::getCarrierCountries($omnivaCarrier->id);
-        foreach ($countries as $country)
+        foreach ($countries as $id_country)
         {
-            $omnivaCarrierCountry = new OmnivaIntCarrierCountry($country['id']);
+            $omnivaCarrierCountry = new OmnivaIntCarrierCountry($id_country);
             $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
             $omnivaCarrierCountry->price = $omnivaCarrier->price;
             $omnivaCarrierCountry->free_shipping = $omnivaCarrier->free_shipping;
@@ -745,7 +746,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
     public function processUpdate()
     {
         // Core can handle OmnivaIntCarrier fields.
-        parent::processUpdate();
+        $omnivaIntCarrier = parent::processUpdate();
         if(Tools::getValue('submitAddomniva_int_carrier_country'))
         {
             $this->redirect_after = $this->redirect_after = $this->context->link->getAdminLink("AdminOmnivaIntCarriers", true, [], [
@@ -798,7 +799,7 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 }
             }
 
-            $this->updateCarrierCountries($this->object);
+            $this->updateCarrierCountries($omnivaIntCarrier);
         }
     }
 

@@ -188,9 +188,9 @@ class OmnivaInternational extends CarrierModule
         if(!Configuration::get('OMNIVA_CRON_TOKEN'))
         {
             Configuration::updateValue('OMNIVA_CRON_TOKEN', md5(time()));
-            Configuration::updateValue(self::$_configKeys['SHOP']['consolidation'], 1);
-            Configuration::updateValue(self::$_configKeys['SHOP']['offers_tax'], 1);
         }
+        Configuration::updateValue($this->_configKeys['SHOP']['consolidation'], 1);
+        Configuration::updateValue($this->_configKeys['SHOP']['offers_tax'], 1);
 
         return true;
     }
