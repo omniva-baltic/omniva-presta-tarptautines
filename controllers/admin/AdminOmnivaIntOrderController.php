@@ -391,9 +391,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
     }
 
-    private function bulkPrintLabels()
+    public function bulkPrintLabels($orderIdsOverride = [])
     {
         $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(!empty($orderIdsOverride))
+        {
+            $order_ids = $orderIdsOverride;
+        }
         if(empty($order_ids))
         {
             $this->errors[] = $this->module->l('No order ID\'s were provided.');
@@ -457,9 +461,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $pdf->Output('I');
     }
 
-    private function bulkSendShipments()
+    public function bulkSendShipments($orderIdsOverride = [])
     {
         $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(!empty($orderIdsOverride))
+        {
+            $order_ids = $orderIdsOverride;
+        }
         if(empty($order_ids))
         {
             $this->errors[] = $this->module->l('No order ID\'s were provided.');
