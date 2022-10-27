@@ -95,6 +95,7 @@ class OmnivaInternational extends CarrierModule
             'sender_address' => 'OMNIVA_SENDER_ADDRESS',
             'consolidation' => 'OMNIVA_CONSOLIDATION',
             'offers_tax' => 'OMNIVA_OFFERS_TAX',
+            'label_size' => 'OMNIVA_LABEL_SIZE',
         ],
     ];
 
