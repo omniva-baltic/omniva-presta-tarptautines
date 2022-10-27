@@ -26,12 +26,12 @@
 
 
     <script type="text/javascript">
-      var select_terminal = "{l s='Pasirinkti terminalą'  mod='omnivainternational'}";
-      var text_search_placeholder = "{l s='įveskite adresą' mod='omnivainternational'}";
+      var select_terminal = "{l s='Select terminal'  mod='omnivainternational'}";
+      var text_search_placeholder = "{l s='enter address' mod='omnivainternational'}";
     </script>
 
 <script>
-    var omnivaSearch = "{l s='Įveskite adresą paieškos laukelyje, norint surasti paštomatus'  mod='omnivainternational'}";
+    var omnivaSearch = "{l s='Enter address in search field if you want to find the terminals'  mod='omnivainternational'}";
     {literal}
         var modal = document.getElementById('omnivaLtModal');
         window.document.onclick = function(event) {
