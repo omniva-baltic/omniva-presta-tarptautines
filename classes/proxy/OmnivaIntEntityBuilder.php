@@ -92,7 +92,59 @@ class OmnivaIntEntityBuilder
         return $receiver;
     }
 
-    public function buildParcels($cart)
+    public function buildParcels($omnivaOrder)
+    {
+        $parcels = OmnivaIntParcel::getParcelsByOrderId($omnivaOrder->id);
+        $consolidation = $this->module->helper->getConfigValue('consolidation');
+
+        $builtParcels = [];
+
+        if($consolidation)
+        {
+            $parcel = new Parcel();
+            $parcel->setAmount(1);
+
+            $totalWeight = $totalVolume = 0;
+
+            foreach($parcels as $parcel_data)
+            {
+                $parcelObj = new OmnivaIntParcel($parcel_data['id']);
+                $totalVolume += ($parcelObj->height * $parcelObj->length * $parcelObj->width);
+                $totalWeight += $parcelObj->weight;
+            }
+
+            $parcel->setUnitWeight($totalWeight);
+
+            $averageDimension = ceil($totalVolume ** (1/3));
+            $parcel
+                ->setWidth($averageDimension)
+                ->setLength($averageDimension)
+                ->setHeight($averageDimension);
+
+            $builtParcels[] = $parcel->generateParcel();
+        }
+        else
+        {
+            foreach($parcels as $parcel_data)
+            {
+                $parcelObj = new OmnivaIntParcel($parcel_data['id']);
+
+                $parcel = new Parcel();
+                $parcel->setAmount($parcelObj->amount);
+                $parcel
+                ->setUnitWeight($parcelObj->weight)
+                ->setWidth($parcelObj->width)
+                ->setLength($parcelObj->length)
+                ->setHeight($parcelObj->height);
+
+                $builtParcels[] = $parcel->generateParcel();
+            }
+        }
+
+        return $builtParcels;
+    }
+
+    public function buildParcelsCart($cart)
     {
         $cart_products = $cart->getProducts();
         $parcels = [];
@@ -104,45 +156,39 @@ class OmnivaIntEntityBuilder
             $parcel = new Parcel();
             $parcel->setAmount(1);
 
-            $totalWidth = $totalLength = $totalHeight = $totalWeight = 0;
+            $totalWeight = 0;
+            $totalVolume = 0;
             foreach ($cart_products as $product)
             {
                 $id_category = $product['id_category_default'];
                 $amount = (int) $product['cart_quantity'];
                 $omnivaCategory = new OmnivaIntCategory($id_category);
-                
+
                 if($product['weight'] != 0 && $product['width'] != 0 && $product['depth'] != 0 && $product['height'] != 0)
                 {
                     $totalWeight +=  $this->unZero($product['weight']) * $amount;
-                    $totalWidth += $this->unZero($product['width']) * $amount;
-                    $totalLength += $this->unZero($product['depth']) * $amount;
-                    $totalHeight += $this->unZero($product['height']) * $amount;
+                    $totalVolume += ($this->unZero($product['width']) * $this->unZero($product['depth']) *  $this->unZero($product['height'])) * $amount;
                 }
                 elseif($omnivaCategory->active)
                 {
                     $totalWeight +=  $this->unZero($omnivaCategory->weight) * $amount;
-                    $totalWidth += $this->unZero($omnivaCategory->width) * $amount;
-                    $totalLength += $this->unZero($omnivaCategory->length) * $amount;
-                    $totalHeight += $this->unZero($omnivaCategory->height) * $amount;
+                    $totalVolume += ($this->unZero($omnivaCategory->width) * $this->unZero($omnivaCategory->length) * $this->unZero($omnivaCategory->height)) * $amount;
                 }
                 else
                 {
                     $totalWeight +=  $this->unZero(1) * $amount;
-                    $totalWidth += $this->unZero(1) * $amount;
-                    $totalLength += $this->unZero(1) * $amount;
-                    $totalHeight += $this->unZero(1) * $amount;
+                    $totalVolume += ($this->unZero(1) * $this->unZero(1) * $this->unZero(1)) * $amount;
                 }
             }
             $parcel->setUnitWeight($this->unZero($totalWeight));
-            $volume = $totalWidth * $totalLength * $totalHeight;
 
-            $averageDimension = ceil($volume ** (1/3));
+            $averageDimension = ceil($totalVolume ** (1/3));
             $parcel
                 ->setWidth($averageDimension)
                 ->setLength($averageDimension)
                 ->setHeight($averageDimension);
 
-            $parcels[] = $parcel->generateParcel(); 
+            $parcels[] = $parcel->generateParcel();
         }
         else
         {
@@ -153,7 +199,7 @@ class OmnivaIntEntityBuilder
                 $amount = (int) $product['cart_quantity'];
                 $parcel->setAmount($amount);
                 $omnivaCategory = new OmnivaIntCategory($id_category);
-                
+
                 if($product['weight'] != 0 && $product['width'] != 0 && $product['depth'] != 0 && $product['height'] != 0)
                 {
                     $parcel
@@ -178,7 +224,7 @@ class OmnivaIntEntityBuilder
                     ->setLength($this->unZero(1) * $amount)
                     ->setHeight($this->unZero(1) * $amount);
                 }
-                $parcels[] = $parcel->generateParcel(); 
+                $parcels[] = $parcel->generateParcel();
             }
         }
 
@@ -210,7 +256,6 @@ class OmnivaIntEntityBuilder
 
     public function buildOrder($order)
     {
-        
         $carrier = new Carrier($order->id_carrier);
         if(!Validate::isLoadedObject($carrier))
             return false;
@@ -224,10 +269,10 @@ class OmnivaIntEntityBuilder
         $receiver = $this->buildReceiver($cart, $type);
         $sender = $this->buildSender();
 
-        $parcels = $this->buildParcels($cart);
-        $items = $this->buildItems($cart);
-        
         $omnivaOrder = new OmnivaIntOrder($order->id);
+
+        $parcels = $this->buildParcels($omnivaOrder);
+        $items = $this->buildItems($cart);
 
         $additional_services = [];
         if($omnivaOrder->cod)
@@ -235,20 +280,19 @@ class OmnivaIntEntityBuilder
         if($omnivaOrder->insurance)
             $additional_services[] = 'insurance';
         if($omnivaOrder->carry_service)
-            $additional_services[] = 'carry_service';        
+            $additional_services[] = 'carry_service';
         if($omnivaOrder->doc_return)
-            $additional_services[] = 'doc_return';        
+            $additional_services[] = 'doc_return';
         if($omnivaOrder->fragile)
             $additional_services[] = 'fragile';
 
         $cod_amount = 0;
         if($omnivaOrder->cod)
             $cod_amount = $omnivaOrder->cod_amount;
-        
 
         $reference = $order->reference;
+
         $order = new Order();
-        
         $order
             ->setServiceCode($omnivaOrder->service_code)
             ->setSender($sender)
@@ -257,6 +301,7 @@ class OmnivaIntEntityBuilder
             ->setReference($reference)
             ->setItems($items)
             ->setAdditionalServices($additional_services, $cod_amount);
+
         return $order;
     }
 

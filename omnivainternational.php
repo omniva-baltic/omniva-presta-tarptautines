@@ -144,7 +144,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.5';
+        $this->version = '1.0.6';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -901,7 +901,7 @@ class OmnivaInternational extends CarrierModule
 
                 if($consolidation)
                 {
-                    $totalWidth = $totalLength = $totalHeight = $totalWeight = 0;
+                    $totalVolume = $totalWeight = 0;
                     foreach ($cart_products as $product)
                     {
                         $id_category = $product['id_category_default'];
@@ -910,32 +910,24 @@ class OmnivaInternational extends CarrierModule
                         
                         if($product['weight'] != 0 && $product['width'] != 0 && $product['depth'] != 0 && $product['height'] != 0)
                         {
-                            $totalWeight +=  $omnivaCategory->weight * $amount;
-                            $totalWidth += $omnivaCategory->width * $amount;
-                            $totalLength += $omnivaCategory->length * $amount;
-                            $totalHeight += $omnivaCategory->height * $amount;
+                            $totalWeight +=  $product['weight'] * $amount;
+                            $totalVolume += ($product['width'] * $product['depth'] * $product['height']) * $amount;
                         }
-                        elseif($omnivaCategory->active)
+                        elseif($omnivaCategory->active && $omnivaCategory->weight != 0 && $omnivaCategory->width != 0 && $omnivaCategory->length != 0 && $omnivaCategory->height != 0)
                         {
                             $totalWeight +=  ($omnivaCategory->weight != 0 ? $omnivaCategory->weight : 1) * $amount;
-                            $totalWidth += ($omnivaCategory->width != 0 ? $omnivaCategory->width : 1) * $amount;
-                            $totalLength += ($omnivaCategory->length != 0 ? $omnivaCategory->length : 1) * $amount;
-                            $totalHeight += ($omnivaCategory->height != 0 ? $omnivaCategory->height : 1) * $amount;
+                            $totalVolume += ($omnivaCategory->width * $omnivaCategory->length * $omnivaCategory->height) * $amount;
                         }
                         else
                         {
-        
                             $totalWeight += 1;
-                            $totalWidth += 1;
-                            $totalLength += 1;
-                            $totalHeight += 1;
+                            $totalVolume += 1;
                         }
                     }
                     $omnivaParcel = new OmnivaIntParcel();
                     $omnivaParcel->id_order = $omnivaOrder->id;
                     $omnivaParcel->amount = 1;
-                    $volume = $totalWidth * $totalLength * $totalHeight;
-                    $averageDimension = ceil($volume ** (1/3));
+                    $averageDimension = ceil($totalVolume ** (1/3));
                     $omnivaParcel->weight = $totalWeight;
                     $omnivaParcel->length = $averageDimension;
                     $omnivaParcel->width = $averageDimension;
