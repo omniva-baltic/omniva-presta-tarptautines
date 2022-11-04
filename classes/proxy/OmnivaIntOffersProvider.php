@@ -66,18 +66,17 @@ class OmnivaIntOffersProvider
         else
             return false;
 
-        $taxRate = $omnivaCarrierCountry->tax;
-        return $this->addTax($price, $taxRate);
+        return $price;
     }
 
-    private function addTax($price, $taxRate = 0)
-    {
-        $use_tax = (int) Configuration::get('PS_TAX');
-        if(!$taxRate || !$use_tax)
-            return $price;
-        else
-            return ($price * (1 + ($taxRate / 100.0)));
-    }
+    // private function addTax($price, $taxRate = 0)
+    // {
+    //     $use_tax = (int) Configuration::get('PS_TAX');
+    //     if(!$taxRate || !$use_tax)
+    //         return $price;
+    //     else
+    //         return ($price * (1 + ($taxRate / 100.0)));
+    // }
 
     private function getOfferPrice($offer)
     {
@@ -125,7 +124,7 @@ class OmnivaIntOffersProvider
                 {
                     return 0;
                 }
-                return $this->addTax($omnivaCarrier->price, $omnivaCarrier->tax);
+                return $omnivaCarrier->price;
             }
             return false;
         }
@@ -153,7 +152,7 @@ class OmnivaIntOffersProvider
                 {
                     return 0;
                 }
-                return $this->addTax($omnivaCarrierCountry->price, $omnivaCarrierCountry->tax);
+                return $omnivaCarrierCountry->price;
             }
 
             // When there is only one offer, simply return it's price.

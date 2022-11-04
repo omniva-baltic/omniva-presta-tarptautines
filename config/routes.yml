@@ -1,0 +1,11 @@
+admin_omniva_int_generate_bulk:
+  path: /omniva-intk/bulk-generate
+  methods: [POST]
+  defaults:
+    _controller: 'OmnivaInt\Controller\Admin\OmnivaIntBulkActionController::bulkGenerateLabels'
+
+admin_omniva_int_print_bulk:
+  path: /omniva-int/bulk-print
+  methods: [POST]
+  defaults:
+    _controller: 'OmnivaInt\Controller\Admin\OmnivaIntBulkActionController::bulkPrintLabels'

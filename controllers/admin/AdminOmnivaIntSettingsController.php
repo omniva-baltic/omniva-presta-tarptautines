@@ -154,6 +154,24 @@ class AdminOmnivaIntSettingsController extends AdminOmnivaIntBaseController
                             'desc' => $this->module->l('If enabled, module will take carrier service price offers with taxes from the API.'),
                             'values' => $switcher_values
                         ],
+                        [
+                            'type' => 'radio',
+                            'label' => $this->l('Label size'),
+                            'name' => $this->module->getConfigKey('label_size', $this->section_id[1]),
+                            'values' => [
+                                [
+                                    'id' => 'A4',
+                                    'value' => 'a4',
+                                    'label' => 'A4',
+                                ],
+                                [
+                                    'id' => 'A6',
+                                    'value' => 'a6',
+                                    'label' => 'A6',
+                                ],
+                            ],
+                            'desc' => $this->l('Paper size of printing labels'),
+                        ],
 
                     ],
                     'submit' => [

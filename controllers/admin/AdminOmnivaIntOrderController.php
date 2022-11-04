@@ -391,9 +391,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         }
     }
 
-    private function bulkPrintLabels()
+    public function bulkPrintLabels($orderIdsOverride = [])
     {
         $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(!empty($orderIdsOverride))
+        {
+            $order_ids = $orderIdsOverride;
+        }
         if(empty($order_ids))
         {
             $this->errors[] = $this->module->l('No order ID\'s were provided.');
@@ -404,6 +408,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         foreach($order_ids as $id_order)
         {
             $omnivaOrder = new OmnivaIntOrder($id_order);
+            if(!Validate::isLoadedObject($omnivaOrder))
+            {
+                $errors[] = Translate::getModuleTranslation($this->module, 'Can generate shipment for Order: #%s. Not Omniva International order.', $this->module->name, [$id_order]);
+                continue;
+            }
             try {
                 $orderTrackingInfo = $this->api->getLabel($omnivaOrder->shipment_id);
             }
@@ -457,9 +466,13 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
         $pdf->Output('I');
     }
 
-    private function bulkSendShipments()
+    public function bulkSendShipments($orderIdsOverride = [])
     {
         $order_ids = Tools::getValue('omniva_int_orderBox');
+        if(!empty($orderIdsOverride))
+        {
+            $order_ids = $orderIdsOverride;
+        }
         if(empty($order_ids))
         {
             $this->errors[] = $this->module->l('No order ID\'s were provided.');
@@ -511,8 +524,11 @@ class AdminOmnivaIntOrderController extends AdminOmnivaIntBaseController
                 else
                 {
                     $this->errors[] = Translate::getModuleTranslation($this->module, 'Failed to receive a response from API. Order: #%s.', $this->module->name, [$id_order]);
-                    return false;
                 }
+            }
+            else
+            {
+                $errors[] = Translate::getModuleTranslation($this->module, 'Can generate shipment for Order: #%s. Not Omniva International order.', $this->module->name, [$id_order]);
             }
         }
         if(empty($this->errors))

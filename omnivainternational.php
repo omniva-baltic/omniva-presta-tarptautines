@@ -71,7 +71,10 @@ class OmnivaInternational extends CarrierModule
         'displayAdminOmnivaIntTerminalsListBefore',
         'displayAdminOmnivaIntCountriesListBefore',
         'displayBeforeCarrier',
-        'actionObjectCountryUpdateAfter'
+        'actionObjectCountryUpdateAfter',
+        'actionOrderGridDefinitionModifier',
+        'actionAdminOrdersListingFieldsModifier',
+        'displayAdminListBefore',
     ];
 
     /**
@@ -95,6 +98,7 @@ class OmnivaInternational extends CarrierModule
             'sender_address' => 'OMNIVA_SENDER_ADDRESS',
             'consolidation' => 'OMNIVA_CONSOLIDATION',
             'offers_tax' => 'OMNIVA_OFFERS_TAX',
+            'label_size' => 'OMNIVA_LABEL_SIZE',
         ],
     ];
 
@@ -140,7 +144,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.3';
+        $this->version = '1.0.5';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -188,6 +192,8 @@ class OmnivaInternational extends CarrierModule
         {
             Configuration::updateValue('OMNIVA_CRON_TOKEN', md5(time()));
         }
+        Configuration::updateValue($this->_configKeys['SHOP']['consolidation'], 1);
+        Configuration::updateValue($this->_configKeys['SHOP']['offers_tax'], 1);
 
         return true;
     }
@@ -451,7 +457,7 @@ class OmnivaInternational extends CarrierModule
         // OmnivaIntCarrier fields for destination country.
         $cache_key .= $omnivaCarrierCountry->price_type . "-" . $omnivaCarrierCountry->price . "-"
                     . $omnivaCarrierCountry->free_shipping . "-" . $omnivaCarrierCountry->cheapest . '-'
-                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type . "-" . $omnivaCarrierCountry->tax . "-" . Configuration::get('PS_TAX');
+                    . $omnivaCarrierCountry->active . "-" . $omnivaCarrier->type . "-" . Configuration::get('PS_TAX');
         // ..and all it's services 
         $cache_key .= implode('-', OmnivaIntCarrierService::getCarrierServices($omnivaCarrier->id));
 
@@ -1031,7 +1037,7 @@ class OmnivaInternational extends CarrierModule
         }
     }
 
-        /**
+    /**
      * Get config key from all keys list
      */
     public function getConfigKey($key_name, $section = '')
@@ -1116,7 +1122,6 @@ class OmnivaInternational extends CarrierModule
                     {
                         $omnivaCarrierCountry = new OmnivaIntCarrierCountry();
                         $omnivaCarrierCountry->id_carrier = $omnivaCarrier->id;
-                        $omnivaCarrierCountry->tax = $omnivaCarrier->tax;
                         $omnivaCarrierCountry->id_country = $country->id;
                         $omnivaCarrierCountry->price_type = $omnivaCarrier->price_type;
                         $omnivaCarrierCountry->price = $omnivaCarrier->price;
@@ -1144,6 +1149,84 @@ class OmnivaInternational extends CarrierModule
                         $omnivaCarrierCountry->delete();
                 }
             }
+        }
+    }
+
+    /**
+     * Use hook to add Bulk actions for printing and generating labels on Orders page (1.7.7)
+     */
+    // note: cannot "use PrestaShop\PrestaShop\Core\Grid\Action\Bulk\Type\SubmitBulkAction",
+    // because 1.6 breaks with any use statement in the module main file...
+    public function hookActionOrderGridDefinitionModifier($params)
+    {
+        $params['definition']->getBulkActions()->add(
+            (new PrestaShop\PrestaShop\Core\Grid\Action\Bulk\Type\SubmitBulkAction('omniva_int_bulk_generate_labels'))
+                ->setName('Omniva international generate labels')
+                ->setOptions([
+                    'submit_route' => 'admin_omniva_int_generate_bulk',
+                ])
+        );
+        $params['definition']->getBulkActions()->add(
+            (new PrestaShop\PrestaShop\Core\Grid\Action\Bulk\Type\SubmitBulkAction('omniva_int_bulk_print_labels'))
+                ->setName('Omniva international print labels')
+                ->setOptions([
+                    'submit_route' => 'admin_omniva_int_print_bulk',
+                ])
+        );
+    }
+
+        /**
+     * Hook for bulk actions (Work only until Prestashop 1.7.6)
+     */
+    public function hookActionAdminOrdersListingFieldsModifier($params)
+    {
+        if ($this->context->controller instanceof AdminOrdersController) {
+            $is_bulk_send_labels = Tools::isSubmit('submitBulkomniva_int_send_labelsorder');
+            $is_bulk_print_labels = Tools::isSubmit('submitBulkomniva_int_print_labelsorder');
+
+            try {
+                if (!isset($params['select']) && ($is_bulk_send_labels || $is_bulk_print_labels)) {
+                    $orders = Tools::getValue('orderBox');
+
+                    if (empty($orders)) {
+                        $this->context->controller->errors[] = $this->l('Select at least one order');
+                        return true;
+                    }
+
+                    $omnivaIntAdminOrdersController = new AdminOmnivaIntOrderController();
+                    if ($is_bulk_send_labels) {
+                        $omnivaIntAdminOrdersController->bulkSendShipments($orders);
+                    }
+
+                    if ($is_bulk_print_labels) {
+                        $omnivaIntAdminOrdersController->bulkPrintLabels($orders);
+                    }
+                }
+            } catch (Exception $e) {
+                $this->context->controller->errors[] = $e->getMessage();
+            }
+        }
+    }
+
+    public function hookDisplayAdminListBefore($params)
+    {
+        if (get_class($this->context->controller) == 'AdminOrdersController')
+        {
+            $smarty = $params['smarty'];
+            $bulk_actions = $smarty->getVariable('bulk_actions')->value;
+            $bulk_actions['omniva_int_send_labels'] = [
+                'text' => $this->l('Generate Omniva International labels'),
+                'icon' => 'icon-cloud-upload'
+            ];
+            $bulk_actions['omniva_int_print_labels'] = [
+                'text' => $this->l('Print Omniva International labels'),
+                'icon' => 'icon-print'
+            ];
+            $this->context->smarty->assign(
+                array(
+                    'bulk_actions' => $bulk_actions,
+                )
+            );
         }
     }
 }

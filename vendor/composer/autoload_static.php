@@ -17,6 +17,7 @@ class ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c
         ),
         'O' => 
         array (
+            'OmnivaInt\\' => 10,
             'OmnivaApi\\' => 10,
         ),
     );
@@ -29,6 +30,10 @@ class ComposerStaticInit6a340c3a0fb20ab345baffb413ba267c
         'iio\\libmergepdf\\' => 
         array (
             0 => __DIR__ . '/..' . '/iio/libmergepdf/src',
+        ),
+        'OmnivaInt\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src',
         ),
         'OmnivaApi\\' => 
         array (
