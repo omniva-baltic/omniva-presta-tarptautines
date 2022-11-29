@@ -2,7 +2,7 @@
 <module>
     <name>omnivainternational</name>
     <displayName><![CDATA[Omniva International Shipping]]></displayName>
-    <version><![CDATA[0.8.3]]></version>
+    <version><![CDATA[1.0.6]]></version>
     <description><![CDATA[Shipping module for Omniva international delivery method]]></description>
     <author><![CDATA[mijora.lt]]></author>
     <tab><![CDATA[shipping_logistics]]></tab>
