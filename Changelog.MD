@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Fixed
+- Fixed shipping price after Order shipping information edit
+
 ## [1.0.6] - 2022-11-29
 ### Improved
 - Added bulk actions in orders list page for Prestashop 1.7.6 and older
