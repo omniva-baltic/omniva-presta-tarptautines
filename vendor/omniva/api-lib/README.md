@@ -119,9 +119,13 @@ $item = new Item();
 $item
   ->setDescription('description')
   ->setItemPrice(5)
-  ->setItemAmount(1)
+  ->setItemAmount(1);
 ```
 
+Some carriers do not allow to register a shipment when the item is free, so when receive an item price of 0.00, it is converted to 0.01. If want to use the price 0.00 for the item, then before specifying the price, need to change the value of the `allow_free` parameter to true.
+```php
+$item->setAllowFree(true);
+```
 
 ## Creating Order
 ---
@@ -179,7 +183,8 @@ $item1
 $item2 = new Item();
 $item2
     ->setDescription('test package')
-    ->setItemPrice(1)
+    ->setAllowFree(true)
+    ->setItemPrice(0)
     ->setItemAmount(3);
 
 $items = array($item1, $item2);
