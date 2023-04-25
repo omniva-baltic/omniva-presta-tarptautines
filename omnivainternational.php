@@ -144,7 +144,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.6';
+        $this->version = '1.0.7';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
