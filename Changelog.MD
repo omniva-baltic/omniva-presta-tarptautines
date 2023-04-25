@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.7] - 2023-04-25
+### Fixed
+- Fixed shipping price after Order shipping information edit
+
+### Updated
+- Updated Omniva API library
+
 ## [1.0.6] - 2022-11-29
 ### Improved
 - Added bulk actions in orders list page for Prestashop 1.7.6 and older

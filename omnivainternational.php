@@ -144,7 +144,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.6';
+        $this->version = '1.0.7';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -378,7 +378,7 @@ class OmnivaInternational extends CarrierModule
 
     // It's important to cache returned prices, because API may timeout on repeated requests.
     public function getOrderShippingCost($params, $shipping_cost) {
-        if($this->context->controller instanceof AdminController || OmnivaIntCountry::getCount() < 1 || OmnivaIntService::getCount() < 1)
+        if(OmnivaIntCountry::getCount() < 1 || OmnivaIntService::getCount() < 1)
             return false;
         $cart = $this->context->cart;
         $carrier = new Carrier($this->id_carrier);
@@ -386,6 +386,10 @@ class OmnivaInternational extends CarrierModule
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
         if(Validate::isLoadedObject($omnivaCarrier) && $omnivaCarrier->active && Validate::isLoadedObject($cart))
         {
+            $order = Order::getByCartId((int)($cart->id));
+            if (Validate::isLoadedObject($order) && !empty($order->total_shipping)) {
+                return $order->total_shipping;
+            }
             // Check if rate is already cached. Use id_cart also to reduce possibility of hash collision.
             $cache_key_hash = $this->getCacheKey($cart, $omnivaCarrier);
             $rate = OmnivaIntRateCache::getCachedRate($cart->id, $cache_key_hash);
