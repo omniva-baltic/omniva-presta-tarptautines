@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+### Improved
+- Added weight unit conversion to kg
+
 ## [1.0.7] - 2023-04-25
 ### Fixed
 - Fixed shipping price after Order shipping information edit

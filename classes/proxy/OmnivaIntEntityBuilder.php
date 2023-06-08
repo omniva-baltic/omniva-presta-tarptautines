@@ -50,6 +50,14 @@ class OmnivaIntEntityBuilder
         }
     }
 
+    private function changeWeightToKg($weight)
+    {
+        $shop_weight_unit = Configuration::get('PS_WEIGHT_UNIT');
+        $helper = new OmnivaIntHelper($this->module);
+
+        return $helper->changeWeightUnit($weight, $shop_weight_unit, 'kg');
+    }
+
     public function buildReceiver($cart, $type)
     {
         $address = new Address($cart->id_address_delivery);
@@ -113,7 +121,7 @@ class OmnivaIntEntityBuilder
                 $totalWeight += $parcelObj->weight;
             }
 
-            $parcel->setUnitWeight($totalWeight);
+            $parcel->setUnitWeight($this->changeWeightToKg($totalWeight));
 
             $averageDimension = ceil($totalVolume ** (1/3));
             $parcel
@@ -132,7 +140,7 @@ class OmnivaIntEntityBuilder
                 $parcel = new Parcel();
                 $parcel->setAmount($parcelObj->amount);
                 $parcel
-                ->setUnitWeight($parcelObj->weight)
+                ->setUnitWeight($this->changeWeightToKg($parcelObj->weight))
                 ->setWidth($parcelObj->width)
                 ->setLength($parcelObj->length)
                 ->setHeight($parcelObj->height);
@@ -180,7 +188,7 @@ class OmnivaIntEntityBuilder
                     $totalVolume += ($this->unZero(1) * $this->unZero(1) * $this->unZero(1)) * $amount;
                 }
             }
-            $parcel->setUnitWeight($this->unZero($totalWeight));
+            $parcel->setUnitWeight($this->changeWeightToKg($this->unZero($totalWeight)));
 
             $averageDimension = ceil($totalVolume ** (1/3));
             $parcel
@@ -203,7 +211,7 @@ class OmnivaIntEntityBuilder
                 if($product['weight'] != 0 && $product['width'] != 0 && $product['depth'] != 0 && $product['height'] != 0)
                 {
                     $parcel
-                        ->setUnitWeight($product['weight'] * $amount)
+                        ->setUnitWeight($this->changeWeightToKg($product['weight']) * $amount)
                         ->setWidth($product['width'] * $amount)
                         ->setLength($product['depth'] * $amount)
                         ->setHeight($product['height'] * $amount);
@@ -211,7 +219,7 @@ class OmnivaIntEntityBuilder
                 elseif($omnivaCategory->active)
                 {
                     $parcel
-                        ->setUnitWeight($this->unZero($omnivaCategory->weight) * $amount)
+                        ->setUnitWeight($this->changeWeightToKg($this->unZero($omnivaCategory->weight)) * $amount)
                         ->setWidth($this->unZero($omnivaCategory->width) * $amount)
                         ->setLength($this->unZero($omnivaCategory->length) * $amount)
                         ->setHeight($this->unZero($omnivaCategory->height) * $amount);
