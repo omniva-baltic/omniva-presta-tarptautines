@@ -4,6 +4,9 @@
 ### Improved
 - Added weight unit conversion to kg
 
+### Fixed
+- Removed the creation of the carrier to the address shipping, for carrier services that deliver only to the parcel machines
+
 ## [1.0.7] - 2023-04-25
 ### Fixed
 - Fixed shipping price after Order shipping information edit

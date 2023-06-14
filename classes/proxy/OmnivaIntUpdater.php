@@ -149,7 +149,7 @@ class OmnivaIntUpdater {
         $prestaService->service_code = $apiService->service_code;
         $prestaService->image = $apiService->image;
         $prestaService->pickup_from_address = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
-        $prestaService->delivery_to_address = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
+        $prestaService->delivery_to_address = isset($apiService->delivery_to_address) ? $apiService->delivery_to_address : false;
         $prestaService->parcel_terminal_type = isset($apiService->parcel_terminal_type) ? $apiService->parcel_terminal_type : false;
         $prestaService->active = true;
 
