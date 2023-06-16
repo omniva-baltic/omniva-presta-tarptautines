@@ -592,6 +592,11 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 $service = new OmnivaIntService($id_service);
                 if(Validate::isLoadedObject($service))
                 {
+                    if (!$this->adding_terminal_carrier && !$service->delivery_to_address) {
+                        $this->adding_terminal_carrier = true;
+                        $carrier->delete();
+                        return;
+                    }
                     // Additionally, if adding pickup carrier, check if "parcel_terminal_type" is set.
                     if($this->adding_terminal_carrier && !empty($service->parcel_terminal_type))
                         $final_services[] = $id_service;
