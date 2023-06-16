@@ -65,19 +65,19 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:mijora/omniva-api.git",
-                "reference": "69e586188913a2e399244475d262e55d7ba5c11e"
+                "reference": "3965f82ee86a5a1841eb221220a6a14f164b9302"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mijora/omniva-api/zipball/69e586188913a2e399244475d262e55d7ba5c11e",
-                "reference": "69e586188913a2e399244475d262e55d7ba5c11e",
+                "url": "https://api.github.com/repos/mijora/omniva-api/zipball/3965f82ee86a5a1841eb221220a6a14f164b9302",
+                "reference": "3965f82ee86a5a1841eb221220a6a14f164b9302",
                 "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
                 "ext-json": "*"
             },
-            "time": "2023-04-04T10:26:29+00:00",
+            "time": "2023-04-25T13:10:05+00:00",
             "default-branch": true,
             "type": "library",
             "installation-source": "dist",
