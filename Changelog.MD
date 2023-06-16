@@ -6,6 +6,9 @@
 
 ### Fixed
 - Removed the creation of the carrier to the address shipping, for carrier services that deliver only to the parcel machines
+- Fixed terminal address show in terminal selection on the Order preview page
+- Fixed terminal selection on Checkout page when is it more then one Omniva terminal shipping method
+- Fixed terminal selection conflict with other shipping modules developed by Mijora
 
 ## [1.0.7] - 2023-04-25
 ### Fixed

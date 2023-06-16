@@ -46,7 +46,7 @@ class OmnivaIntTerminal extends ObjectModel
             $where .= " AND city = '$city'";
         }
         $query = (new DbQuery())
-            ->select("*, CONCAT(name, ', address') as name")
+            ->select("*, CONCAT(name, ', ', address) as name")
             ->from(self::$definition['table'])
             ->where($where);
 

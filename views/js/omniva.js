@@ -1,19 +1,75 @@
+var omnivaInt_carriers = [];
+var omnivaInt_current_carrier = '';
+
 $(document).on('ready', () => {
-  if(typeof(omnivaint_terminal_reference) !== "undefined" && $(`#delivery_option_${omnivaint_terminal_reference}`).is(':checked'))
-  {
-    loadTerminalMapping();
-  }
-  if(typeof(omnivaint_terminal_reference) !== "undefined")
-  {
-    $(`#delivery_option_${omnivaint_terminal_reference}`).on('click', () => {
-      if($('.tmjs-container').length == 0)
-        loadTerminalMapping();
+  omnivaInt_carriers = getOmnivaIntCarriersData();
+
+  for (let i = 0; i < omnivaInt_carriers.length; i++) {
+    if ($('#delivery_option_' + omnivaInt_carriers[i].reference).is(':checked')) {
+      omnivaInt_current_carrier = omnivaInt_carriers[i].reference;
+      loadOmnivaIntMapping();
+    }
+    $(document).on('click', '#delivery_option_' + omnivaInt_carriers[i].reference, (e) => {
+      omnivaInt_current_carrier = e.target.id.replace('delivery_option_', '');
+      if($('.tmjs-container').length) {
+        removeOmnivaIntMap();
+      }
+      loadOmnivaIntMapping();
     });
   }
 });
-function loadTerminalMapping() {
+
+function getOmnivaIntCarriersData() {
+  let carriers = [];
+  let carriers_data = document.getElementsByClassName('omnivaInt_carrier');
+
+  for (let i = 0; i < carriers_data.length; i++) {
+    if (!carriers_data[i].hasAttribute('data-reference') || !isInt(carriers_data[i].getAttribute('data-reference'))) {
+      continue;
+    }
+    let carrier = {
+      reference : carriers_data[i].getAttribute('data-reference'),
+      type : (carriers_data[i].hasAttribute('data-type')) ? carriers_data[i].getAttribute('data-type') : '',
+      terminal_type : (carriers_data[i].hasAttribute('data-terminal_type')) ? carriers_data[i].getAttribute('data-terminal_type') : '',
+      terminal_radius : (carriers_data[i].hasAttribute('data-terminal_radius')) ? carriers_data[i].getAttribute('data-terminal_radius') : ''
+    };
+    carriers.push(carrier);
+  }
+
+  return carriers;
+}
+
+function getOmnivaIntSingleCarrierData(carrier_reference) {
+  if (!isInt(carrier_reference)) {
+    return false;
+  }
+  if (omnivaInt_carriers === "undefined" || !omnivaInt_carriers.length) {
+    return false;
+  }
+
+  for (let i = 0; i < omnivaInt_carriers.length; i++) {
+    if (omnivaInt_carriers[i].reference == carrier_reference) {
+      return omnivaInt_carriers[i];
+    }
+  }
+
+  return false;
+}
+
+function isInt(value) {
+  if (isNaN(value)) {
+    return false;
+  }
+  var x = parseFloat(value);
+  return (x | 0) === x;
+}
+
+function loadOmnivaIntMapping() {
+  let carrier_data = getOmnivaIntSingleCarrierData(omnivaInt_current_carrier);
+  if (!carrier_data) return;
+
   let isModalReady = false;
-  var tmjs = new TerminalMapping(omniva_int_endpoint);
+  var tmjs = new OmnivaIntMapping(omnivaInt_endpoint);
   tmjs
     .sub('terminal-selected', data => {
       $('input[name="order[receiver_attributes][parcel_machine_id]"]').val(data.id);
@@ -34,7 +90,7 @@ function loadTerminalMapping() {
 
 
   tmjs.setImagesPath('https://tarptautines.omniva.lt/');
-  tmjs.init({country_code: omniva_current_country, identifier: omnivaint_terminal_type, receiver_address: omniva_postcode});
+  tmjs.init({country_code: omnivaInt_current_country, identifier: carrier_data.terminal_type, receiver_address: omnivaInt_postcode});
 
   window['tmjs'] = tmjs;
 
@@ -79,5 +135,12 @@ function loadTerminalMapping() {
       tmjs.dom.renderTerminalList(tmjs.map.addDistance(coords), true)
     }
   })
+}
 
+function removeOmnivaIntMap() {
+  if (typeof tmjs !== 'undefined') {
+    document.getElementById(tmjs.containerId).remove();
+    document.getElementById(tmjs.containerId + "_modal").remove();
+    window['tmjs'] = null;
+  }
 }

@@ -12,10 +12,13 @@
  *  @license   license.txt
  *}
 <script>
-    var omniva_current_country = '{$omniva_current_country}';
-    var terminals_radius = '{$terminals_radius}';
-    var omniva_postcode = '{$omniva_postcode}';
-    var omnivaint_terminal_reference = '{$omnivaint_terminal_reference}';
-    var omnivaint_terminal_type = '{$omnivaint_terminal_type}';
-    var omniva_int_endpoint = '{$omniva_int_endpoint}';
+    var omnivaInt_current_country = '{$omniva_current_country}';
+    var omnivaInt_postcode = '{$omniva_postcode}';
+    var omnivaInt_endpoint = '{$omniva_int_endpoint}';
 </script>
+<div class="omnivaInt_carrier" style="display:none;"
+    data-reference="{$omnivaint_terminal_reference}"
+    data-type="{if empty($omnivaint_terminal_type)}courier{else}terminal{/if}"
+    data-terminal_type="{$omnivaint_terminal_type}"
+    data-terminal_radius="{$terminals_radius}"
+></div>
