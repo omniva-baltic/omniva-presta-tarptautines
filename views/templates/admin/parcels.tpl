@@ -12,7 +12,7 @@
  *  @license   license.txt
  *}
 <form class="omniva_shipment_form" action="{$update_parcels_link}" method="post">
-    <div class="panel" id="fieldset_{$f}{if isset($smarty.capture.identifier_count) && $smarty.capture.identifier_count}_{$smarty.capture.identifier_count|intval}{/if}{if $smarty.capture.fieldset_name > 1}_{($smarty.capture.fieldset_name - 1)|intval}{/if}">
+    <div class="panel" id="fieldset_{if isset($smarty.capture.identifier_count) && $smarty.capture.identifier_count}_{$smarty.capture.identifier_count|intval}{/if}{if $smarty.capture.fieldset_name > 1}_{($smarty.capture.fieldset_name - 1)|intval}{/if}">
         <div class="panel-heading additional">
             {l s="Parcels" mod='omnivainternational'}
         </div>
