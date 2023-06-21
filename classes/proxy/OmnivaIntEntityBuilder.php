@@ -56,6 +56,10 @@ class OmnivaIntEntityBuilder
         $country_code = OmnivaIntCountry::getCountryIdByIso(Country::getIsoById($address->id_country));
         $receiver = new Receiver($type);
 
+        if (empty($address->phone)) {
+            $address->phone = $address->phone_mobile;
+        }
+
         $receiver
         ->setShippingType($type)
         ->setContactName($address->firstname . ' ' . $address->lastname)
