@@ -87,7 +87,7 @@ class OmnivaIntEntityBuilder
             $terminal = new OmnivaIntTerminal($cartTerminal->id_terminal);
             $receiver
             ->setStreetName($terminal->address)
-            ->setZipcode($terminal->id)
+            ->setZipcode($terminal->zip)
             ->setCity($address->city);
         }
 
