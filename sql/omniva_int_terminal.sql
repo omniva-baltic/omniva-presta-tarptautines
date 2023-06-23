@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `_DB_PREFIX_omniva_int_terminal` (
     `city` varchar(100),
     `country_code` varchar(3),
     `address` varchar(255),
+    `zip` varchar(10),
     `x_cord` float,
     `y_cord` float,
     `comment` varchar(255),

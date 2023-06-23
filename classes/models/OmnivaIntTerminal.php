@@ -31,6 +31,7 @@ class OmnivaIntTerminal extends ObjectModel
                 'city' =>           ['type' => self::TYPE_STRING, 'size' => 100],
                 'country_code' =>   ['type' => self::TYPE_STRING, 'size' => 3],
                 'address' =>        ['type' => self::TYPE_STRING, 'size' => 255],
+                'zip' =>            ['type' => self::TYPE_STRING, 'size' => 10],
                 'x_cord' =>         ['type' => self::TYPE_FLOAT, 'size' => 100],
                 'y_cord' =>         ['type' => self::TYPE_FLOAT, 'size' => 100],
                 'comment' =>        ['type' => self::TYPE_STRING, 'size' => 255],
@@ -52,6 +53,16 @@ class OmnivaIntTerminal extends ObjectModel
 
         if($groupBy)
             $query->groupBy($groupBy);
+        return Db::getInstance()->executeS($query);
+    }
+
+    public static function getTerminalById($terminal_id)
+    {
+        $query = (new DbQuery())
+            ->select("*")
+            ->from(self::$definition['table'])
+            ->where("id = " .$terminal_id);
+
         return Db::getInstance()->executeS($query);
     }
 }

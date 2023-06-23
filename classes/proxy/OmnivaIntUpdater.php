@@ -65,6 +65,7 @@ class OmnivaIntUpdater {
                     $terminalObj->city = $terminal->city;
                     $terminalObj->country_code = $terminal->country_code;
                     $terminalObj->address = $terminal->address;
+                    $terminalObj->zip = $terminal->zip;
                     $terminalObj->x_cord = $terminal->x_cord;
                     $terminalObj->y_cord = $terminal->y_cord;
                     $terminalObj->comment = $terminal->comment;

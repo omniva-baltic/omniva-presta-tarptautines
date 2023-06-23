@@ -12,6 +12,7 @@
 - Downgraded version of Composer with which vendor was downloaded to work with PHP 7.0
 - Fixed module menu show on PS 1.6
 - Fixed noticed bugs on PS 1.6
+- Fixed label generation when sending shipment to terminal
 
 ## [1.0.7] - 2023-04-25
 ### Fixed
