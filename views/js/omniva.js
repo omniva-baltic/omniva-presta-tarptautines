@@ -7,14 +7,14 @@ $(document).on('ready', () => {
   for (let i = 0; i < omnivaInt_carriers.length; i++) {
     if ($('#delivery_option_' + omnivaInt_carriers[i].reference).is(':checked')) {
       omnivaInt_current_carrier = omnivaInt_carriers[i].reference;
-      loadOmnivaIntMapping();
+      omnivaInt_custom_modal();
     }
     $(document).on('click', '#delivery_option_' + omnivaInt_carriers[i].reference, (e) => {
       omnivaInt_current_carrier = e.target.id.replace('delivery_option_', '');
       if($('.tmjs-container').length) {
         removeOmnivaIntMap();
       }
-      loadOmnivaIntMapping();
+      omnivaInt_custom_modal();
     });
   }
 });
@@ -64,7 +64,7 @@ function isInt(value) {
   return (x | 0) === x;
 }
 
-function loadOmnivaIntMapping() {
+var omnivaInt_custom_modal = function() {
   let carrier_data = getOmnivaIntSingleCarrierData(omnivaInt_current_carrier);
   if (!carrier_data) return;
 
@@ -88,11 +88,8 @@ function loadOmnivaIntMapping() {
   tmjs_country_code = $('#order_receiver_attributes_country_code').val();
   tmjs_identifier = $('#order_receiver_attributes_service_identifier').val();
 
-
   tmjs.setImagesPath('https://tarptautines.omniva.lt/');
   tmjs.init({country_code: omnivaInt_current_country, identifier: carrier_data.terminal_type, receiver_address: omnivaInt_postcode});
-
-  window['tmjs'] = tmjs;
 
   tmjs.setTranslation({
     modal_header: modal_header,
@@ -123,24 +120,26 @@ function loadOmnivaIntMapping() {
     $('.select_parcel_btn').removeClass('disabled').html('Pasirinkti paštomatą');
   });
 
+  window['omnivaInt_custom_modal'].tmjs = tmjs;
+
   $(document).on('click', '.select_parcel_btn', function(e) {
     e.preventDefault();
     if (!isModalReady) {
       return;
     }
-    tmjs.publish('open-map-modal');
+    omnivaInt_custom_modal.tmjs.publish('open-map-modal');
     coords = {lng: $('.receiver_coords').attr('value-x'), lat: $('.receiver_coords').attr('value-y')};
     if (coords != undefined) {
-      tmjs.map.addReferencePosition(coords);
-      tmjs.dom.renderTerminalList(tmjs.map.addDistance(coords), true)
+      omnivaInt_custom_modal.tmjs.map.addReferencePosition(coords);
+      omnivaInt_custom_modal.tmjs.dom.renderTerminalList(omnivaInt_custom_modal.tmjs.map.addDistance(coords), true)
     }
-  })
+  });
 }
 
 function removeOmnivaIntMap() {
-  if (typeof tmjs !== 'undefined') {
-    document.getElementById(tmjs.containerId).remove();
-    document.getElementById(tmjs.containerId + "_modal").remove();
-    window['tmjs'] = null;
+  if (typeof omnivaInt_custom_modal.tmjs !== 'undefined') {
+    document.getElementById(omnivaInt_custom_modal.tmjs.containerId).remove();
+    document.getElementById(omnivaInt_custom_modal.tmjs.containerId + "_modal").remove();
+    window['omnivaInt_custom_modal'].tmjs = null;
   }
 }
