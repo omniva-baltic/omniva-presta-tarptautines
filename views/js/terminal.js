@@ -352,6 +352,10 @@ var DependencyCheck = /*#__PURE__*/function () {
       var script_id = this.makeIdFromUrl(url);
 
       if (document.getElementById(script_id)) {
+        // wait a lil bit
+        setTimeout(function () {
+          callback();
+        }, 250);
         return;
       }
 
@@ -369,8 +373,18 @@ var DependencyCheck = /*#__PURE__*/function () {
         };
       } else {
         //Others
-        script.onload = function () {
+        /*script.onload = function () {
           callback();
+        };*/
+        var scriptFn = null;
+        if (typeof script.onload === 'function') {
+            scriptFn = script.onload;
+        }
+        script.onload = function () {
+            callback();
+            if (scriptFn) {
+            scriptFn();
+          }
         };
       }
 
