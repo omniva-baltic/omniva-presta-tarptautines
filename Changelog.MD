@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.8] - 2023-08-30
 ### Improved
 - Added weight unit conversion to kg
 
@@ -13,6 +13,9 @@
 - Fixed module menu show on PS 1.6
 - Fixed noticed bugs on PS 1.6
 - Fixed label generation when sending shipment to terminal
+
+### Updated
+- Updated Omniva API library
 
 ## [1.0.7] - 2023-04-25
 ### Fixed
