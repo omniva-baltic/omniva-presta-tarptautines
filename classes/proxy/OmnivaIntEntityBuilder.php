@@ -88,6 +88,7 @@ class OmnivaIntEntityBuilder
             $receiver
             ->setStreetName($terminal->address)
             ->setZipcode($terminal->zip)
+            ->setTerminalId($terminal->terminal_id)
             ->setCity($address->city);
         }
 

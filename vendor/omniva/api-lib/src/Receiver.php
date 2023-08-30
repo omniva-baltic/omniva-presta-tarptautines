@@ -45,8 +45,10 @@ class Receiver extends Person
 
         if ($this->shipping_type === self::SHIPPING_COURIER)
             $receiver += [ 'zipcode' => $this->zipcode ];
-        if ($this->shipping_type === self::SHIPPING_TERMINAL)
+        if ($this->shipping_type === self::SHIPPING_TERMINAL) {
             $receiver += [ 'parcel_terminal_zipcode' => $this->zipcode ];
+            $receiver += [ 'terminal_id' => $this->terminal_id ];
+        }
 
         return $receiver;
     }

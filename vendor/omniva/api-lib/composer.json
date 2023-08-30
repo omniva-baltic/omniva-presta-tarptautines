@@ -1,7 +1,14 @@
 {
     "name": "omniva/api-lib",
-    "description": "library for Omniva api",
+    "description": "Library for Omniva API international shipments",
     "type": "library",
+    "version": "1.0.0",
+    "authors": [
+      {
+        "name": "UAB Mijora",
+        "email": "support@mijora.lt"
+      }
+    ],
     "license": "#",
     "minimum-stability": "stable",
     "require": {
