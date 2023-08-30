@@ -13,6 +13,7 @@ class Person
     protected $contact_name;
     protected $street_name;
     protected $zipcode;
+    protected $terminal_id;
     protected $city;
     protected $phone_number;
     protected $country_id;
@@ -73,6 +74,13 @@ class Person
     public function setZipcode(string $zipcode)
     {
         $this->zipcode = $zipcode;
+
+        return $this;
+    }
+
+    public function setTerminalId(string $terminal_id)
+    {
+        $this->terminal_id = $terminal_id;
 
         return $this;
     }

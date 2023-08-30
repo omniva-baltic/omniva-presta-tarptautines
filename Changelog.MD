@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.0.8] - 2023-08-30
+### Improved
+- Added weight unit conversion to kg
+
+### Fixed
+- Removed the creation of the carrier to the address shipping, for carrier services that deliver only to the parcel machines
+- Fixed terminal address show in terminal selection on the Order preview page
+- Fixed terminal selection on Checkout page when is it more then one Omniva terminal shipping method
+- Fixed terminal selection conflict with other shipping modules developed by Mijora
+- Downgraded version of Composer with which vendor was downloaded to work with PHP 7.0
+- Fixed module menu show on PS 1.6
+- Fixed noticed bugs on PS 1.6
+- Fixed label generation when sending shipment to terminal
+
+### Updated
+- Updated Omniva API library
+
 ## [1.0.7] - 2023-04-25
 ### Fixed
 - Fixed shipping price after Order shipping information edit

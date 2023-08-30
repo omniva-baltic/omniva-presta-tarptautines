@@ -500,10 +500,12 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
         if(Tools::getValue('submitAddomniva_int_carrier'))
         {
             $carrier = new Carrier();
+
             if($this->adding_terminal_carrier)
                 $carrier->name = Tools::getValue('carrier_name', '') . ' Terminal';
             else
                 $carrier->name = Tools::getValue('carrier_name', '');
+
             $carrier->delay[Configuration::get('PS_LANG_DEFAULT')] = '1-2 business days';
             $carrier->is_module = true;
             $carrier->external_module_name = $this->module->name;
@@ -592,6 +594,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
                 $service = new OmnivaIntService($id_service);
                 if(Validate::isLoadedObject($service))
                 {
+                    if (!$this->adding_terminal_carrier && !$service->delivery_to_address) {
+                        continue;
+                    }
                     // Additionally, if adding pickup carrier, check if "parcel_terminal_type" is set.
                     if($this->adding_terminal_carrier && !empty($service->parcel_terminal_type))
                         $final_services[] = $id_service;
@@ -609,7 +614,9 @@ class AdminOmnivaIntCarriersController extends AdminOmnivaIntBaseController
 
         if(empty($final_services))
         {
-            $this->adding_terminal_carrier = false;
+            if (!$this->adding_terminal_carrier) {
+                $this->adding_terminal_carrier = true;
+            }
             $this->errors[] = $this->module->l('No valid services were provided. Carrier creation could not be finished.');
             $carrier->delete();
             return;

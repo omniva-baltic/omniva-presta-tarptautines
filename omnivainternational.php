@@ -75,6 +75,7 @@ class OmnivaInternational extends CarrierModule
         'actionOrderGridDefinitionModifier',
         'actionAdminOrdersListingFieldsModifier',
         'displayAdminListBefore',
+        'displayBackOfficeHeader',
     ];
 
     /**
@@ -144,7 +145,7 @@ class OmnivaInternational extends CarrierModule
     {
         $this->name = 'omnivainternational';
         $this->tab = 'shipping_logistics';
-        $this->version = '1.0.7';
+        $this->version = '1.0.8';
         $this->author = 'mijora.lt';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6.0', 'max' => '1.7.9'];
@@ -205,10 +206,12 @@ class OmnivaInternational extends CarrierModule
      */
     private function getModuleTabs()
     {
+        $parent_tab = (version_compare(_PS_VERSION_, '1.7', '>=')) ? 'AdminParentShipping' : -1;
         return [
             self::CONTROLLER_OMNIVA_MAIN => [
                 'title' => $this->l('Omniva International'),
-                'parent_tab' => 'AdminParentShipping',
+                'parent_tab' => $parent_tab,
+                'position' => 7,
             ],
             self::CONTROLLER_OMNIVA_ORDER => [
                 'title' => $this->l('Omniva Orders'),
@@ -268,6 +271,10 @@ class OmnivaInternational extends CarrierModule
             if (!$tab->save()) {
                 $this->displayError($this->l('Error while creating tab ') . $tabData['title']);
                 return false;
+            }
+            if (isset($tabData['position']) && ($tab->id_parent == -1 || $tab->id_parent == 0)) {
+                $tab->position = (int)$tabData['position'];
+                $tab->update();
             }
         }
         return true;
@@ -386,7 +393,7 @@ class OmnivaInternational extends CarrierModule
         $omnivaCarrier = OmnivaIntCarrier::getCarrierByReference($carrier_reference);
         if(Validate::isLoadedObject($omnivaCarrier) && $omnivaCarrier->active && Validate::isLoadedObject($cart))
         {
-            $order = Order::getByCartId((int)($cart->id));
+            $order = Order::getOrderByCartId((int)($cart->id));
             if (Validate::isLoadedObject($order) && !empty($order->total_shipping)) {
                 return $order->total_shipping;
             }
@@ -559,6 +566,11 @@ class OmnivaInternational extends CarrierModule
         ]);
     }
 
+
+    public function hookDisplayBackOfficeHeader()
+    {
+        $this->context->controller->addCss($this->_path.'views/css/admin.css');
+    }
 
     /**
      * Hook to display block in Prestashop order edit

@@ -59,12 +59,13 @@ class OmnivaIntUpdater {
                 foreach($terminals_list as $terminal)
                 {
                     $terminalObj = new OmnivaIntTerminal();
-                    $terminalObj->id = $terminal->id;
+                    $terminalObj->terminal_id = $terminal->id;
                     $terminalObj->force_id = true;
                     $terminalObj->name = $terminal->name;
                     $terminalObj->city = $terminal->city;
                     $terminalObj->country_code = $terminal->country_code;
                     $terminalObj->address = $terminal->address;
+                    $terminalObj->zip = $terminal->zip;
                     $terminalObj->x_cord = $terminal->x_cord;
                     $terminalObj->y_cord = $terminal->y_cord;
                     $terminalObj->comment = $terminal->comment;
@@ -149,7 +150,7 @@ class OmnivaIntUpdater {
         $prestaService->service_code = $apiService->service_code;
         $prestaService->image = $apiService->image;
         $prestaService->pickup_from_address = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
-        $prestaService->delivery_to_address = isset($apiService->pickup_from_address) ? $apiService->pickup_from_address : false;
+        $prestaService->delivery_to_address = isset($apiService->delivery_to_address) ? $apiService->delivery_to_address : false;
         $prestaService->parcel_terminal_type = isset($apiService->parcel_terminal_type) ? $apiService->parcel_terminal_type : false;
         $prestaService->active = true;
 
